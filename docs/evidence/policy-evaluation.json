@@ -1,0 +1,228 @@
+[
+  {
+    "policyId": "network.testnet-only",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": {
+      "requested": 50312,
+      "market": 50312
+    },
+    "limit": 50312,
+    "reason": "Execution is scoped to Shannon.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "asset.allowed",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": "ETH",
+    "limit": [
+      "BTC",
+      "ETH"
+    ],
+    "reason": "Underlying is allowed.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "asset.market-match",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": {
+      "intent": "ETH",
+      "market": "ETH"
+    },
+    "limit": "equal",
+    "reason": "Intent and market underlying match.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "portfolio.intent-match",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": {
+      "known": true,
+      "asset": "ETH",
+      "exposureUsd": 1000
+    },
+    "limit": {
+      "asset": "ETH",
+      "exposureUsd": 1000
+    },
+    "reason": "Portfolio snapshot matches the normalized intent.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "horizon.market-match",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": {
+      "intentSec": 3600,
+      "marketSec": 3600
+    },
+    "limit": "equal",
+    "reason": "Intent horizon matches the market interval.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "plan.market-match",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": {
+      "plan": "0x000000000000000000000000000000000000000000000000000000000000bcbe",
+      "market": "0x000000000000000000000000000000000000000000000000000000000000bcbe"
+    },
+    "limit": "equal",
+    "reason": "Plan is bound to this market ID.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "premium.user-budget",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 6.4,
+    "limit": 15,
+    "reason": "Premium fits the authorized budget.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "shares.per-market",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 21.398,
+    "limit": 250,
+    "reason": "Share size is within the market cap.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "premium.total-risk",
+    "version": "1.0.0",
+    "status": "FAIL",
+    "observed": null,
+    "limit": 100,
+    "reason": "Existing premium risk is unknown; execution fails closed.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "book.spread",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 3.91608391608392,
+    "limit": 8,
+    "reason": "Spread is within limit.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "book.price-impact",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 0,
+    "limit": 2,
+    "reason": "Price impact is within limit.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "book.visible-depth",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 990,
+    "limit": 21.398,
+    "reason": "Visible depth covers the normalized order.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "order.slippage",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 2,
+    "limit": 3,
+    "reason": "User slippage is within policy.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "market.expiry-headroom",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 1877.183,
+    "limit": 300,
+    "reason": "Market has sufficient expiry headroom.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "market.freshness",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 1,
+    "limit": 30000,
+    "reason": "Snapshot is fresh.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "market.onchain-status",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": {
+      "code": 1,
+      "status": "Trading"
+    },
+    "limit": {
+      "code": 1,
+      "status": "Trading"
+    },
+    "reason": "On-chain status is Trading.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "venue.allowed",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+    "limit": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+    "reason": "Venue matches the explicit DreamDEX scope.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "wallet.gas",
+    "version": "1.0.0",
+    "status": "FAIL",
+    "observed": "unknown",
+    "limit": "1",
+    "reason": "Gas balance is unknown; execution fails closed.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "order.non-zero",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 21.398,
+    "limit": "> 0",
+    "reason": "Normalized order is non-zero.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "authorization.human",
+    "version": "1.0.0",
+    "status": "FAIL",
+    "observed": false,
+    "limit": true,
+    "reason": "Human authorization is required.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "authorization.snapshot-tolerance",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": 0,
+    "limit": 1,
+    "reason": "Current market remains within the authorized tolerance.",
+    "evidenceRefs": []
+  },
+  {
+    "policyId": "receipt.reproducible",
+    "version": "1.0.0",
+    "status": "PASS",
+    "observed": true,
+    "limit": true,
+    "reason": "Receipt inputs reproduce deterministically.",
+    "evidenceRefs": []
+  }
+]

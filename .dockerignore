@@ -1,0 +1,8 @@
+node_modules
+.git
+.next
+coverage
+playwright-report
+test-results
+.env
+docs/evidence/live-*.json

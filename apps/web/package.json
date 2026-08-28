@@ -1,0 +1,20 @@
+{
+  "name": "@outcome-guard/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "typecheck": "tsc --noEmit" },
+  "dependencies": {
+    "@outcome-guard/dreamdex": "0.1.0",
+    "@outcome-guard/hedge-engine": "0.1.0",
+    "@outcome-guard/policy-engine": "0.1.0",
+    "@outcome-guard/receipt": "0.1.0",
+    "@outcome-guard/schemas": "0.1.0",
+    "@outcome-guard/shared": "0.1.0",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "viem": "2.56.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": { "@types/react": "19.2.18", "@types/react-dom": "19.2.5" }
+}

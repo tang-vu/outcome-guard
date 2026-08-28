@@ -1,0 +1,60 @@
+{
+  "capturedAt": "2026-08-28T09:28:42.814Z",
+  "source": "live",
+  "network": "somnia-shannon",
+  "chainId": 50312,
+  "sdkVersion": "0.28.1",
+  "venueId": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+  "marketId": "0x000000000000000000000000000000000000000000000000000000000000bcbe",
+  "poolAddress": "0x31246c0DECA791C051094801aF218D5387dC24a2",
+  "asset": "ETH",
+  "intervalSec": 3600,
+  "strike": "0",
+  "expiry": "2026-08-28T10:00:00.000Z",
+  "status": "Trading",
+  "statusCode": 1,
+  "settlementReference": "ETH closes at or above its opening price",
+  "oracleQuestionId": "45945",
+  "collateral": {
+    "symbol": "tUSDC",
+    "address": "0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E",
+    "decimals": 6
+  },
+  "book": {
+    "yesBids": [
+      {
+        "price": "0.701",
+        "size": "200"
+      },
+      {
+        "price": "0.697",
+        "size": "330"
+      },
+      {
+        "price": "0.681",
+        "size": "460"
+      }
+    ],
+    "yesAsks": [
+      {
+        "price": "0.729",
+        "size": "200"
+      },
+      {
+        "price": "0.744",
+        "size": "330"
+      },
+      {
+        "price": "0.749",
+        "size": "460"
+      }
+    ]
+  },
+  "bookParams": {
+    "tickSize": "0.001",
+    "lotSize": "0.001",
+    "minQuantity": "0.001"
+  },
+  "freshnessMs": 1,
+  "blockNumber": "473363505"
+}

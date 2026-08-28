@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "outcomeguard.external-action-blocker.v1",
+  "capturedAt": "2026-08-28T09:28:39.808Z",
+  "network": {
+    "name": "somnia-shannon",
+    "chainId": 50312
+  },
+  "status": "NOT_PERFORMED",
+  "reason": "A disposable funded Shannon signer and explicit human authorization are required. No transaction, fill, settlement, or redemption is claimed.",
+  "previousReceiptDigest": "0xddfd60734a404cc9e18089b8fb399ff019fc3aaf63aa0bb2bb60829653991206",
+  "lifecycle": "SETTLEMENT_AND_REDEMPTION"
+}

@@ -1,0 +1,423 @@
+{
+  "schemaVersion": "1.0.0",
+  "receiptId": "98d33ee9-7aae-4f68-804c-a132198ce0a3",
+  "createdAt": "2026-08-28T09:28:39.808Z",
+  "lifecycleStage": "PRE_EXECUTION",
+  "network": {
+    "name": "somnia-shannon",
+    "chainId": 50312
+  },
+  "intent": {
+    "originalText": "Protect my 1,000 USD ETH exposure for the next hour. Spend no more than 15 in testnet collateral and do not accept more than 2% slippage.",
+    "normalized": {
+      "asset": "ETH",
+      "exposureUsd": 1000,
+      "horizonMinutes": 60,
+      "adverseMovePct": 2,
+      "maxPremium": 15,
+      "maxSlippagePct": 2,
+      "targetProtectionPct": 75
+    },
+    "intentHash": "0xa186bc1ee827138ac27c1c5be672c3ca4a99408c9cd7014e1a2e63906bbb1ba1"
+  },
+  "portfolioBefore": {
+    "capturedAt": "2026-08-28T09:28:39.808Z",
+    "source": "manual-demo",
+    "asset": "ETH",
+    "exposureUsd": "1000",
+    "readStatus": "known"
+  },
+  "marketSnapshot": {
+    "capturedAt": "2026-08-28T09:28:42.814Z",
+    "source": "live",
+    "network": "somnia-shannon",
+    "chainId": 50312,
+    "sdkVersion": "0.28.1",
+    "venueId": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+    "marketId": "0x000000000000000000000000000000000000000000000000000000000000bcbe",
+    "poolAddress": "0x31246c0DECA791C051094801aF218D5387dC24a2",
+    "asset": "ETH",
+    "intervalSec": 3600,
+    "strike": "0",
+    "expiry": "2026-08-28T10:00:00.000Z",
+    "status": "Trading",
+    "statusCode": 1,
+    "settlementReference": "ETH closes at or above its opening price",
+    "oracleQuestionId": "45945",
+    "collateral": {
+      "symbol": "tUSDC",
+      "address": "0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E",
+      "decimals": 6
+    },
+    "book": {
+      "yesBids": [
+        {
+          "price": "0.701",
+          "size": "200"
+        },
+        {
+          "price": "0.697",
+          "size": "330"
+        },
+        {
+          "price": "0.681",
+          "size": "460"
+        }
+      ],
+      "yesAsks": [
+        {
+          "price": "0.729",
+          "size": "200"
+        },
+        {
+          "price": "0.744",
+          "size": "330"
+        },
+        {
+          "price": "0.749",
+          "size": "460"
+        }
+      ]
+    },
+    "bookParams": {
+      "tickSize": "0.001",
+      "lotSize": "0.001",
+      "minQuantity": "0.001"
+    },
+    "freshnessMs": 1,
+    "blockNumber": "473363505"
+  },
+  "hedgePlan": {
+    "planVersion": "1.0.0",
+    "objective": "BUY_DOWN_PROTECTION",
+    "marketId": "0x000000000000000000000000000000000000000000000000000000000000bcbe",
+    "requestedShares": 21.398002853067048,
+    "executableShares": 21.398,
+    "normalizedShares": 21.398,
+    "worstPrice": 0.29900000000000004,
+    "averageExecutablePrice": 0.29900000000000004,
+    "premiumUsd": 6.4,
+    "expectedNetPayoutIfDownUsd": 15,
+    "targetProtectedLossUsd": 15,
+    "constraints": [
+      {
+        "name": "target",
+        "before": 21.398002853067048,
+        "after": 21.398002853067048,
+        "binding": false
+      },
+      {
+        "name": "premium-budget",
+        "before": 21.398002853067048,
+        "after": 50.16722408026755,
+        "binding": false
+      },
+      {
+        "name": "visible-depth",
+        "before": 21.398002853067048,
+        "after": 530,
+        "binding": false
+      },
+      {
+        "name": "per-market-cap",
+        "before": 21.398002853067048,
+        "after": 250,
+        "binding": false
+      },
+      {
+        "name": "lot-and-minimum",
+        "before": 21.398002853067048,
+        "after": 21.398,
+        "binding": true
+      }
+    ],
+    "scenarios": [
+      {
+        "adverseMovePct": -2,
+        "contractOutcome": "DOWN",
+        "underlyingPnlUsd": -20,
+        "eventPayoutUsd": 21.4,
+        "premiumUsd": 6.4,
+        "hedgedPnlUsd": -5,
+        "protectionRatioPct": 74.99999
+      },
+      {
+        "adverseMovePct": -1,
+        "contractOutcome": "DOWN",
+        "underlyingPnlUsd": -10,
+        "eventPayoutUsd": 21.4,
+        "premiumUsd": 6.4,
+        "hedgedPnlUsd": 5,
+        "protectionRatioPct": 100
+      },
+      {
+        "adverseMovePct": -0.5,
+        "contractOutcome": "DOWN",
+        "underlyingPnlUsd": -5,
+        "eventPayoutUsd": 21.4,
+        "premiumUsd": 6.4,
+        "hedgedPnlUsd": 10,
+        "protectionRatioPct": 100
+      },
+      {
+        "adverseMovePct": 0,
+        "contractOutcome": "UP",
+        "underlyingPnlUsd": 0,
+        "eventPayoutUsd": 0,
+        "premiumUsd": 6.4,
+        "hedgedPnlUsd": -6.4,
+        "protectionRatioPct": 0
+      },
+      {
+        "adverseMovePct": 1,
+        "contractOutcome": "UP",
+        "underlyingPnlUsd": 10,
+        "eventPayoutUsd": 0,
+        "premiumUsd": 6.4,
+        "hedgedPnlUsd": 3.6,
+        "protectionRatioPct": 0
+      }
+    ],
+    "basisRiskWarning": "Binary protection pays only if the market resolves DOWN. It is nonlinear and may not track spot losses because of strike, timing, oracle, liquidity, and settlement basis risk."
+  },
+  "policyEvaluation": [
+    {
+      "policyId": "network.testnet-only",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": {
+        "requested": 50312,
+        "market": 50312
+      },
+      "limit": 50312,
+      "reason": "Execution is scoped to Shannon.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "asset.allowed",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": "ETH",
+      "limit": [
+        "BTC",
+        "ETH"
+      ],
+      "reason": "Underlying is allowed.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "asset.market-match",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": {
+        "intent": "ETH",
+        "market": "ETH"
+      },
+      "limit": "equal",
+      "reason": "Intent and market underlying match.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "portfolio.intent-match",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": {
+        "known": true,
+        "asset": "ETH",
+        "exposureUsd": 1000
+      },
+      "limit": {
+        "asset": "ETH",
+        "exposureUsd": 1000
+      },
+      "reason": "Portfolio snapshot matches the normalized intent.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "horizon.market-match",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": {
+        "intentSec": 3600,
+        "marketSec": 3600
+      },
+      "limit": "equal",
+      "reason": "Intent horizon matches the market interval.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "plan.market-match",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": {
+        "plan": "0x000000000000000000000000000000000000000000000000000000000000bcbe",
+        "market": "0x000000000000000000000000000000000000000000000000000000000000bcbe"
+      },
+      "limit": "equal",
+      "reason": "Plan is bound to this market ID.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "premium.user-budget",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 6.4,
+      "limit": 15,
+      "reason": "Premium fits the authorized budget.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "shares.per-market",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 21.398,
+      "limit": 250,
+      "reason": "Share size is within the market cap.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "premium.total-risk",
+      "version": "1.0.0",
+      "status": "FAIL",
+      "observed": null,
+      "limit": 100,
+      "reason": "Existing premium risk is unknown; execution fails closed.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "book.spread",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 3.91608391608392,
+      "limit": 8,
+      "reason": "Spread is within limit.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "book.price-impact",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 0,
+      "limit": 2,
+      "reason": "Price impact is within limit.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "book.visible-depth",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 990,
+      "limit": 21.398,
+      "reason": "Visible depth covers the normalized order.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "order.slippage",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 2,
+      "limit": 3,
+      "reason": "User slippage is within policy.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "market.expiry-headroom",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 1877.183,
+      "limit": 300,
+      "reason": "Market has sufficient expiry headroom.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "market.freshness",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 1,
+      "limit": 30000,
+      "reason": "Snapshot is fresh.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "market.onchain-status",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": {
+        "code": 1,
+        "status": "Trading"
+      },
+      "limit": {
+        "code": 1,
+        "status": "Trading"
+      },
+      "reason": "On-chain status is Trading.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "venue.allowed",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+      "limit": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+      "reason": "Venue matches the explicit DreamDEX scope.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "wallet.gas",
+      "version": "1.0.0",
+      "status": "FAIL",
+      "observed": "unknown",
+      "limit": "1",
+      "reason": "Gas balance is unknown; execution fails closed.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "order.non-zero",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 21.398,
+      "limit": "> 0",
+      "reason": "Normalized order is non-zero.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "authorization.human",
+      "version": "1.0.0",
+      "status": "FAIL",
+      "observed": false,
+      "limit": true,
+      "reason": "Human authorization is required.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "authorization.snapshot-tolerance",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": 0,
+      "limit": 1,
+      "reason": "Current market remains within the authorized tolerance.",
+      "evidenceRefs": []
+    },
+    {
+      "policyId": "receipt.reproducible",
+      "version": "1.0.0",
+      "status": "PASS",
+      "observed": true,
+      "limit": true,
+      "reason": "Receipt inputs reproduce deterministically.",
+      "evidenceRefs": []
+    }
+  ],
+  "authorization": {
+    "method": "wallet-signature",
+    "signer": "0x0000000000000000000000000000000000000000"
+  },
+  "execution": {
+    "status": "NOT_SUBMITTED"
+  },
+  "integrity": {
+    "canonicalization": "RFC8785-JCS",
+    "digestAlgorithm": "sha256",
+    "digest": "0xddfd60734a404cc9e18089b8fb399ff019fc3aaf63aa0bb2bb60829653991206"
+  }
+}

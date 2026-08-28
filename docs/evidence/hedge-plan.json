@@ -1,0 +1,93 @@
+{
+  "planVersion": "1.0.0",
+  "objective": "BUY_DOWN_PROTECTION",
+  "marketId": "0x000000000000000000000000000000000000000000000000000000000000bcbe",
+  "requestedShares": 21.398002853067048,
+  "executableShares": 21.398,
+  "normalizedShares": 21.398,
+  "worstPrice": 0.29900000000000004,
+  "averageExecutablePrice": 0.29900000000000004,
+  "premiumUsd": 6.4,
+  "expectedNetPayoutIfDownUsd": 15,
+  "targetProtectedLossUsd": 15,
+  "constraints": [
+    {
+      "name": "target",
+      "before": 21.398002853067048,
+      "after": 21.398002853067048,
+      "binding": false
+    },
+    {
+      "name": "premium-budget",
+      "before": 21.398002853067048,
+      "after": 50.16722408026755,
+      "binding": false
+    },
+    {
+      "name": "visible-depth",
+      "before": 21.398002853067048,
+      "after": 530,
+      "binding": false
+    },
+    {
+      "name": "per-market-cap",
+      "before": 21.398002853067048,
+      "after": 250,
+      "binding": false
+    },
+    {
+      "name": "lot-and-minimum",
+      "before": 21.398002853067048,
+      "after": 21.398,
+      "binding": true
+    }
+  ],
+  "scenarios": [
+    {
+      "adverseMovePct": -2,
+      "contractOutcome": "DOWN",
+      "underlyingPnlUsd": -20,
+      "eventPayoutUsd": 21.4,
+      "premiumUsd": 6.4,
+      "hedgedPnlUsd": -5,
+      "protectionRatioPct": 74.99999
+    },
+    {
+      "adverseMovePct": -1,
+      "contractOutcome": "DOWN",
+      "underlyingPnlUsd": -10,
+      "eventPayoutUsd": 21.4,
+      "premiumUsd": 6.4,
+      "hedgedPnlUsd": 5,
+      "protectionRatioPct": 100
+    },
+    {
+      "adverseMovePct": -0.5,
+      "contractOutcome": "DOWN",
+      "underlyingPnlUsd": -5,
+      "eventPayoutUsd": 21.4,
+      "premiumUsd": 6.4,
+      "hedgedPnlUsd": 10,
+      "protectionRatioPct": 100
+    },
+    {
+      "adverseMovePct": 0,
+      "contractOutcome": "UP",
+      "underlyingPnlUsd": 0,
+      "eventPayoutUsd": 0,
+      "premiumUsd": 6.4,
+      "hedgedPnlUsd": -6.4,
+      "protectionRatioPct": 0
+    },
+    {
+      "adverseMovePct": 1,
+      "contractOutcome": "UP",
+      "underlyingPnlUsd": 10,
+      "eventPayoutUsd": 0,
+      "premiumUsd": 6.4,
+      "hedgedPnlUsd": 3.6,
+      "protectionRatioPct": 0
+    }
+  ],
+  "basisRiskWarning": "Binary protection pays only if the market resolves DOWN. It is nonlinear and may not track spot losses because of strike, timing, oracle, liquidity, and settlement basis risk."
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@outcome-guard/receipt",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "bin": { "outcomeguard-receipt": "./src/cli.ts" },
+  "scripts": { "typecheck": "tsc -p tsconfig.json --noEmit", "build": "tsc -p tsconfig.json" },
+  "dependencies": { "@outcome-guard/schemas": "0.1.0" }
+}

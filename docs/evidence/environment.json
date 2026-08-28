@@ -1,0 +1,20 @@
+{
+  "capturedAt": "2026-08-28T09:28:39.808Z",
+  "gitCommit": "working-tree-uncommitted",
+  "node": "v24.14.1",
+  "network": "somnia-shannon",
+  "chainId": 50312,
+  "sdk": {
+    "package": "@somnia-chain/markets-sdk",
+    "version": "0.28.1"
+  },
+  "venueId": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+  "rpc": "https://api.infra.testnet.somnia.network",
+  "indexer": "https://dev.smk.somnia.host/v1/graphql",
+  "collateral": {
+    "symbol": "tUSDC",
+    "address": "0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E",
+    "decimals": 6
+  },
+  "source": "live-read"
+}

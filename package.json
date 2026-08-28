@@ -1,0 +1,35 @@
+{
+  "name": "outcome-guard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Policy-enforced portfolio-aware rolling protection with DreamDEX Event Contracts on Somnia Shannon.",
+  "license": "MIT",
+  "engines": { "node": ">=22.0.0" },
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "npm run dev -w @outcome-guard/web",
+    "agent": "npm run start -w @outcome-guard/agent",
+    "lint": "eslint .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "evidence": "tsx scripts/capture-evidence.ts",
+    "receipt:verify": "tsx packages/receipt/src/cli.ts",
+    "secrets:scan": "node scripts/secret-scan.mjs",
+    "audit:deps": "npm audit --audit-level=high",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run build && npm run test:e2e && npm run secrets:scan && npm run audit:deps"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.62.1",
+    "@types/node": "24.3.0",
+    "eslint": "10.9.1",
+    "fast-check": "4.9.0",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.68.0",
+    "vitest": "4.1.11"
+  }
+}
