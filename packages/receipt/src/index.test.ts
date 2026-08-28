@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { OutcomeGuardReceipt } from "@outcome-guard/schemas";
-import { sealReceipt, verifyReceipt, verifyReceiptChain } from "./index.js";
+import type { ExecutionBundle, OutcomeGuardReceipt } from "@outcome-guard/schemas";
+import { sealReceipt, sha256, verifyExecutionBundle, verifyReceipt, verifyReceiptChain } from "./index.js";
 
 const input: Omit<OutcomeGuardReceipt, "receiptId" | "integrity"> = {
   schemaVersion: "1.0.0", createdAt: "2026-08-28T06:00:00.000Z", lifecycleStage: "PRE_EXECUTION",
@@ -44,5 +44,23 @@ describe("receipt integrity", () => {
     const execution = sealReceipt({ ...input, lifecycleStage: "EXECUTION", execution: { status: "SUBMITTED", txHash: `0x${"f".repeat(64)}` }, previousReceiptDigest: pre.integrity.digest });
     const regressed = sealReceipt({ ...input, createdAt: "2026-08-28T06:01:00.000Z", previousReceiptDigest: execution.integrity.digest });
     expect(verifyReceiptChain([pre, execution, regressed]).valid).toBe(false);
+  });
+  it("verifies a linked execution bundle and rejects signer substitution", () => {
+    const pre = sealReceipt(input);
+    const signer = `0x${"1".repeat(40)}`;
+    const message = "OutcomeGuard intent authorization v1";
+    const { integrity: _integrity, receiptId: _receiptId, ...body } = pre;
+    void _integrity; void _receiptId;
+    const authorized = sealReceipt({
+      ...body,
+      createdAt: "2026-08-28T06:00:01.000Z",
+      authorization: { method: "wallet-signature", signer, signedPayloadHash: sha256(message), approvedAt: "2026-08-28T06:00:01.000Z", snapshotDigest: pre.integrity.digest },
+      previousReceiptDigest: pre.integrity.digest
+    });
+    const bundle: ExecutionBundle = { schemaVersion: "outcomeguard.execution-bundle.v1", createdAt: "2026-08-28T06:00:01.000Z", preExecutionReceipt: pre, authorizedReceipt: authorized, message, signature: `0x${"2".repeat(130)}`, signer };
+    expect(verifyExecutionBundle(bundle).valid).toBe(true);
+    const substituted = structuredClone(bundle);
+    substituted.signer = `0x${"3".repeat(40)}`;
+    expect(verifyExecutionBundle(substituted).valid).toBe(false);
   });
 });

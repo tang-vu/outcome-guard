@@ -36,4 +36,14 @@ describe("policy gate", () => {
     expect(mayExecute(evaluatePolicies({ ...context, portfolioReadKnown: false }))).toBe(false);
     expect(mayExecute(evaluatePolicies({ ...context, plan: { ...context.plan, marketId: `0x${"9".repeat(64)}` } }))).toBe(false);
   });
+  it("measures the executable DOWN spread rather than the YES midpoint spread", () => {
+    const expensiveYes = { ...context.market, book: { yesBids: [{ price: "0.89", size: "100" }], yesAsks: [{ price: "0.90", size: "100" }] } };
+    const results = evaluatePolicies({ ...context, market: expensiveYes, authorizationMarket: expensiveYes, plan: { ...context.plan, worstPrice: 0.11 } });
+    expect(results.find((policy) => policy.policyId === "book.spread")?.status).toBe("FAIL");
+  });
+  it("counts only depth executable at the authorized DOWN limit", () => {
+    const tiered = { ...context.market, book: { ...context.market.book, yesBids: [{ price: "0.58", size: "10" }, { price: "0.50", size: "1000" }] } };
+    const results = evaluatePolicies({ ...context, market: tiered, authorizationMarket: tiered });
+    expect(results.find((policy) => policy.policyId === "book.visible-depth")?.status).toBe("FAIL");
+  });
 });

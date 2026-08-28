@@ -114,7 +114,12 @@ export const receiptCoreSchema = z.object({
     status: z.enum(["NOT_SUBMITTED", "SUBMITTED", "CONFIRMED", "REVERTED", "RECONCILED"]),
     txHash: hexString.optional(), blockNumber: decimalString.optional(), orderId: decimalString.optional(),
     requestedPrice: decimalString.optional(), averageFillPrice: decimalString.optional(),
-    requestedSize: decimalString.optional(), filledSize: decimalString.optional(), explorerUrl: z.string().url().optional()
+    requestedSize: decimalString.optional(), filledSize: decimalString.optional(), explorerUrl: z.string().url().optional(),
+    position: z.object({
+      marketId: hexString, account: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
+      yesBefore: decimalString, noBefore: decimalString, yesAfter: decimalString, noAfter: decimalString,
+      filledOutcome: z.enum(["YES", "NO"]), positionDelta: decimalString, collateralSpent: decimalString
+    }).strict().optional()
   }).strict(),
   portfolioAfter: portfolioSnapshotSchema.optional(),
   settlement: z.object({ marketStatus: z.string(), outcome: z.enum(["UP", "DOWN", "VOID"]).optional(), claimable: decimalString.optional(), settlementEvidence: z.array(z.string()).optional() }).strict().optional(),
@@ -125,9 +130,27 @@ export const receiptCoreSchema = z.object({
   if (receipt.execution.status === "SUBMITTED" && !receipt.execution.txHash) ctx.addIssue({ code: "custom", path: ["execution", "txHash"], message: "submitted execution requires a transaction hash" });
   if (["CONFIRMED", "RECONCILED"].includes(receipt.execution.status) && !executionEvidence) ctx.addIssue({ code: "custom", path: ["execution"], message: "confirmed/reconciled execution requires tx, block, sizes, and explorer evidence" });
   if (receipt.execution.status === "RECONCILED" && !receipt.portfolioAfter) ctx.addIssue({ code: "custom", path: ["portfolioAfter"], message: "reconciled execution requires a post-execution portfolio snapshot" });
+  if (receipt.execution.status === "RECONCILED" && !receipt.execution.position) ctx.addIssue({ code: "custom", path: ["execution", "position"], message: "reconciled execution requires on-chain position evidence" });
   if (receipt.lifecycleStage === "EXECUTION" && !["SUBMITTED", "CONFIRMED", "RECONCILED", "REVERTED"].includes(receipt.execution.status)) ctx.addIssue({ code: "custom", path: ["execution", "status"], message: "execution lifecycle cannot be NOT_SUBMITTED" });
   if (["SETTLEMENT", "REDEMPTION"].includes(receipt.lifecycleStage) && (!receipt.settlement?.outcome || !receipt.settlement.settlementEvidence?.length)) ctx.addIssue({ code: "custom", path: ["settlement"], message: "terminal lifecycle requires outcome and settlement evidence" });
   if (receipt.lifecycleStage === "REDEMPTION" && (!receipt.redemption?.txHash || !receipt.redemption.amount || !receipt.redemption.explorerUrl)) ctx.addIssue({ code: "custom", path: ["redemption"], message: "redemption lifecycle requires transaction, amount, and explorer evidence" });
   if (receipt.authorization.approvedAt && (!receipt.authorization.signedPayloadHash || !receipt.authorization.snapshotDigest || !/^0x[0-9a-fA-F]{40}$/.test(receipt.authorization.signer))) ctx.addIssue({ code: "custom", path: ["authorization"], message: "approved wallet authorization requires signer, signed payload hash, and snapshot digest" });
 });
 export type OutcomeGuardReceipt = z.infer<typeof receiptCoreSchema>;
+
+export const executionBundleSchema = z.object({
+  schemaVersion: z.literal("outcomeguard.execution-bundle.v1"),
+  createdAt: isoDate,
+  preExecutionReceipt: receiptCoreSchema,
+  authorizedReceipt: receiptCoreSchema,
+  message: z.string().min(1),
+  signature: z.string().regex(/^0x[0-9a-fA-F]{130}$/, "must be a 65-byte EVM signature"),
+  signer: z.string().regex(/^0x[0-9a-fA-F]{40}$/)
+}).strict().superRefine((bundle, ctx) => {
+  if (bundle.preExecutionReceipt.lifecycleStage !== "PRE_EXECUTION") ctx.addIssue({ code: "custom", path: ["preExecutionReceipt", "lifecycleStage"], message: "bundle must start from a pre-execution receipt" });
+  if (bundle.authorizedReceipt.lifecycleStage !== "PRE_EXECUTION") ctx.addIssue({ code: "custom", path: ["authorizedReceipt", "lifecycleStage"], message: "authorization must not claim execution" });
+  if (bundle.authorizedReceipt.integrity.previousReceiptDigest?.toLowerCase() !== bundle.preExecutionReceipt.integrity.digest.toLowerCase()) ctx.addIssue({ code: "custom", path: ["authorizedReceipt", "integrity", "previousReceiptDigest"], message: "authorized receipt must link to the pre-execution digest" });
+  if (bundle.authorizedReceipt.authorization.snapshotDigest?.toLowerCase() !== bundle.preExecutionReceipt.integrity.digest.toLowerCase()) ctx.addIssue({ code: "custom", path: ["authorizedReceipt", "authorization", "snapshotDigest"], message: "authorization must bind the pre-execution digest" });
+  if (bundle.authorizedReceipt.authorization.signer.toLowerCase() !== bundle.signer.toLowerCase()) ctx.addIssue({ code: "custom", path: ["signer"], message: "bundle signer must match the authorized receipt" });
+});
+export type ExecutionBundle = z.infer<typeof executionBundleSchema>;

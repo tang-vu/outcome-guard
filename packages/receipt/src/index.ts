@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
-import type { OutcomeGuardReceipt } from "@outcome-guard/schemas";
-import { receiptCoreSchema } from "@outcome-guard/schemas";
+import type { ExecutionBundle, OutcomeGuardReceipt } from "@outcome-guard/schemas";
+import { executionBundleSchema, receiptCoreSchema } from "@outcome-guard/schemas";
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
@@ -79,4 +79,15 @@ export function verifyReceiptChain(receipts: OutcomeGuardReceipt[]): Verificatio
     }
   }
   return { valid: true, errors: [] };
+}
+
+export function verifyExecutionBundle(value: unknown): VerificationResult & { bundle?: ExecutionBundle } {
+  const parsed = executionBundleSchema.safeParse(value);
+  if (!parsed.success) return { valid: false, errors: parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`) };
+  const chain = verifyReceiptChain([parsed.data.preExecutionReceipt, parsed.data.authorizedReceipt]);
+  if (!chain.valid) return chain;
+  if (!parsed.data.authorizedReceipt.authorization.approvedAt || !parsed.data.authorizedReceipt.authorization.signedPayloadHash) {
+    return { valid: false, errors: ["Authorized receipt is missing approval or signed-payload evidence."] };
+  }
+  return { valid: true, errors: [], bundle: parsed.data };
 }

@@ -39,17 +39,19 @@ const result = (policyId: string, status: PolicyResult["status"], observed: Json
 const passFail = (id: string, pass: boolean, observed: JsonValue, limit: JsonValue, passReason: string, failReason: string, refs: string[] = []): PolicyResult =>
   result(id, pass ? "PASS" : "FAIL", observed, limit, pass ? passReason : failReason, refs);
 
-function spreadPct(market: EventMarketSnapshot): number | null {
+function downSpreadPct(market: EventMarketSnapshot): number | null {
   const bid = Number(market.book.yesBids[0]?.price);
   const ask = Number(market.book.yesAsks[0]?.price);
-  if (!(bid > 0) || !(ask > 0)) return null;
-  return ((ask - bid) / ((ask + bid) / 2)) * 100;
+  if (!(bid > 0) || !(ask > 0) || ask < bid) return null;
+  const midpoint = 1 - ((ask + bid) / 2);
+  if (!(midpoint > 0)) return null;
+  return ((ask - bid) / midpoint) * 100;
 }
 
 export function evaluatePolicies(ctx: PolicyContext): PolicyResult[] {
   const { market, plan, intent, limits } = ctx;
-  const depth = market.book.yesBids.reduce((sum, level) => sum + Number(level.size), 0);
-  const spread = spreadPct(market);
+  const depth = market.book.yesBids.filter((level) => 1 - Number(level.price) <= plan.worstPrice + Number.EPSILON).reduce((sum, level) => sum + Number(level.size), 0);
+  const spread = downSpreadPct(market);
   const expiryHeadroom = (Date.parse(market.expiry) - ctx.now.getTime()) / 1000;
   const priceImpact = market.book.yesBids[0] ? Math.max(0, ((plan.worstPrice - (1 - Number(market.book.yesBids[0].price))) / (1 - Number(market.book.yesBids[0].price))) * 100) : Number.POSITIVE_INFINITY;
   const snapshotPriceChange = ctx.authorizationMarket
@@ -66,7 +68,7 @@ export function evaluatePolicies(ctx: PolicyContext): PolicyResult[] {
     passFail("premium.user-budget", plan.premiumUsd <= Math.min(intent.maxPremium, limits.maxPremium), plan.premiumUsd, Math.min(intent.maxPremium, limits.maxPremium), "Premium fits the authorized budget.", "Premium exceeds the authorized budget."),
     passFail("shares.per-market", plan.normalizedShares <= limits.maxSharesPerMarket, plan.normalizedShares, limits.maxSharesPerMarket, "Share size is within the market cap.", "Share size exceeds the market cap."),
     passFail("premium.total-risk", ctx.totalPremiumAtRisk !== null && ctx.totalPremiumAtRisk + plan.premiumUsd <= limits.maxTotalPremiumAtRisk, ctx.totalPremiumAtRisk, limits.maxTotalPremiumAtRisk, "Total premium risk remains within limit.", ctx.totalPremiumAtRisk === null ? "Existing premium risk is unknown; execution fails closed." : "Total premium risk would exceed the limit."),
-    passFail("book.spread", spread !== null && spread <= limits.maxSpreadPct, spread, limits.maxSpreadPct, "Spread is within limit.", spread === null ? "Spread is unknown because one book side is missing." : "Spread exceeds the limit."),
+    passFail("book.spread", spread !== null && spread <= limits.maxSpreadPct, spread, limits.maxSpreadPct, "Executable DOWN spread is within limit.", spread === null ? "DOWN spread is unknown because one book side is missing or invalid." : "Executable DOWN spread exceeds the limit."),
     passFail("book.price-impact", priceImpact <= limits.maxPriceImpactPct, priceImpact, limits.maxPriceImpactPct, "Price impact is within limit.", "Price impact exceeds the limit."),
     passFail("book.visible-depth", depth >= Math.max(limits.minVisibleDepth, plan.normalizedShares), depth, Math.max(limits.minVisibleDepth, plan.normalizedShares), "Visible depth covers the normalized order.", "Visible depth is insufficient."),
     passFail("order.slippage", intent.maxSlippagePct <= limits.maxSlippagePct, intent.maxSlippagePct, limits.maxSlippagePct, "User slippage is within policy.", "User slippage exceeds policy."),
