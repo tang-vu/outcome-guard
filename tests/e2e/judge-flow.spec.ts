@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
+import publishedReceipt from "../../docs/evidence/pre-execution-receipt.json";
 
-const publishedReceiptDigest = "0xddfd60734a404cc9e18089b8fb399ff019fc3aaf63aa0bb2bb60829653991206";
+const publishedReceiptDigest = publishedReceipt.integrity.digest;
 
 test("judge can compose and inspect bounded protection", async ({ page }) => {
   await page.route("**/api/markets", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ source: "unavailable", error: "deterministic E2E fixture" }) }));
