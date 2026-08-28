@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 09:54 UTC  
+Date: 2026-08-28 16:52 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -12,12 +12,12 @@ Command: `npm run verify`
 | --- | --- | --- |
 | ESLint | pass | `eslint .` exited 0 |
 | TypeScript strict workspaces | pass | agent, web, dreamdex, hedge-engine, policy-engine, receipt, schemas, shared |
-| Unit/property/integration tests | pass | 4 files, 16 tests |
-| Production build | pass | Next.js 16.3.3 plus all buildable workspaces |
-| Desktop judge flow | pass | Playwright Chromium, 1440 px |
-| Mobile judge flow | pass | Playwright Chromium, 390 px |
-| Health endpoint checks | pass | both Playwright projects |
-| Working-tree secret scan | pass | 92 files at run time |
+| Unit/property/security-boundary tests | pass | 4 files, 19 tests |
+| Production build | pass | Next.js 16.3.3 plus all buildable workspaces; metadata, manifest, robots, icon, and Open Graph routes generated |
+| Desktop judge flow | pass | 3 Playwright Chromium checks, 1440 px |
+| Mobile judge flow | pass | 3 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
+| Health endpoint checks | pass | both Playwright projects against the production server |
+| Working-tree secret scan | pass | 95 files at run time |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Clean install | pass | final lockfile installed with `npm ci` |
 | Agent container | pass | Docker image built; fixture container returned healthy on `/health` |
@@ -28,6 +28,8 @@ Additional checks:
 - Receipt tamper, unsupported-claim, and linked-chain regression tests passed.
 - Preview and pre-sign policy entry points are the same function and have an equality test.
 - DreamDEX writes are blocked without a policy-and-signature execution guard; the adapter also requires a one-time receipt digest and matching order fingerprint.
+- The authorization API independently verifies canonical receipt integrity before producing a linked authorization receipt and execution bundle.
+- Receipt tampering and execution-bundle signer substitution are rejected by regression tests.
 - Fixture worker started without a key in `DRY_RUN=true`, returned healthy on `/health`, produced structured logs, and observed one deterministic market.
 
 ## Honest exclusions

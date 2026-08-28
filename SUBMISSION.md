@@ -60,7 +60,7 @@ Event Contracts provide bounded-premium, short-duration outcome exposure with tr
 - [Policy evaluation](docs/evidence/policy-evaluation.json)
 - [Pre-execution receipt](docs/evidence/pre-execution-receipt.json)
 
-The captured live market failed policy because its spread was above the configured limit and wallet-dependent facts were unknown. That is expected fail-closed behavior, not a claimed trade.
+The captured live plan passes the market and sizing controls. Execution remains blocked because existing total premium risk and gas balance are unknown, and no human authorization has been supplied. That is expected fail-closed behavior, not a claimed trade.
 
 No order, fill, settlement, or redemption is yet claimed. The repository says so explicitly in [execution evidence](docs/evidence/execution-receipt.json) and [settlement evidence](docs/evidence/settlement-receipt.json).
 
