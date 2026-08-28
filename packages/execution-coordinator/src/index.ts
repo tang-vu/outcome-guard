@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, realpath, rename, rm, stat } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import type { ExecutionBundle } from "@outcome-guard/schemas";
-import { canonicalize, sha256, verifyExecutionBundle } from "@outcome-guard/receipt";
+import type { OutcomeGuardReceipt } from "@outcome-guard/schemas";
+import { canonicalize, sha256, verifyExecutionBundle, verifyReceipt } from "@outcome-guard/receipt";
 import { z } from "zod";
 
 const address = z.string().regex(/^0x[0-9a-fA-F]{40}$/);
@@ -134,6 +135,23 @@ export class DurableExecutionJournal {
   }
 
   snapshot(): readonly JournalRecord[] { return structuredClone(this.records); }
+
+  async persistReceipt(jobId: `0x${string}`, receipt: OutcomeGuardReceipt): Promise<string> {
+    if (!this.locked) throw new Error("signer lock is required before persisting execution evidence");
+    const verification = verifyReceipt(receipt);
+    if (!verification.valid) throw new Error(`refusing invalid execution receipt: ${verification.errors.join("; ")}`);
+    const path = join(this.signerDirectory, "receipts", `${bytes32.parse(jobId)}-execution.json`);
+    try {
+      const handle = await open(path, "wx", 0o600);
+      try { await handle.writeFile(`${canonicalize(receipt as never)}\n`, "utf8"); await handle.sync(); } finally { await handle.close(); }
+      await syncDirectory(dirname(path));
+    }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new Error("execution receipt already exists; refusing overwrite", { cause: error });
+      throw error;
+    }
+    return path;
+  }
 
   private async readAndVerify(): Promise<JournalRecord[]> {
     let text: string;

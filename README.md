@@ -66,7 +66,7 @@ exposure + limits
 The indexer is used for discovery, venue metadata, and history. OutcomeGuard requires an explicit venue ID and records that indexer-derived provenance; the current SDK does not independently prove venue membership on chain. Chain ID, market generation/status, book parameters, balances, mined receipt, and position state are read on chain. Missing data is unknown, never silently zero.
 
 - [`apps/web`](apps/web): judge journey and injected-wallet authorization.
-- [`apps/agent`](apps/agent): fixture/live observation loop, health endpoint, structured logs, and graceful shutdown.
+- [`apps/agent`](apps/agent): fixture/live observation loop plus a local-file-only `execute-once` command that independently verifies, policy-checks, journals, executes and reconciles one signed mandate.
 - [`packages/dreamdex`](packages/dreamdex): Shannon-only market, exact-unit IOC, confirmation, position, finalized-market, and redemption adapter.
 - [`packages/hedge-engine`](packages/hedge-engine): deterministic sizing and scenario P&L.
 - [`packages/policy-engine`](packages/policy-engine): versioned preview/pre-sign evaluator.
@@ -152,17 +152,17 @@ npm run verify
 
 It composes lint, strict type checking, unit/property tests, production build, Playwright E2E, working-tree secret scanning, and dependency audit. Individual commands are in [`package.json`](package.json).
 
-**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 100-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
+**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 101-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
 
 ## 14. Security model
 
 - Writes are hard-blocked outside Shannon chain `50312`.
 - The browser uses an injected wallet; the worker accepts only a disposable testnet key.
 - AI can normalize or explain but cannot calculate, waive policy, construct a transaction, or sign.
-- Preview and pre-sign expose the same evaluator. A live plan can issue an exact raw-unit IOC mandate only when a dedicated worker address is configured; the server verifies the EIP-191 signature and seals a linked bundle. The current worker still lacks the durable transaction coordinator required to consume that bundle.
+- Preview and pre-sign expose the same evaluator. A live plan can issue an exact raw-unit IOC mandate only when a dedicated worker address is configured; the server verifies the EIP-191 signature and seals a linked bundle. The local `execute-once` worker independently verifies it and reruns the same policy engine from fresh Shannon reads.
 - A tx hash alone is not confirmation; a successful mined receipt and position evidence are required.
 - Venue ambiguity, stale state, unknown balances, zero normalized size, changed book, or irreproducible receipt inputs block execution.
-- A durable filesystem primitive now verifies and exclusively claims one-time bundles, locks a signer, and hash-chains execution states across restart. Adapter wiring, nonce/hash recovery and crash-injection evidence remain release gates before worker write mode may be enabled.
+- The local execution path durably claims one-time bundles, locks a signer, hash-chains execution states, journals the submission boundary, and refuses automatic retry after ambiguity. A real funded Shannon run, explicit nonce/raw-transaction recovery and crash-injection evidence remain release gates before claiming production readiness.
 
 See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md) and [`SECURITY.md`](SECURITY.md).
 

@@ -33,6 +33,14 @@ export type PolicyContext = {
   authorizationMarket?: EventMarketSnapshot;
 };
 
+export function outcomeGuardPolicyLimits(intervalSec: number): PolicyLimits {
+  return {
+    maxPremium: 50, maxSharesPerMarket: 250, maxTotalPremiumAtRisk: 100, maxSpreadPct: 8, maxPriceImpactPct: 2,
+    minVisibleDepth: 10, maxSlippagePct: 3, minExpiryHeadroomSec: Math.max(30, Math.min(300, intervalSec * 0.4)),
+    maxDataStalenessMs: 10_000, snapshotPriceTolerancePct: 1, allowedVenue: DREAMDEX_VENUE_ID, minimumGasBalanceWei: 1n
+  };
+}
+
 const result = (policyId: string, status: PolicyResult["status"], observed: JsonValue, limit: JsonValue, reason: string, evidenceRefs: string[] = []): PolicyResult => ({
   policyId, version: "1.0.0", status, observed, limit, reason, evidenceRefs
 });

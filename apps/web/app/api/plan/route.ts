@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { buildPreparedIoc, createShannonAdapter, formatDecimal, parseDecimal, type BookParameters, type EventMarketSnapshot as AdapterMarket, type EventOrderBook } from "@outcome-guard/dreamdex";
 import { buildHedgePlan } from "@outcome-guard/hedge-engine";
-import { evaluatePreview } from "@outcome-guard/policy-engine";
+import { evaluatePreview, outcomeGuardPolicyLimits } from "@outcome-guard/policy-engine";
 import { computeMandateDigest, computeMarketSnapshotDigest, sealReceipt } from "@outcome-guard/receipt";
 import { executionMandateSchema, hedgeIntentSchema, type EventMarketSnapshot, type ExecutionProposal } from "@outcome-guard/schemas";
 import { DREAMDEX_VENUE_ID, executionMandateMessage, MARKETS_SDK_VERSION, TESTNET_COLLATERAL } from "@outcome-guard/shared";
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     const policies = evaluatePreview({
       chainId: 50312, intent, market, plan, now: new Date(), gasBalanceWei: null, totalPremiumAtRisk: null, portfolioAsset: intent.asset, portfolioExposureUsd: intent.exposureUsd, portfolioReadKnown: true,
       humanApproved: false, receiptInputsReproducible: true, authorizationMarket: market,
-      limits: { maxPremium: 50, maxSharesPerMarket: 250, maxTotalPremiumAtRisk: 100, maxSpreadPct: 8, maxPriceImpactPct: 2, minVisibleDepth: 10, maxSlippagePct: 3, minExpiryHeadroomSec: Math.max(30, Math.min(300, market.intervalSec * 0.4)), maxDataStalenessMs: 10_000, snapshotPriceTolerancePct: 1, allowedVenue: DREAMDEX_VENUE_ID, minimumGasBalanceWei: 1n }
+      limits: outcomeGuardPolicyLimits(market.intervalSec)
     });
     const receipt = sealReceipt({
       schemaVersion: "1.0.0", createdAt: new Date().toISOString(), lifecycleStage: "PRE_EXECUTION",

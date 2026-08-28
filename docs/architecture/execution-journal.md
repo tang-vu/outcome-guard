@@ -1,6 +1,6 @@
 # Durable execution journal
 
-Snapshot: 2026-08-29. This document describes the implemented durable authorization-claim and journal primitive. It does not claim that the worker transaction coordinator is enabled.
+Snapshot: 2026-08-29. This document describes the durable authorization-claim and journal primitive used by the explicit local-file-only `execute-once` worker path. It does not claim a real transaction or production-ready automatic recovery.
 
 ## Security objective
 
@@ -40,7 +40,7 @@ JOB_ACCEPTED
 - A torn final JSONL record blocks initialization and requires manual chain/nonce reconciliation.
 - A changed, reordered, removed, or malformed complete record breaks sequence/hash validation and blocks initialization.
 - An existing signer lock blocks another process. Stale-lock removal is an explicit operator action only after confirming the old replica is stopped and reconciling pending chain state.
-- The current SDK write path does not expose a pre-signed raw transaction with an explicit nonce. Until the coordinator records a safe submission boundary and implements recovery around that limitation, `DRY_RUN=false` remains disabled operationally.
+- The current SDK write path does not expose a pre-signed raw transaction with an explicit nonce. `execute-once` records `SUBMISSION_INTENT_RECORDED` before entering the SDK and permanently retains the claim/lock if the call becomes ambiguous. It never auto-retries; an operator must reconcile the signer nonce and chain state.
 
 ## Durability portability
 
@@ -56,4 +56,4 @@ Automated tests cover:
 - 25 concurrent appends producing exactly ordered unique sequences;
 - refusal of relative state paths.
 
-Remaining before execution enablement: coordinator-to-adapter wiring, fresh shared-policy rerun, configured total-premium ledger, crash injection around the SDK submission call, transaction-hash/nonce recovery, non-root persistent-volume container verification, and separate redemption authorization.
+Implemented wiring: exact mandate reconstruction, fresh shared-policy rerun, required starting premium-risk input, adapter execution, mined result/position reconciliation, linked receipt persistence, and ambiguous-submission lock retention. Remaining evidence: funded Shannon execution, crash injection around the SDK submission call, explicit transaction-hash/nonce recovery, persistent-volume restart exercise, and separate redemption authorization.

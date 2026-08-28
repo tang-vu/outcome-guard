@@ -88,9 +88,17 @@ curl --fail http://localhost:8787/health
 
 For live observation, set `FIXTURE_MODE=false` but retain `DRY_RUN=true`. The current agent observes markets; it does not initiate IOC or redemption jobs.
 
-Only after a separately reviewed execution entry point, durable idempotency/nonce handling, and explicit authorization are ready may a single worker instance receive a disposable Shannon key via the provider's encrypted secret store. Never put that key in an image layer, deployment file, build argument, public variable, log, or health endpoint.
+The image runs as a non-root user, declares `/var/lib/outcomeguard` as its persistent state volume, and includes a container healthcheck. Never put a key in an image layer, deployment file, build argument, public variable, log, or health endpoint.
 
-Run one replica for any signer. Horizontal replicas are safe only for read-only observation until nonce serialization is durable and distributed.
+The observer command never executes. The separate one-shot path is intentionally local-file-only:
+
+```bash
+npm run execute-once -w @outcome-guard/agent -- --bundle /secure/inbox/signed-bundle.json
+```
+
+It requires `DRY_RUN=false`, `FIXTURE_MODE=false`, the encrypted-runtime `PRIVATE_KEY`, absolute persistent `EXECUTION_STATE_DIR`, and `INITIAL_TOTAL_PREMIUM_AT_RISK` reconciled from the dedicated wallet. It verifies that the bundle's public execution signer matches the loaded key, reruns policy from fresh Shannon reads, claims the authorization once, records the submission boundary, and seals a linked execution receipt only after fill/position reconciliation. After an ambiguous SDK call it retains the signer lock and exits; do not delete that lock or retry until the signer nonce and chain are reconciled.
+
+Run one replica for any signer. Horizontal replicas are safe only for read-only observation; signing is deliberately single-replica and filesystem-locked.
 
 ## Startup and health expectations
 
@@ -114,4 +122,3 @@ Before making the repository public or publishing links:
 6. Verify the deployment, mobile layout, receipt tamper test, dependency audit, and clean `npm ci`.
 7. Review [LIMITATIONS.md](../LIMITATIONS.md), [NOTICE.md](../NOTICE.md), and [BLOCKERS.md](../BLOCKERS.md).
 8. Obtain the repository owner's explicit approval for public visibility and final hosting/submission URLs.
-
