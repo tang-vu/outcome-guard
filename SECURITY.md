@@ -85,4 +85,4 @@ An audit exception must identify the advisory, affected path, actual reachabilit
 
 ## Incident response
 
-Disable write mode, stop the worker gracefully, preserve append-only receipts and logs, inspect pending Shannon nonces and allowances, rotate the disposable key, and reconcile every claimed stage against chain state. Do not rewrite evidence to hide an incident. Record false or incomplete claims as corrected linked artifacts.
+Disable write mode, stop the worker gracefully, preserve the execution journal, append-only receipts and logs, inspect pending Shannon nonces and allowances, rotate the disposable key, and reconcile every claimed stage against chain state. Do not rewrite evidence to hide an incident. Record false or incomplete claims as corrected linked artifacts.

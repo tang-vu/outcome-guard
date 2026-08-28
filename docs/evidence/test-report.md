@@ -17,7 +17,7 @@ Command: `npm run verify`
 | Desktop judge flow | pass | 5 Playwright Chromium checks, 1440 px |
 | Mobile judge flow | pass | 5 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
-| Working-tree secret scan | pass | 108 files at run time |
+| Portable tree/history secret scan | pass | 108 files plus every commit/ref at run time; provider, PEM, bearer, mnemonic and private-key patterns |
 | Full-history secret scan | pass | Gitleaks 8.30.1 scanned 8 commits / ~818 KB; exact public-contract false-positive allowlist only |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Clean install | pass | final lockfile installed with `npm ci` |
