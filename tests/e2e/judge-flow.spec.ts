@@ -13,6 +13,9 @@ test("judge can compose and inspect bounded protection", async ({ page }) => {
   await expect(page.getByText("Basis risk is real.")).toBeVisible();
   await expect(page.getByText("PRE-EXECUTION")).toBeVisible();
   await expect(page.locator(".digest")).toContainText(/^0x[0-9a-f]{64}$/);
+  await expect(page.getByText(/VERIFIED REPLAY/)).toBeVisible();
+  await expect(page.locator(".settledReplay")).toContainText("NO / DOWN");
+  await expect(page.locator(".settledReplay")).toContainText("No fabricated ownership or redemption");
 });
 
 test("truth labels, policy drill-down, receipt inspection, and mobile width remain safe", async ({ page }) => {
@@ -37,4 +40,7 @@ test("health identifies network and honest mode", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.ok()).toBe(true);
   await expect(response.json()).resolves.toMatchObject({ ok: true, chainId: 50312, network: "somnia-shannon" });
+  const replay = await request.get("/api/replay");
+  expect(replay.ok()).toBe(true);
+  await expect(replay.json()).resolves.toMatchObject({ label: "VERIFIED_REPLAY", terminalState: { status: "Resolved", winningOutcome: "NO" }, redemptionEvidence: { status: "NOT_PERFORMED" }, verification: { valid: true } });
 });

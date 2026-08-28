@@ -84,10 +84,11 @@ The repository contains a real **live-read** Shannon snapshot captured on 28 Aug
 - Deterministic plan from that book: [`docs/evidence/hedge-plan.json`](docs/evidence/hedge-plan.json)
 - Policy result: [`docs/evidence/policy-evaluation.json`](docs/evidence/policy-evaluation.json)
 - Pre-execution receipt: [`docs/evidence/pre-execution-receipt.json`](docs/evidence/pre-execution-receipt.json)
+- Verified terminal-market replay: [`docs/evidence/verified-settled-replay.json`](docs/evidence/verified-settled-replay.json)
 
 The latest captured market was ETH, one hour, Shannon chain `50312`, market ID ending `bcbe`, block `473363505`, and onchain status `Trading`. Market and plan checks passed; existing premium risk, gas balance, and human approval were unknown or absent, so execution correctly failed closed. See the full values in the linked evidence rather than relying on a summary.
 
-**No transaction, fill, reconciled position, settlement, or redemption is claimed yet.** The placeholder lifecycle files explicitly record `NOT_PERFORMED`: [`execution-receipt.json`](docs/evidence/execution-receipt.json) and [`settlement-receipt.json`](docs/evidence/settlement-receipt.json).
+The Judge Demo also shows a separately labeled historical venue lifecycle: ETH 1h market `…c124`, resolved on chain at captured block `473662365` with winning outcome `NO / DOWN`. It proves finalized-market discovery and terminal-state interpretation only. **No OutcomeGuard ownership, transaction, fill, reconciled position, or redemption is claimed yet.** The placeholder lifecycle files explicitly record `NOT_PERFORMED`: [`execution-receipt.json`](docs/evidence/execution-receipt.json) and [`settlement-receipt.json`](docs/evidence/settlement-receipt.json).
 
 ## 9. Receipt verification
 
@@ -152,7 +153,7 @@ npm run verify
 
 It composes lint, strict type checking, unit/property tests, production build, Playwright E2E, working-tree secret scanning, and dependency audit. Individual commands are in [`package.json`](package.json).
 
-**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 101-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
+**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 106-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
 
 ## 14. Security model
 

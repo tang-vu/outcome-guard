@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "outcomeguard.verified-settled-replay.v1",
+  "label": "VERIFIED_REPLAY",
+  "capturedAt": "2026-08-28T17:46:55.341Z",
+  "network": { "name": "somnia-shannon", "chainId": 50312 },
+  "sdk": { "package": "@somnia-chain/markets-sdk", "version": "0.28.1" },
+  "blockNumber": "473662365",
+  "venueId": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+  "market": {
+    "marketId": "0x000000000000000000000000000000000000000000000000000000000000c124",
+    "marketAddress": "0xd617E24Edc6A41c1725AF6B197851309b54D5750",
+    "pool": "0xf50f7a2D4beaEf6c875F6155a88A1348917c7F9F",
+    "poolNonce": "134",
+    "outcomeToken": "0xB52c5934113Af5c0Bb20eb3C72290C8215f755b9",
+    "yesId": "6606816878504688621649324736793509885997026641250820818933798773229056",
+    "noId": "6606816878504688621649324736793509885997026641250820818933798773229057",
+    "collateral": { "address": "0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E", "decimals": 6 },
+    "asset": "ETH",
+    "intervalSec": 3600,
+    "tradingStart": 1787932800,
+    "expiry": 1787936400,
+    "question": "ETH closes at or above its opening price",
+    "oracleQuestionId": "46052"
+  },
+  "terminalState": {
+    "statusCode": 4,
+    "status": "Resolved",
+    "finalized": true,
+    "isResolved": true,
+    "isVoided": false,
+    "winningOutcomeIndex": 1,
+    "winningOutcome": "NO",
+    "portfolioMeaning": "DOWN"
+  },
+  "positionEvidence": {
+    "status": "NOT_CLAIMED",
+    "reason": "This venue market is used only to demonstrate a verified terminal lifecycle. OutcomeGuard does not claim ownership of a position in it."
+  },
+  "redemptionEvidence": {
+    "status": "NOT_PERFORMED",
+    "reason": "No owned position or redemption transaction is claimed for this replay."
+  },
+  "provenance": [
+    "Binary-market API finalized discovery scoped to the explicit DreamDEX venue",
+    "Direct getMarketOnchain read at capture time",
+    "Direct Shannon block-number read"
+  ],
+  "integrity": {
+    "canonicalization": "RFC8785-JCS",
+    "digestAlgorithm": "sha256",
+    "digest": "0x2eb6af1f34f05e5fff859ee780ac830c20b387c850dcc84f3bf585c57525f89b"
+  }
+}

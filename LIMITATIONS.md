@@ -36,7 +36,7 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 - A valid digest proves that a receipt has not changed under the specified canonicalization. It does not prove every assertion in the receipt is true.
 - Independent provenance requires chain receipts, decoded expected events, market state, and position reconciliation. Pre-execution evidence alone cannot prove execution.
 - The receipt explorer serves evidence artifacts packaged with the deployment; it is not a decentralized or complete receipt index.
-- Historical replay is only acceptable with real source hashes and provenance. The current repository does not yet include a verified settled replay package.
+- The repository includes one chain-reconciled finalized market as a verified venue replay. It has no OutcomeGuard position, transaction, or redemption evidence and is labeled accordingly; it cannot satisfy Gate 5 ownership/redemption proof by itself.
 - Evidence was captured from a working tree and identifies its commit as `working-tree-uncommitted`. Release evidence must be regenerated from the exact public commit.
 
 ## Security and operations

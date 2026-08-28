@@ -64,6 +64,8 @@ The captured live plan passes the market and sizing controls. Execution remains 
 
 No order, fill, settlement, or redemption is yet claimed. The repository says so explicitly in [execution evidence](docs/evidence/execution-receipt.json) and [settlement evidence](docs/evidence/settlement-receipt.json).
 
+For judge continuity, a separate [verified settled replay](docs/evidence/verified-settled-replay.json) records a real DreamDEX ETH one-hour market at Shannon block `473662365`, resolved `NO / DOWN`. It demonstrates finalized discovery and terminal-state interpretation only; it does not claim OutcomeGuard owned or redeemed a position.
+
 ## Differentiation
 
 OutcomeGuard is not a prediction chatbot, agent evaluator, copy-trading product, game, firm-liquidity primitive, conditional thesis sequencer, or safe-size terminal. It starts from portfolio exposure and derives bounded protection.

@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 17:40 UTC
+Date: 2026-08-28 17:55 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -17,7 +17,7 @@ Command: `npm run verify`
 | Desktop judge flow | pass | 3 Playwright Chromium checks, 1440 px |
 | Mobile judge flow | pass | 3 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
-| Working-tree secret scan | pass | 101 files at run time |
+| Working-tree secret scan | pass | 106 files at run time |
 | Full-history secret scan | pass | Gitleaks 8.30.1 scanned 8 commits / ~818 KB; exact public-contract false-positive allowlist only |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Clean install | pass | final lockfile installed with `npm ci` |
@@ -35,6 +35,7 @@ Additional checks:
 - DreamDEX order construction checks both outcome and transmitted YES tick grids. Live snapshots directly read ERC-20 metadata and fail if collateral decimals disagree; pool-scoped events distinguish `OrderPlaced` from actual `OrderRested` evidence.
 - Durable journal tests cover restart hash-chain verification, exclusive signer locking, changed/torn record refusal, absolute-path enforcement, and 25 concurrent appends with unique ordered sequence numbers. Explicit nonce/raw-transaction recovery and crash-injection evidence remain excluded.
 - Fixture worker started without a key in `DRY_RUN=true`, returned healthy on `/health`, produced structured logs, and observed one deterministic market.
+- Finalized-market discovery and a direct on-chain read captured ETH one-hour market `…c124` at block `473662365` as `Resolved`, winning `NO / DOWN`. The UI verifies its evidence digest and explicitly claims no owned position or redemption.
 
 ## Honest exclusions
 
