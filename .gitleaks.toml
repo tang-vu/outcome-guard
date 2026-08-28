@@ -6,3 +6,9 @@ description = "Public ERC-6909 outcome-token contract address in the determinist
 regexTarget = "line"
 paths = ['''packages/dreamdex/src/fixtures\.ts''']
 regexes = ['''outcomeToken:\s*"0xB52c5934113Af5c0Bb20eb3C72290C8215f755b9"''']
+
+[[allowlists]]
+description = "The same public ERC-6909 outcome-token address in captured settled-market evidence; not credential material."
+regexTarget = "line"
+paths = ['''docs/evidence/verified-settled-replay\.json''']
+regexes = ['''"outcomeToken":\s*"0xB52c5934113Af5c0Bb20eb3C72290C8215f755b9"''']
