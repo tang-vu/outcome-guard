@@ -43,7 +43,7 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 
 - The code has not received an independent security audit.
 - The built-in secret scanner checks tracked and unignored working-tree files, not the full Git history. A separate full-history scan is required before public release.
-- The in-memory signer queue serializes writes within one process only. Multiple worker replicas or a process restart require a durable distributed nonce/idempotency design before write mode is safe.
+- The new execution-coordinator package provides a durable one-time claim, exclusive filesystem signer lock and hash-chained journal for a single Linux-volume replica. It is not yet wired to adapter writes and does not yet control explicit nonce/raw-transaction recovery; multi-replica signing remains unsupported and write mode remains unsafe to enable.
 - The worker has a health endpoint and graceful shutdown, but no durable database, alerting integration, dead-letter queue, or operator dashboard.
 - The fixture agent container has been built and its health endpoint verified locally. It is not yet hardened as a non-root, persistent-volume execution container or verified on a public host.
 - Dependency audit and Playwright results exist for the current checkpoint, but must be regenerated from the final release commit.

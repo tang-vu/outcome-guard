@@ -71,8 +71,9 @@ The indexer is used for discovery, venue metadata, and history. OutcomeGuard req
 - [`packages/hedge-engine`](packages/hedge-engine): deterministic sizing and scenario P&L.
 - [`packages/policy-engine`](packages/policy-engine): versioned preview/pre-sign evaluator.
 - [`packages/receipt`](packages/receipt): RFC 8785 canonicalization, SHA-256 sealing, linked stages, verifier, and CLI.
+- [`packages/execution-coordinator`](packages/execution-coordinator): durable one-time authorization claims, exclusive signer lock, and tamper-evident execution journal; adapter wiring remains gated.
 
-Detailed design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/architecture/trust-boundaries.md`](docs/architecture/trust-boundaries.md).
+Detailed design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/architecture/trust-boundaries.md`](docs/architecture/trust-boundaries.md), and [`docs/architecture/execution-journal.md`](docs/architecture/execution-journal.md).
 
 ## 8. Real testnet proof
 
@@ -151,7 +152,7 @@ npm run verify
 
 It composes lint, strict type checking, unit/property tests, production build, Playwright E2E, working-tree secret scanning, and dependency audit. Individual commands are in [`package.json`](package.json).
 
-**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 20 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 95-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
+**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 100-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
 
 ## 14. Security model
 
@@ -161,7 +162,7 @@ It composes lint, strict type checking, unit/property tests, production build, P
 - Preview and pre-sign expose the same evaluator. A live plan can issue an exact raw-unit IOC mandate only when a dedicated worker address is configured; the server verifies the EIP-191 signature and seals a linked bundle. The current worker still lacks the durable transaction coordinator required to consume that bundle.
 - A tx hash alone is not confirmation; a successful mined receipt and position evidence are required.
 - Venue ambiguity, stale state, unknown balances, zero normalized size, changed book, or irreproducible receipt inputs block execution.
-- Adapter writes are serialized in memory within one process. Durable per-signer nonce serialization and crash-safe replay prevention remain a release gate before worker write mode may be enabled.
+- A durable filesystem primitive now verifies and exclusively claims one-time bundles, locks a signer, and hash-chains execution states across restart. Adapter wiring, nonce/hash recovery and crash-injection evidence remain release gates before worker write mode may be enabled.
 
 See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md) and [`SECURITY.md`](SECURITY.md).
 

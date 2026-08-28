@@ -1,0 +1,16 @@
+{
+  "name": "@outcome-guard/execution-coordinator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@outcome-guard/receipt": "0.1.0",
+    "@outcome-guard/schemas": "0.1.0",
+    "zod": "4.4.3"
+  }
+}
