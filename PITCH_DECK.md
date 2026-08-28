@@ -145,7 +145,7 @@ Verified now:
 - deterministic hedge calculation;
 - fail-closed policy result;
 - verifiable pre-execution receipt;
-- 25 unit/property/tamper/security-boundary tests and 10 desktop/mobile E2E checks;
+- 28 unit/property/tamper/security-boundary tests and 12 desktop/mobile E2E checks;
 - verified historical terminal-market replay at Shannon block `473662365`, resolved `NO / DOWN`, explicitly marked not owned or redeemed.
 
 Still pending:

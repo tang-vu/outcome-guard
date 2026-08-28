@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 18:25 UTC
+Date: 2026-08-28 18:34 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -12,12 +12,12 @@ Command: `npm run verify`
 | --- | --- | --- |
 | ESLint | pass | `eslint .` exited 0 |
 | TypeScript strict workspaces | pass | agent, web, dreamdex, execution-coordinator, hedge-engine, policy-engine, receipt, schemas, shared |
-| Unit/property/security-boundary tests | pass | 5 files, 25 tests |
+| Unit/property/security-boundary tests | pass | 6 files, 28 tests, including provider validation and prompt-injection-as-data behavior |
 | Production build | pass | Next.js 16.3.3 plus all buildable workspaces; metadata, manifest, robots, icon, and Open Graph routes generated |
-| Desktop judge flow | pass | 5 Playwright Chromium checks, 1440 px |
-| Mobile judge flow | pass | 5 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
+| Desktop judge flow | pass | 6 Playwright Chromium checks, 1440 px |
+| Mobile judge flow | pass | 6 Playwright Chromium checks, 390 px; parser binding, overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
-| Portable tree/history secret scan | pass | 109 files plus 17 commits/refs at run time; provider, PEM, bearer, mnemonic and private-key patterns |
+| Portable tree/history secret scan | pass | 110 files plus 18 commits/refs at run time; provider, PEM, bearer, mnemonic and private-key patterns |
 | Full-history secret scan | pass | Gitleaks 8.30.1 scanned 8 commits / ~818 KB; exact public-contract false-positive allowlist only |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Clean install | pass | final lockfile installed with `npm ci` |

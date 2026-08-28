@@ -10,7 +10,7 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 - `packages/dreamdex` implements guarded live IOC placement, successful-receipt checking, position reads, finalized-market discovery, and redemption. Those methods have not yet been exercised with a funded Shannon signer in this repository's evidence.
 - The agent defaults to a serialized market observer. Its separate local-file-only `execute-once` command can consume one signed mandate with a durable claim, fresh policy pass and execution receipt, but has not been exercised with a funded signer. It deliberately does not auto-retry an ambiguous SDK submission; restart reconciliation, settlement monitoring and rolling proposals remain incomplete.
 - Exposure is entered manually. Wallet WETH/WBTC balance discovery and USD valuation are not implemented in the judge flow.
-- Natural-language intent is represented in the UI, but there is no provider-neutral AI adapter yet. Structured controls remain the deterministic source of truth.
+- Natural-language intent uses a provider-neutral parser contract with a deterministic local fallback; provider output is accepted only after strict schema validation. No external or paid model provider is configured, and structured controls remain the deterministic source of truth.
 - No receipt-anchor contract is implemented or deployed. Receipt integrity is off-chain SHA-256 canonicalization.
 
 ## Financial model

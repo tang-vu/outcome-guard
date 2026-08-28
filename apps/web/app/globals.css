@@ -16,6 +16,7 @@ nav { height:76px; max-width:1420px; margin:auto; padding:0 42px; display:flex; 
 .scenario { grid-template-columns:90px 1fr 75px }
 
 /* Product cockpit refinement */
+.intentParser textarea { width:100%;min-height:96px;margin-top:7px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff;resize:vertical;color:var(--ink);font:12px/1.45 Arial,sans-serif }.intentParser textarea:focus { border-color:var(--green);outline:3px solid #0b795918 }.intentParser button { margin-top:7px;border:0;border-radius:7px;background:var(--ink);color:white;padding:8px 10px;font-size:10px;font-weight:800 }.intentParser>small { display:block;margin-top:6px;color:var(--muted);font-size:9px;font-weight:400 }
 .skipLink { position:fixed;z-index:100;left:16px;top:10px;transform:translateY(-160%);background:var(--ink);color:white;padding:10px 14px;border-radius:8px;text-decoration:none }
 .skipLink:focus { transform:translateY(0) }
 button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible { outline:3px solid #e4a21f;outline-offset:3px }

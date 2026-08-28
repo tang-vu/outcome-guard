@@ -32,7 +32,7 @@ The evidence-first Receipt Explorer verifies the packaged artifact server-side a
 
 ## 4. The 90-second judge path
 
-1. Enter a manual ETH or BTC exposure and choose a 15-minute or one-hour horizon.
+1. Enter a natural-language concern or use the structured manual ETH/BTC exposure and horizon controls; deterministic schema-bound parsing updates the controls locally.
 2. Set adverse move, maximum premium, slippage, and target protection.
 3. Inspect the selected Event Contract, order book, expiry, settlement reference, and freshness.
 4. Compare unhedged and protected scenario P&L, including premium-at-risk and basis risk.
@@ -74,6 +74,7 @@ The indexer is used for discovery, venue metadata, and history. OutcomeGuard req
 - [`packages/dreamdex`](packages/dreamdex): Shannon-only market, exact-unit IOC, confirmation, position, finalized-market, and redemption adapter.
 - [`packages/hedge-engine`](packages/hedge-engine): deterministic sizing and scenario P&L.
 - [`packages/policy-engine`](packages/policy-engine): versioned preview/pre-sign evaluator.
+- [`packages/shared`](packages/shared): provider-neutral intent-parser contract, deterministic local parser/fallback, Shannon constants, and exact authorization message.
 - [`packages/receipt`](packages/receipt): RFC 8785 canonicalization, SHA-256 sealing, linked stages, verifier, and CLI.
 - [`packages/execution-coordinator`](packages/execution-coordinator): durable one-time authorization claims, exclusive signer lock, and tamper-evident execution journal, wired only to the explicit local-file `execute-once` path.
 
@@ -157,7 +158,7 @@ npm run verify
 
 It composes lint, strict type checking, unit/property tests, production build, Playwright E2E, working-tree secret scanning, and dependency audit. Individual commands are in [`package.json`](package.json).
 
-**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, ten Playwright checks across desktop and 390 px mobile, a 108-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
+**Checkpoint truth:** the release gate passed locally on 28 August 2026: lint, strict workspace type checks, 28 Vitest tests, production builds, twelve Playwright checks across desktop and 390 px mobile, a 110-file tree plus full-history secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
 
 ## 14. Security model
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { ExecutionBundle, ExecutionMandate, HedgePlan, OutcomeGuardReceipt, PolicyResult, EventMarketSnapshot } from "@outcome-guard/schemas";
+import type { ExecutionBundle, ExecutionMandate, HedgeIntent, HedgePlan, OutcomeGuardReceipt, PolicyResult, EventMarketSnapshot } from "@outcome-guard/schemas";
+import { parseIntentLocally } from "@outcome-guard/shared";
 
 type PlanResponse = { mode: "fixture" | "live"; market: EventMarketSnapshot; plan: HedgePlan; policies: PolicyResult[]; receipt: OutcomeGuardReceipt; authorizationChallenge?: { mandate: ExecutionMandate; mandateDigest: string; message: string } };
 type LiveSnapshot = {
@@ -45,6 +46,8 @@ export default function Home() {
   const [showAllPolicies, setShowAllPolicies] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [settledReplay, setSettledReplay] = useState<SettledReplay>();
+  const [intentText, setIntentText] = useState("Protect my $1,000 ETH exposure for the next hour against a 2% downside. Spend no more than 15 and accept 2% slippage with 75% protection.");
+  const [parserNote, setParserNote] = useState("Deterministic local parser · no model API");
 
   const refreshLive = async () => {
     setLiveLoading(true);
@@ -114,6 +117,16 @@ export default function Home() {
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${data.receipt.integrity.digest}.json`; anchor.click(); URL.revokeObjectURL(url);
   };
   const copyDigest = async () => { if (data) await navigator.clipboard.writeText(data.receipt.integrity.digest); };
+  const applyNaturalIntent = () => {
+    try {
+      const fallback: HedgeIntent = { asset, exposureUsd: exposure, horizonMinutes: horizon, adverseMovePct: adverseMove, maxPremium, maxSlippagePct: slippage, targetProtectionPct: protection };
+      const parsed = parseIntentLocally(intentText, fallback);
+      setAsset(parsed.intent.asset); setExposure(parsed.intent.exposureUsd); setHorizon(parsed.intent.horizonMinutes); setAdverseMove(parsed.intent.adverseMovePct); setMaxPremium(parsed.intent.maxPremium); setSlippage(parsed.intent.maxSlippagePct); setProtection(parsed.intent.targetProtectionPct);
+      setLivePlanMarketId(undefined); setSignature(undefined); setExecutionBundle(undefined);
+      setParserNote(parsed.extractedFields.length ? `${parsed.extractedFields.length} fields applied · schema validated · local fallback` : parsed.warnings[0] ?? "No supported values found");
+      setError(undefined);
+    } catch (reason) { setParserNote("Intent rejected"); setError(reason instanceof Error ? reason.message : String(reason)); }
+  };
 
   const scenarioMax = Math.max(1, ...(data?.plan.scenarios.map((scenario) => Math.max(Math.abs(scenario.underlyingPnlUsd), Math.abs(scenario.hedgedPnlUsd))) ?? [1]));
   const selectedScenario = data?.plan.scenarios.find((scenario) => scenario.adverseMovePct === -adverseMove) ?? data?.plan.scenarios[0];
@@ -133,10 +146,11 @@ export default function Home() {
         <div className="segmented"><button aria-pressed={asset === "ETH"} className={asset === "ETH" ? "active" : ""} onClick={() => setAsset("ETH")}>ETH</button><button aria-pressed={asset === "BTC"} className={asset === "BTC" ? "active" : ""} onClick={() => setAsset("BTC")}>BTC</button></div>
         <label>Exposure value <span>Manual demo override</span><div className="input"><i>$</i><input aria-label="Exposure value" type="number" min="1" value={exposure} onChange={(e) => setExposure(Number(e.target.value))} /></div></label>
         <div className="step"><b>02</b><span>Protection intent</span></div>
+        <label className="intentParser">Natural-language intent <span>Optional</span><textarea aria-label="Natural-language protection intent" maxLength={1000} value={intentText} onChange={(event) => setIntentText(event.target.value)} /><button type="button" onClick={applyNaturalIntent}>Apply to controls</button><small aria-live="polite">{parserNote}</small></label>
         <label>Horizon<div className="segmented"><button aria-pressed={horizon === 15} className={horizon === 15 ? "active" : ""} onClick={() => setHorizon(15)}>15 minutes</button><button aria-pressed={horizon === 60} className={horizon === 60 ? "active" : ""} onClick={() => setHorizon(60)}>1 hour</button></div></label>
         <label>Maximum premium <span>{data?.market.collateral.symbol ?? "collateral"}</span><input aria-label="Maximum premium" type="range" min="1" max="50" value={maxPremium} onChange={(e) => setMaxPremium(Number(e.target.value))} /><output>{money(maxPremium)}</output></label>
         <div className="twocol"><label>Scenario<input aria-label="Adverse move scenario" type="number" min="0.1" max="25" step="0.1" value={adverseMove} onChange={(e) => setAdverseMove(Number(e.target.value))} /><small>% down</small></label><label>Slippage<input aria-label="Slippage" type="number" min="0" max="3" step="0.1" value={slippage} onChange={(e) => setSlippage(Number(e.target.value))} /><small>% max</small></label><label>Protection<input aria-label="Protection target" type="number" min="1" max="100" value={protection} onChange={(e) => setProtection(Number(e.target.value))} /><small>% target</small></label></div>
-        <div className="intent">“Protect my {money(exposure)} {asset} exposure against a {adverseMove}% downside move for the next {horizon === 60 ? "hour" : "15 minutes"}. Spend no more than {money(maxPremium)} and accept at most {slippage}% slippage.”</div>
+        <div className="intent">Structured truth: protect {money(exposure)} of {asset} against a {adverseMove}% downside move for {horizon === 60 ? "one hour" : "15 minutes"}; premium ≤ {money(maxPremium)}, slippage ≤ {slippage}%, target {protection}%.</div>
       </aside>
 
       <div className="results">
