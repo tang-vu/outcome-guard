@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 18:13 UTC
+Date: 2026-08-28 18:25 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -17,7 +17,7 @@ Command: `npm run verify`
 | Desktop judge flow | pass | 5 Playwright Chromium checks, 1440 px |
 | Mobile judge flow | pass | 5 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
-| Portable tree/history secret scan | pass | 108 files plus every commit/ref at run time; provider, PEM, bearer, mnemonic and private-key patterns |
+| Portable tree/history secret scan | pass | 109 files plus 17 commits/refs at run time; provider, PEM, bearer, mnemonic and private-key patterns |
 | Full-history secret scan | pass | Gitleaks 8.30.1 scanned 8 commits / ~818 KB; exact public-contract false-positive allowlist only |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Clean install | pass | final lockfile installed with `npm ci` |
