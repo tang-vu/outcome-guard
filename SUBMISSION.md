@@ -12,7 +12,7 @@ OutcomeGuard turns an existing BTC or ETH downside concern into policy-bound sho
 
 ## Short description
 
-Most Event Contract products begin with a prediction or an order. OutcomeGuard begins with exposure already in a wallet or treasury. A user supplies the asset, USD exposure, adverse scenario, horizon, premium cap, slippage limit, and protection target. The deterministic engine inspects a DreamDEX market and order book, derives executable DOWN protection, shows portfolio P&L before and after, and evaluates a versioned fail-closed policy. The guarded write design requires that same engine to pass again against fresh state before transaction signing; the current checkpoint has not yet wired or exercised that coordinator. Each lifecycle stage is sealed into canonical JSON and linked by SHA-256 digest.
+Most Event Contract products begin with a prediction or an order. OutcomeGuard begins with exposure already in a wallet or treasury. A user supplies the asset, USD exposure, adverse scenario, horizon, premium cap, slippage limit, and protection target. The deterministic engine inspects a DreamDEX market and order book, derives executable DOWN protection, shows portfolio P&L before and after, and evaluates a versioned fail-closed policy. The one-shot write coordinator independently verifies the exact signed mandate, claims it durably, refreshes chain state, and requires that same policy engine to pass again before one bounded IOC. This path is implemented and locally tested but has not yet been exercised with a funded Shannon signer. Each lifecycle stage is sealed into canonical JSON and linked by SHA-256 digest.
 
 OutcomeGuard is Shannon-testnet software and not financial advice. Binary protection is nonlinear and carries strike, timing, oracle, liquidity, and basis risk.
 
@@ -47,9 +47,9 @@ Event Contracts provide bounded-premium, short-duration outcome exposure with tr
 - Deterministic liquidity- and budget-aware hedge engine with before/after scenarios and basis-risk warning.
 - Versioned policy engine exposing one shared preview/pre-sign evaluator, plus a guarded adapter boundary that rejects missing or failed authorization envelopes.
 - Shannon-only DreamDEX adapter for live discovery, onchain status, books, parameters, exact-unit IOC preparation/execution, position reads, finalized discovery, and redemption.
-- Injected-wallet intent-signature surface with server-side signer recovery, nonce, deadline, and linked receipt; it is not represented as transaction authorization.
+- Injected-wallet exact-mandate authorization with server-side signer recovery, raw IOC units, market snapshot digest, pool nonce, worker signer, deadline, and linked receipt; signing authorizes only that mandate and does not itself claim submission.
 - RFC 8785 canonical receipt sealing, SHA-256 verification, linked lifecycle stages, CLI, and receipt route.
-- Dry-run/fixture worker with structured logs, health endpoint, serialized cycles, and graceful shutdown.
+- Dry-run/fixture worker plus a local-file-only one-shot execution path with structured logs, health endpoint, exclusive signer lock, durable one-time bundle claim, tamper-evident journal, serialized cycles, and graceful shutdown.
 - Live-read evidence captured from Shannon plus explicit `NOT_PERFORMED` external-action blockers.
 
 ## Verified evidence
@@ -84,7 +84,7 @@ The innovation is exposure-derived protection: convert a portfolio loss objectiv
 
 ### UX and design — 20%
 
-The intended full judge journey follows one story: exposure, concern, live market, before/after loss, visible policy, exact authorization, transaction progress, and receipt. The current build defaults to a labeled fixture but can explicitly derive the plan from a selected live market after a server-side refetch; its intent-signature prototype is not transaction authorization, and transaction progress is pending. Failure reasons are never hidden.
+The full judge journey follows one story: exposure, concern, live market, before/after loss, visible policy, exact authorization, transaction progress, and receipt. The build defaults to a labeled fixture but can explicitly derive the plan from a selected live market after a server-side refetch. Its wallet signature authorizes one exact, short-lived worker mandate; it does not itself claim submission, and transaction progress remains pending until real chain evidence exists. Failure reasons are never hidden.
 
 ### Business and ecosystem impact — 20%
 
@@ -96,7 +96,7 @@ The planned 2–3 minute demo spends its time on the user problem and proof: exp
 
 ## Security model
 
-- Shannon-only writes; chain ID `5031` cannot construct an execution request.
+- Shannon-only writes; any chain other than `50312` cannot construct an execution request.
 - Injected browser wallet or dedicated disposable testnet worker signer.
 - Missing reads and conflicting state fail closed.
 - AI cannot perform arithmetic, set policy, build a transaction, or sign.
@@ -109,7 +109,7 @@ See [Threat Model](docs/THREAT_MODEL.md).
 
 - Binary payout does not perfectly hedge spot exposure.
 - The composer defaults to deterministic fixture data; `Derive live plan` refetches the selected market server-side and recomputes the live plan, while a labeled fixture remains available for endpoint failure.
-- Wallet exposure discovery, real OutcomeGuard execution, reconciliation, settlement replay, redemption, and public deployment are not complete at this checkpoint. Desktop and 390 px mobile E2E release proof is complete.
+- Wallet exposure discovery, real OutcomeGuard execution/reconciliation, owned-position settlement, redemption, and public deployment are not complete at this checkpoint. A verified historical terminal-market replay is implemented and explicitly disclaims ownership and redemption. Desktop and 390 px mobile E2E release proof is complete.
 - Testnet books may be too shallow or wide to pass policy.
 - The full local release gate passes; public deployment and wallet lifecycle remain pending.
 
@@ -128,11 +128,11 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - [x] `npm run verify` passes and a timestamped test report is present.
 - [x] Web composer clearly labels fixture/live modes; `/api/markets` exposes real reads and `Derive live plan` refetches and recomputes server-side.
 - [ ] Real bounded Shannon order has explorer, receipt, fill, and position evidence.
-- [ ] Settlement or verified historical replay is present and labeled.
+- [x] Verified historical terminal-market replay is present, digest-checked, and labeled separately from live execution.
 - [ ] Redemption is proved or honestly marked pending.
 - [x] Desktop and 390 px mobile judge paths pass.
 - [ ] Deployment health checks pass.
-- [ ] Repository and full git history pass secret scanning.
+- [x] Working tree and full git history pass secret scanning while the repository remains private; rerun immediately before public release.
 - [ ] Public GitHub, deployment, video, explorer, and DoraHacks links are inserted.
 - [ ] Every numerical submission claim points to reproducible evidence.
 

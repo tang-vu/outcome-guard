@@ -6,15 +6,15 @@ Target runtime: **2:35**. Capture at 1080p or higher, 30 fps, with legible UI at
 
 | Asset | Required source | Status |
 | --- | --- | --- |
-| Release candidate | Commit that passed `npm ci` and `npm run verify` | Local working tree passes; release commit **PENDING** |
+| Release candidate | Commit that passed `npm ci` and `npm run verify` | `b39eb3e` packages the verified build and fresh evidence |
 | Public app URL | Healthy release deployment | **PENDING** |
 | Live market proof | Shannon `50312`, explicit venue, fresh book and onchain status | Live-read evidence exists; final recording snapshot **PENDING** |
 | Passing authorization snapshot | All mandatory policies pass | **PENDING** |
 | Execution proof | Successful mined IOC receipt, fill, reconciled position | **PENDING external wallet action** |
 | Receipt proof | Immutable final JSON and digest, CLI verification | Pre-execution exists; execution-chain receipt **PENDING** |
-| Settlement proof | Finalized market tied to an authentic earlier lifecycle | **PENDING** |
+| Settlement proof | Independently verified terminal DreamDEX market | Complete replay evidence: market `…c124`, block `473662365`, `NO / DOWN`; no ownership claim |
 | Redemption proof | Successful tx or verified already-redeemed chain state | **PENDING external wallet action** |
-| Historical replay label | Persistent `VERIFIED REPLAY` treatment | **PENDING implementation/evidence** |
+| Historical replay label | Persistent `VERIFIED REPLAY` treatment | Complete in UI, evidence API, digest verification, and desktop/mobile E2E |
 | Mobile proof | 390 px Playwright screenshot after responsive pass | Complete: `docs/demo/outcomeguard-mobile.png` |
 
 ## Capture order
@@ -50,7 +50,7 @@ Never record a private key, seed phrase, complete environment file, wallet expor
 | 1:53–2:02 | Receipt | Human view, raw JSON, digest | Stage and previous digest visible |
 | 2:02–2:13 | Tamper | CLI valid result, then changed copy fails | `Original valid · changed copy invalid` |
 | 2:13–2:23 | Lifecycle | Switch to historical settled market | Persistent `VERIFIED REPLAY — not current live order` |
-| 2:23–2:29 | Claim | Show final outcome and redemption proof | Real market and tx/explorer evidence |
+| 2:23–2:29 | Claim truth | Show final outcome plus `NOT CLAIMED / NOT PERFORMED` | Do not imply OutcomeGuard owned the replayed position; replace only after real redemption proof exists |
 | 2:29–2:35 | Close | Exposure → protect → verify plus link card | Only verified public URLs |
 
 ## Conditional edit paths

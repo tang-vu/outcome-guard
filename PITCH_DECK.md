@@ -85,7 +85,7 @@ Real checkpoint result: the latest captured live ETH market passed market/plan c
 
 ## Slide 6 — Human authority, bounded execution
 
-Required transaction-coordinator flow (not yet exercised at this checkpoint):
+Implemented one-shot transaction-coordinator flow (locally verified, not yet exercised with a funded signer):
 
 ```text
 refresh market + book + balances
@@ -118,7 +118,7 @@ intent
 
 Each stage is canonical RFC 8785 JSON with a SHA-256 digest. Later stages link the earlier digest; history is not invisibly mutated. Any changed sealed field fails verification.
 
-Current evidence: [pre-execution receipt](docs/evidence/pre-execution-receipt.json). Execution and settlement are explicitly [not performed](docs/evidence/execution-receipt.json).
+Current evidence: [pre-execution receipt](docs/evidence/pre-execution-receipt.json). Execution and owned-position settlement are explicitly [not performed](docs/evidence/execution-receipt.json). A separate verified replay proves terminal-market discovery without claiming ownership or redemption.
 
 ---
 
@@ -145,13 +145,14 @@ Verified now:
 - deterministic hedge calculation;
 - fail-closed policy result;
 - verifiable pre-execution receipt;
-- core unit/property/tamper tests.
+- 25 unit/property/tamper/security-boundary tests and 10 desktop/mobile E2E checks;
+- verified historical terminal-market replay at Shannon block `473662365`, resolved `NO / DOWN`, explicitly marked not owned or redeemed.
 
 Still pending:
 
 - funded disposable signer and explicit authorization;
 - real IOC fill and reconciled position;
-- settlement/replay and redemption;
+- owned-position settlement and redemption;
 - public deployment and video. The full local release gate and responsive screenshots are complete.
 
 Evidence index: [README § Real testnet proof](README.md#8-real-testnet-proof).

@@ -25,8 +25,8 @@ flowchart TB
     end
 
     subgraph B3[Boundary 3 — Execution service]
-      COORD[Target durable coordinator - not enabled]
-      NONCE[Target durable nonce journal - open gate]
+      COORD[One-shot durable coordinator]
+      NONCE[Signer lock + hash-chain journal]
       KEY[Disposable testnet key or wallet request]
     end
 
@@ -70,7 +70,7 @@ flowchart TB
 | RPC → authorization | Allowlisted Shannon chain ID and contracts; multiple related reads pinned as closely as practical; freshness limit | Reject ambiguity or inconsistency |
 | Plan → authorization | Hash exact intent, portfolio, market snapshot, normalized order, policy version, limits, chain, venue, and expiry | Any change invalidates authorization |
 | Authorization → signer | Mandatory preview and pre-sign checks use the same evaluator; signer receives only an approved normalized order | Failed/unknown check cannot reach signer |
-| Signer → chain | One nonce queue per signer; testnet-only chain assertion; IOC; bounded price/size; future nanosecond expiry | Stop queue on nonce ambiguity; reconcile before retry |
+| Signer → chain | Exclusive single-replica signer lock; one-time bundle claim; testnet-only assertion; IOC; bounded price/size; future nanosecond expiry | Permanently retain lock on submission ambiguity; operator reconciles before any new authorization |
 | Chain → execution receipt | Require mined receipt with successful status, expected chain, sender, target, and decoded event/fill evidence | Record failed/submitted, never confirmed |
 | Position → settlement | Market-ID keyed finalized discovery; verify on-chain outcome/void state and claimable balance | Remain pending/unknown |
 | Settlement → redemption | Explicit authorized tx or independently verified already-redeemed chain state | Never label redeemed from indexer status alone |

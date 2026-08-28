@@ -25,7 +25,7 @@ The product language may express a premium budget in “USDso,” but the verifi
 
 ## System structure
 
-The diagram below is the target transaction lifecycle. At this checkpoint the web implements preview plus a verified exact raw-unit execution mandate and the DreamDEX adapter implements the guarded write boundary; the durable execution coordinator between them is not yet wired or evidenced.
+The diagram below shows the implemented transaction lifecycle. The web produces a verified exact raw-unit execution mandate; the local-file-only `execute-once` worker independently verifies it, claims it once in durable state, takes an exclusive signer lock, reruns fresh policy, invokes the guarded DreamDEX adapter, and journals the result. This constrained single-replica path is locally evidenced but has not been exercised with a funded Shannon signer.
 
 ```mermaid
 flowchart LR
@@ -57,8 +57,9 @@ The indexer supplies discovery, venue metadata, and history. Every write is scop
 
 | Component | Responsibility | Must not do |
 | --- | --- | --- |
-| `apps/web` | Exposure and intent entry, live market presentation, scenario chart, visible policy gate, exact execution-mandate signature, receipt explorer, labeled judge replay; transaction approval/status remain target coordinator work | Hold private keys; infer successful execution from a submitted hash |
-| `apps/agent` | Refresh discovery and books, recompute proposals, serialize a dedicated test-agent signer, reconcile positions, monitor settlement, propose rolling protection | Write mainnet; bypass approval; mutate historical receipts |
+| `apps/web` | Exposure and intent entry, live market presentation, scenario chart, visible policy gate, exact execution-mandate signature, receipt explorer, and labeled judge replay | Hold private keys; infer successful execution from a submitted hash |
+| `apps/agent` | Refresh discovery and books; one-shot signed-bundle verification, durable claim, signer lock, fresh policy pass, bounded execution, reconciliation, and receipt persistence | Write mainnet; bypass approval; automatically retry ambiguous submission; mutate historical receipts |
+| `packages/execution-coordinator` | Exclusive single-replica signer ownership, one-time bundle claim, fsynced hash-chain journal, receipt persistence | Pretend SDK transport ambiguity is safe to retry; claim multi-replica nonce coordination |
 | `packages/dreamdex` | Venue-scoped discovery, market-ID identity, chain verification, book reads, integer quantization, IOC placement, receipt/status checks, positions, finalized history, redemption | Trust indexer status for writes; hardcode decimals or per-window pools |
 | `packages/hedge-engine` | Deterministic hedge sizing and scenario P&L using integers/decimal strings; report basis risk | Predict price; promise perfect protection |
 | `packages/policy-engine` | Versioned, deterministic, fail-closed preview and pre-sign checks | Accept a policy override from an LLM or client-only state |
@@ -115,7 +116,7 @@ Binary protection is nonlinear and has strike, timing, liquidity, oracle, and ba
 5. Calculate and quantize with exact units. Reject zero size and any budget/depth overflow after quantization.
 6. Produce the preview policy result and authorization payload hash.
 7. Immediately before signing, refresh the market, book, balances, gas, parameters, expiry, and chain ID. Run the same policy evaluator and invalidate approval when tolerance is exceeded.
-8. Target protocol: durably claim the authorization, reserve/reconcile the signer nonce, then submit the bounded IOC with its signed future nanosecond expiry. The current adapter only serializes within one process and write mode remains disabled until the durable coordinator is complete.
+8. The one-shot worker durably claims the verified bundle, acquires the signer lock, records the submission boundary, and submits the bounded IOC with its signed future nanosecond expiry. Because SDK 0.28.1 does not expose explicit nonce/raw-transaction persistence here, any post-boundary ambiguity permanently retains the lock and requires manual chain reconciliation; it is never automatically retried.
 9. Require a successful mined receipt. For unified SDK calls the receipt is in `order.info as PlaceOrderResult`; a transaction hash alone is not confirmation.
 10. Reconcile fills and the position from chain data. Persist a linked post-execution receipt.
 11. Discover terminal markets using finalized binary-market history, verify resolution, redeem explicitly, and persist settlement/redemption receipts.
@@ -126,9 +127,9 @@ Binary protection is nonlinear and has strike, timing, liquidity, oracle, and ba
 - `dry-run`: real or fixture inputs, full calculation and policy path, signer unreachable.
 - `testnet-execute`: Shannon-only, explicit human authorization, bounded writes.
 - `deterministic-fixture`: checked-in, schema-validated snapshots with expected digests and calculations.
-- `verified-replay`: immutable historical Shannon evidence for settlement/redemption; clearly labeled in UI and receipt.
+- `verified-replay`: immutable historical Shannon terminal-market evidence, clearly labeled in UI; ownership and redemption are not inferred.
 
-No configuration mode can resolve writes to chain ID 5031. Startup diagnostics log mode, chain ID, venue ID, SDK version, address-bundle fingerprint, and endpoint hosts, but never keys, tokens, signed payloads, or full authorization headers.
+No configuration mode can resolve writes to any chain other than `50312`. Startup diagnostics log mode, chain ID, venue ID, SDK version, address-bundle fingerprint, and endpoint hosts, but never keys, tokens, signed payloads, or full authorization headers.
 
 ## Source-of-truth hierarchy
 

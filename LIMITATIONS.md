@@ -6,7 +6,7 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 
 - The primary web judge flow defaults to an explicitly labeled deterministic fixture. Its `LIVE READ EVIDENCE` panel can select `Derive live plan`; the server then refetches that market ID and rebuilds the plan, policy, and receipt from Shannon. Live planning remains opt-in so endpoint failure does not collapse the demo.
 - Live discovery evidence exists in `docs/evidence/market-snapshot.json`. The execution and settlement artifacts are intentionally marked `NOT_PERFORMED`; there is no claimed IOC, fill, reconciled position, settlement, or redemption transaction yet.
-- With `AGENT_SIGNER_ADDRESS` configured, a live plan seals an exact raw-unit IOC proposal and the web signs a short-lived EIP-191 execution mandate containing its receipt, market snapshot, worker signer, price, quantity, premium and nanosecond expiry. The server recovers the human signer and returns a linked bundle. This still does not submit a transaction; the crash-safe worker coordinator is not implemented yet.
+- With `AGENT_SIGNER_ADDRESS` configured, a live plan seals an exact raw-unit IOC proposal and the web signs a short-lived EIP-191 execution mandate containing its receipt, market snapshot, worker signer, price, quantity, premium and nanosecond expiry. The server recovers the human signer and returns a linked bundle. Signing does not submit; the explicit `execute-once` worker must independently verify and consume that file.
 - `packages/dreamdex` implements guarded live IOC placement, successful-receipt checking, position reads, finalized-market discovery, and redemption. Those methods have not yet been exercised with a funded Shannon signer in this repository's evidence.
 - The agent defaults to a serialized market observer. Its separate local-file-only `execute-once` command can consume one signed mandate with a durable claim, fresh policy pass and execution receipt, but has not been exercised with a funded signer. It deliberately does not auto-retry an ambiguous SDK submission; restart reconciliation, settlement monitoring and rolling proposals remain incomplete.
 - Exposure is entered manually. Wallet WETH/WBTC balance discovery and USD valuation are not implemented in the judge flow.
@@ -37,15 +37,15 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 - Independent provenance requires chain receipts, decoded expected events, market state, and position reconciliation. Pre-execution evidence alone cannot prove execution.
 - The receipt explorer serves evidence artifacts packaged with the deployment; it is not a decentralized or complete receipt index.
 - The repository includes one chain-reconciled finalized market as a verified venue replay. It has no OutcomeGuard position, transaction, or redemption evidence and is labeled accordingly; it cannot satisfy Gate 5 ownership/redemption proof by itself.
-- Evidence was captured from a working tree and identifies its commit as `working-tree-uncommitted`. Release evidence must be regenerated from the exact public commit.
+- Live evidence was captured from clean source commit `351b014bfb9fa7ea6082fbdd47d10765a159925b`; the later evidence-packaging commit is intentionally distinct and does not rewrite the recorded source provenance.
 
 ## Security and operations
 
-- The code has not received an independent security audit.
-- The built-in scanner covers tracked and unignored working-tree files. A separate Gitleaks 8.30.1 scan of all 8 current commits passed with one narrowly documented public-contract false-positive allowlist; it must be rerun after every new release commit.
+- The code has not received an independent third-party security audit.
+- The built-in scanner covers tracked and unignored working-tree files. Gitleaks 8.30.1 full-history scans pass with one narrowly documented public-contract false-positive allowlist; the most recent run covered all 14 commits through `b39eb3e`. It must be rerun after every new release commit.
 - The execution-coordinator is wired only to the explicit `execute-once` command for a single Linux-volume replica. It claims before submission and retains the signer lock after ambiguity, but the SDK path does not expose explicit nonce/raw-transaction persistence and automatic recovery. Multi-replica signing remains unsupported; this is testnet software, not production custody infrastructure.
 - The worker has a health endpoint and graceful shutdown, but no durable database, alerting integration, dead-letter queue, or operator dashboard.
-- The fixture agent container has been built and its health endpoint verified locally. It is not yet hardened as a non-root, persistent-volume execution container or verified on a public host.
+- The fixture agent image runs as non-root user `outcomeguard`, declares a persistent state volume, and reached Docker `healthy` locally with an isolated mount. It is not verified on a public host, and production volume durability/backup remain operator responsibilities.
 - Dependency audit and Playwright results exist for the current checkpoint, but must be regenerated from the final release commit.
 
 ## Submission status

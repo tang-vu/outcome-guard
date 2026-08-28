@@ -36,7 +36,7 @@ The release candidate is exercised at both desktop and 390 px mobile widths. The
 6. Review the exact order and authorize it with an injected Shannon wallet.
 7. Follow confirmation, reconciliation, receipt verification, settlement, and redemption.
 
-At the current checkpoint, steps 1–5 and pre-execution receipt generation work in deterministic fixture mode and through an opt-in `Derive live plan` path that refetches the selected Shannon market server-side. Wallet execution, position reconciliation, settled replay evidence, and redemption remain pending the external actions listed below.
+At the current checkpoint, steps 1–5 and pre-execution receipt generation work in deterministic fixture mode and through an opt-in `Derive live plan` path that refetches the selected Shannon market server-side. Exact authorization and the guarded one-shot worker are implemented; funded-wallet execution and position reconciliation remain pending. A separately labeled historical replay verifies a real terminal market without claiming ownership or redemption.
 
 ## 5. Live deployment
 
@@ -71,7 +71,7 @@ The indexer is used for discovery, venue metadata, and history. OutcomeGuard req
 - [`packages/hedge-engine`](packages/hedge-engine): deterministic sizing and scenario P&L.
 - [`packages/policy-engine`](packages/policy-engine): versioned preview/pre-sign evaluator.
 - [`packages/receipt`](packages/receipt): RFC 8785 canonicalization, SHA-256 sealing, linked stages, verifier, and CLI.
-- [`packages/execution-coordinator`](packages/execution-coordinator): durable one-time authorization claims, exclusive signer lock, and tamper-evident execution journal; adapter wiring remains gated.
+- [`packages/execution-coordinator`](packages/execution-coordinator): durable one-time authorization claims, exclusive signer lock, and tamper-evident execution journal, wired only to the explicit local-file `execute-once` path.
 
 Detailed design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/architecture/trust-boundaries.md`](docs/architecture/trust-boundaries.md), and [`docs/architecture/execution-journal.md`](docs/architecture/execution-journal.md).
 

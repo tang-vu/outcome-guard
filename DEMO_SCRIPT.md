@@ -8,7 +8,7 @@ Target duration: **2:35**. This script separates fixture, live-read, live-execut
 - The mode label is visible at all times.
 - A “live” market is read from Shannon chain `50312` and the explicit DreamDEX venue.
 - Any transaction shown has a successful mined receipt and a reconciled position.
-- Any historical settlement is labeled `VERIFIED REPLAY`, includes its real market/transaction evidence, and is never attributed to the current wallet unless true.
+- Any historical settlement is labeled `VERIFIED REPLAY`, includes real market and direct onchain terminal-state evidence, and is never attributed to the current wallet unless true.
 - Any redemption shown has a successful transaction or verified already-redeemed chain state.
 - If execution or settlement proof is still unavailable, omit the claim and say it remains pending. Do not simulate it.
 
@@ -64,17 +64,17 @@ If a different live market passes, state that it is a different timestamped snap
 
 ## 1:30–1:53 — Human authorization and real execution
 
-**Prerequisite:** A passing fresh market, funded disposable Shannon account, explicit wallet authorization, and a release candidate whose transaction coordinator has been verified to invoke the guarded adapter.
+**Prerequisite:** A passing fresh market, funded disposable Shannon account, explicit wallet authorization, and the verified one-shot transaction coordinator.
 
 **Action:** Show exact order, maximum premium, collateral symbol/address, market ID, venue, chain, snapshot tolerance, and expiry. Authorize. Show stages `SUBMITTED`, `CONFIRMED`, and `RECONCILED`, then open the Shannon explorer.
 
 **Narration:**
 
-> “The execution design refreshes the market and reruns the shared policy engine immediately before a transaction signature. The signed envelope binds this market, price, size, budget, snapshot, nonce, and deadline. A hash alone is not confirmation: OutcomeGuard requires a successful mined receipt, fill evidence, and the resulting onchain position.”
+> “The execution worker independently verifies the receipt and exact wallet-signed mandate, durably claims it once, refreshes the market, and reruns the shared policy engine. The mandate binds chain, venue, market, raw price, size, premium, snapshot, worker signer, pool nonce, and deadline. A hash alone is not confirmation: OutcomeGuard requires a successful mined receipt, fill evidence, and the resulting onchain position.”
 
 **If prerequisite is not met:** Replace this segment with:
 
-> “This checkpoint cryptographically verifies an intent signature, but it does not treat that signature as transaction authorization. Live execution is pending a funded disposable Shannon signer and a verified transaction coordinator. The repository makes no transaction claim.”
+> “This checkpoint can cryptographically authorize one exact IOC mandate, but no disposable Shannon signer is funded and no transaction has been submitted. The repository makes no transaction claim.”
 
 Show [`docs/evidence/execution-receipt.json`](docs/evidence/execution-receipt.json) with `NOT_PERFORMED`. Do not show a mock transaction animation.
 
@@ -88,15 +88,15 @@ Show [`docs/evidence/execution-receipt.json`](docs/evidence/execution-receipt.js
 
 ## 2:13–2:29 — Settlement and redemption
 
-**Action:** Switch to a persistent `VERIFIED REPLAY` label. Show a real finalized market, earlier receipt link, outcome, claimable balance, and real redemption evidence.
+**Action:** Switch to the persistent `VERIFIED REPLAY` card. Show the real finalized market ID, capture block, onchain `Resolved` state, `NO / DOWN` outcome, evidence digest, and the explicit `NOT CLAIMED / NOT PERFORMED` disclosure.
 
 **Narration:**
 
-> “For a complete lifecycle inside a short demo, this section is a verified historical replay—not the live order we just previewed. DreamDEX's terminal state and redemption evidence close the receipt chain.”
+> “To demonstrate terminal-state discovery inside a short demo, this section is verified historical market evidence—not the live order we just previewed. OutcomeGuard verified the DreamDEX market resolved NO. It does not claim that our wallet owned this position or redeemed it.”
 
-**If proof is unavailable:** Say:
+**If the replay endpoint is unavailable or its digest fails:** Say:
 
-> “Settlement and redemption proof are still pending, so this build stops at the last verified stage.”
+> “Terminal evidence is unavailable, so this build stops at the last verified stage.”
 
 Do not imply the blocker JSON is settlement evidence.
 
