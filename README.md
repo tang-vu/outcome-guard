@@ -26,6 +26,10 @@ The release candidate is exercised at both desktop and 390 px mobile widths. The
 
 <img src="docs/demo/outcomeguard-mobile.png" alt="OutcomeGuard at 390 pixel mobile width" width="390" />
 
+The evidence-first Receipt Explorer verifies the packaged artifact server-side and keeps incomplete lifecycle stages visually explicit:
+
+![OutcomeGuard verified receipt explorer](docs/demo/outcomeguard-receipt-explorer.png)
+
 ## 4. The 90-second judge path
 
 1. Enter a manual ETH or BTC exposure and choose a 15-minute or one-hour horizon.
