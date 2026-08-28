@@ -1,6 +1,8 @@
 {
-  "capturedAt": "2026-08-28T09:28:39.808Z",
-  "gitCommit": "working-tree-uncommitted",
+  "capturedAt": "2026-08-28T18:11:15.831Z",
+  "capturedFromCommit": "351b014bfb9fa7ea6082fbdd47d10765a159925b",
+  "sourceTreeClean": true,
+  "captureCommand": "npm run evidence",
   "node": "v24.14.1",
   "network": "somnia-shannon",
   "chainId": 50312,

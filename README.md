@@ -86,7 +86,7 @@ The repository contains a real **live-read** Shannon snapshot captured on 28 Aug
 - Pre-execution receipt: [`docs/evidence/pre-execution-receipt.json`](docs/evidence/pre-execution-receipt.json)
 - Verified terminal-market replay: [`docs/evidence/verified-settled-replay.json`](docs/evidence/verified-settled-replay.json)
 
-The latest captured market was ETH, one hour, Shannon chain `50312`, market ID ending `bcbe`, block `473363505`, and onchain status `Trading`. Market and plan checks passed; existing premium risk, gas balance, and human approval were unknown or absent, so execution correctly failed closed. See the full values in the linked evidence rather than relying on a summary.
+The latest captured market was ETH, one hour, Shannon chain `50312`, market ID ending `c248`, block `473676996`, and onchain status `Trading`. The capture was made from clean source commit `351b014bfb9fa7ea6082fbdd47d10765a159925b`; market and plan checks passed, while existing premium risk, gas balance, and human approval remained unknown or absent, so execution correctly failed closed. See the full values in the linked evidence rather than relying on a summary.
 
 The Judge Demo also shows a separately labeled historical venue lifecycle: ETH 1h market `…c124`, resolved on chain at captured block `473662365` with winning outcome `NO / DOWN`. It proves finalized-market discovery and terminal-state interpretation only. **No OutcomeGuard ownership, transaction, fill, reconciled position, or redemption is claimed yet.** The placeholder lifecycle files explicitly record `NOT_PERFORMED`: [`execution-receipt.json`](docs/evidence/execution-receipt.json) and [`settlement-receipt.json`](docs/evidence/settlement-receipt.json).
 
@@ -98,7 +98,7 @@ Receipts are strict versioned JSON. OutcomeGuard canonicalizes their JSON-compat
 npm run receipt:verify -- docs/evidence/pre-execution-receipt.json
 ```
 
-Changing any sealed field must produce a digest mismatch. The verifier and tamper tests are in [`packages/receipt`](packages/receipt). The release packages a verified human/raw explorer at `/receipts/0xddfd60734a404cc9e18089b8fb399ff019fc3aaf63aa0bb2bb60829653991206`; unknown digests fail closed, and the API serves a downloadable artifact only after server-side verification.
+Changing any sealed field must produce a digest mismatch. The verifier and tamper tests are in [`packages/receipt`](packages/receipt). The release packages a verified human/raw explorer at `/receipts/0x2b60a01fddcd5e8cb3e0b21b10d8bcfe8de3f4fee8f6dd388d310837d8731ce2`; unknown digests fail closed, and the API serves a downloadable artifact only after server-side verification.
 
 ## 10. Differentiation
 
@@ -153,7 +153,7 @@ npm run verify
 
 It composes lint, strict type checking, unit/property tests, production build, Playwright E2E, working-tree secret scanning, and dependency audit. Individual commands are in [`package.json`](package.json).
 
-**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 106-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
+**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 25 Vitest tests, production builds, ten Playwright checks across desktop and 390 px mobile, a 108-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
 
 ## 14. Security model
 

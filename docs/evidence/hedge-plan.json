@@ -1,44 +1,44 @@
 {
   "planVersion": "1.0.0",
   "objective": "BUY_DOWN_PROTECTION",
-  "marketId": "0x000000000000000000000000000000000000000000000000000000000000bcbe",
-  "requestedShares": 21.398002853067048,
-  "executableShares": 21.398,
-  "normalizedShares": 21.398,
-  "worstPrice": 0.29900000000000004,
-  "averageExecutablePrice": 0.29900000000000004,
-  "premiumUsd": 6.4,
-  "expectedNetPayoutIfDownUsd": 15,
+  "marketId": "0x000000000000000000000000000000000000000000000000000000000000c248",
+  "requestedShares": 42.492917847025495,
+  "executableShares": 23.183,
+  "normalizedShares": 23.183,
+  "worstPrice": 0.647,
+  "averageExecutablePrice": 0.647,
+  "premiumUsd": 15,
+  "expectedNetPayoutIfDownUsd": 8.18,
   "targetProtectedLossUsd": 15,
   "constraints": [
     {
       "name": "target",
-      "before": 21.398002853067048,
-      "after": 21.398002853067048,
+      "before": 42.492917847025495,
+      "after": 42.492917847025495,
       "binding": false
     },
     {
       "name": "premium-budget",
-      "before": 21.398002853067048,
-      "after": 50.16722408026755,
-      "binding": false
+      "before": 42.492917847025495,
+      "after": 23.183925811437405,
+      "binding": true
     },
     {
       "name": "visible-depth",
-      "before": 21.398002853067048,
+      "before": 42.492917847025495,
       "after": 530,
       "binding": false
     },
     {
       "name": "per-market-cap",
-      "before": 21.398002853067048,
+      "before": 42.492917847025495,
       "after": 250,
       "binding": false
     },
     {
       "name": "lot-and-minimum",
-      "before": 21.398002853067048,
-      "after": 21.398,
+      "before": 23.183925811437405,
+      "after": 23.183,
       "binding": true
     }
   ],
@@ -47,27 +47,27 @@
       "adverseMovePct": -2,
       "contractOutcome": "DOWN",
       "underlyingPnlUsd": -20,
-      "eventPayoutUsd": 21.4,
-      "premiumUsd": 6.4,
-      "hedgedPnlUsd": -5,
-      "protectionRatioPct": 74.99999
+      "eventPayoutUsd": 23.18,
+      "premiumUsd": 15,
+      "hedgedPnlUsd": -11.82,
+      "protectionRatioPct": 40.917995
     },
     {
       "adverseMovePct": -1,
       "contractOutcome": "DOWN",
       "underlyingPnlUsd": -10,
-      "eventPayoutUsd": 21.4,
-      "premiumUsd": 6.4,
-      "hedgedPnlUsd": 5,
-      "protectionRatioPct": 100
+      "eventPayoutUsd": 23.18,
+      "premiumUsd": 15,
+      "hedgedPnlUsd": -1.82,
+      "protectionRatioPct": 81.83599
     },
     {
       "adverseMovePct": -0.5,
       "contractOutcome": "DOWN",
       "underlyingPnlUsd": -5,
-      "eventPayoutUsd": 21.4,
-      "premiumUsd": 6.4,
-      "hedgedPnlUsd": 10,
+      "eventPayoutUsd": 23.18,
+      "premiumUsd": 15,
+      "hedgedPnlUsd": 3.18,
       "protectionRatioPct": 100
     },
     {
@@ -75,8 +75,8 @@
       "contractOutcome": "UP",
       "underlyingPnlUsd": 0,
       "eventPayoutUsd": 0,
-      "premiumUsd": 6.4,
-      "hedgedPnlUsd": -6.4,
+      "premiumUsd": 15,
+      "hedgedPnlUsd": -15,
       "protectionRatioPct": 0
     },
     {
@@ -84,8 +84,8 @@
       "contractOutcome": "UP",
       "underlyingPnlUsd": 10,
       "eventPayoutUsd": 0,
-      "premiumUsd": 6.4,
-      "hedgedPnlUsd": 3.6,
+      "premiumUsd": 15,
+      "hedgedPnlUsd": -5,
       "protectionRatioPct": 0
     }
   ],

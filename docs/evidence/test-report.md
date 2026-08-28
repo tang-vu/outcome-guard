@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 18:08 UTC
+Date: 2026-08-28 18:13 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -25,7 +25,7 @@ Command: `npm run verify`
 
 Additional checks:
 
-- Live Shannon evidence capture succeeded for market `0x…bcbe` at block `473363505`.
+- Live Shannon evidence capture succeeded from clean source commit `351b014bfb9fa7ea6082fbdd47d10765a159925b` for market `0x…c248` at block `473676996`; a second deterministic plan derivation matched its canonical input.
 - Receipt tamper, unsupported-claim, and linked-chain regression tests passed.
 - Preview and pre-sign policy entry points are the same function and have an equality test.
 - DreamDEX writes are blocked without a policy-and-signature execution guard. The explicit local-file-only `execute-once` path now adds a durable bundle claim, signer lock, fresh shared-policy pass and submission journal; it retains the lock after ambiguity instead of retrying.
