@@ -1,3 +1,5 @@
+import type { ExecutionMandate } from "@outcome-guard/schemas";
+
 export const SHANNON_CHAIN_ID = 50312 as const;
 export const SHANNON_RPC_URL = "https://api.infra.testnet.somnia.network";
 export const SHANNON_EXPLORER_URL = "https://shannon-explorer.somnia.network";
@@ -16,34 +18,26 @@ export function assertShannon(chainId: number): asserts chainId is typeof SHANNO
 
 export const roundMoney = (value: number): number => Math.round((value + Number.EPSILON) * 100) / 100;
 
-export function authorizationMessage(input: {
-  receiptDigest: string;
-  receiptId: string;
-  receiptCreatedAt: string;
-  venueId: string;
-  marketId: string;
-  snapshotAt: string;
-  marketExpiry: string;
-  size: number;
-  worstPrice: number;
-  maximumPremium: number;
-  collateralSymbol: string;
-}): string {
-  const deadline = new Date(Math.min(Date.parse(input.marketExpiry), Date.parse(input.receiptCreatedAt) + 120_000)).toISOString();
+export function executionMandateMessage(mandate: ExecutionMandate, mandateDigest: string): string {
   return [
-    "OutcomeGuard intent authorization v1",
-    `Receipt: ${input.receiptDigest}`,
-    `Authorization nonce: ${input.receiptId}`,
-    `Authorization deadline: ${deadline}`,
-    `Chain: ${SHANNON_CHAIN_ID}`,
-    `Venue: ${input.venueId}`,
-    `Market: ${input.marketId}`,
-    `Snapshot: ${input.snapshotAt}`,
-    `Market expiry: ${input.marketExpiry}`,
-    "Order: BUY DOWN · IOC",
-    `Size: ${input.size}`,
-    `Worst price: ${input.worstPrice}`,
-    `Maximum premium: ${input.maximumPremium} ${input.collateralSymbol}`,
-    "This signature authorizes intent only. A fresh fail-closed policy pass is still required before any transaction signature."
+    "OutcomeGuard exact execution mandate v1",
+    `Mandate digest: ${mandateDigest}`,
+    `Receipt digest: ${mandate.receiptDigest}`,
+    `Authorization nonce: ${mandate.receiptId}`,
+    `Authorization deadline: ${mandate.authorizationDeadline}`,
+    `Chain: ${mandate.chainId}`,
+    `Venue: ${mandate.venueId}`,
+    `Market: ${mandate.marketId}`,
+    `Execution signer: ${mandate.executionSigner}`,
+    `Market snapshot digest: ${mandate.marketSnapshotDigest}`,
+    `Snapshot captured at: ${mandate.snapshotCapturedAt}`,
+    "Order: BUY_NO IOC",
+    `YES call price raw: ${mandate.yesPriceRaw}`,
+    `NO outcome price raw: ${mandate.outcomePriceRaw}`,
+    `Quantity raw: ${mandate.quantityRaw}`,
+    `Maximum premium raw: ${mandate.maximumPremiumRaw}`,
+    `Order expiry ns: ${mandate.orderExpiryNs}`,
+    "Auto redeem: false",
+    "The worker must re-run fail-closed policy checks from fresh chain data before signing a transaction."
   ].join("\n");
 }

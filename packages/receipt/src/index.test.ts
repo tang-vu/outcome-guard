@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { ExecutionBundle, OutcomeGuardReceipt } from "@outcome-guard/schemas";
-import { sealReceipt, sha256, verifyExecutionBundle, verifyReceipt, verifyReceiptChain } from "./index.js";
+import { privateKeyToAccount } from "viem/accounts";
+import { executionMandateMessage } from "@outcome-guard/shared";
+import { computeMandateDigest, computeMarketSnapshotDigest, sealReceipt, sha256, verifyExecutionBundle, verifyReceipt, verifyReceiptChain } from "./index.js";
 
 const input: Omit<OutcomeGuardReceipt, "receiptId" | "integrity"> = {
   schemaVersion: "1.0.0", createdAt: "2026-08-28T06:00:00.000Z", lifecycleStage: "PRE_EXECUTION",
@@ -45,22 +47,43 @@ describe("receipt integrity", () => {
     const regressed = sealReceipt({ ...input, createdAt: "2026-08-28T06:01:00.000Z", previousReceiptDigest: execution.integrity.digest });
     expect(verifyReceiptChain([pre, execution, regressed]).valid).toBe(false);
   });
-  it("verifies a linked execution bundle and rejects signer substitution", () => {
-    const pre = sealReceipt(input);
-    const signer = `0x${"1".repeat(40)}`;
-    const message = "OutcomeGuard intent authorization v1";
+  it("verifies an exact signed execution bundle and rejects signer substitution", async () => {
+    const base = sealReceipt(input);
+    const executionProposal = {
+      schemaVersion: "outcomeguard.execution-proposal.v1" as const, chainId: 50312 as const, venueId: base.marketSnapshot.venueId, marketId: base.marketSnapshot.marketId,
+      pool: base.marketSnapshot.poolAddress, poolNonce: "1", outcomeToken: `0x${"4".repeat(40)}`, yesId: "2", noId: "3", outcome: "NO" as const, side: "BUY_NO" as const, orderType: "IOC" as const,
+      yesPriceRaw: "580000", outcomePriceRaw: "420000", quantityRaw: "30000000", maximumPremiumRaw: "15000000", estimatedPremiumRaw: "12600000",
+      visibleExecutableQuantityRaw: "100000000", orderExpiryNs: "1787896860000000000", observedBestAskRaw: "420000", maximumBookMoveBps: "200",
+      authorizationFingerprint: `0x${"5".repeat(64)}`, preparedAt: "2026-08-28T06:00:00.000Z", marketSnapshotDigest: computeMarketSnapshotDigest(base.marketSnapshot),
+      snapshotCapturedAt: base.marketSnapshot.capturedAt, executionSigner: `0x${"6".repeat(40)}`
+    };
+    const pre = sealReceipt({ ...input, executionProposal });
+    const mandate = {
+      ...executionProposal, proposalSchemaVersion: executionProposal.schemaVersion, schemaVersion: "outcomeguard.execution-mandate.v1" as const,
+      receiptDigest: pre.integrity.digest, receiptId: pre.receiptId, authorizationDeadline: "2026-08-28T06:02:00.000Z", autoRedeem: false as const
+    };
+    const mandateDigest = computeMandateDigest(mandate);
+    const message = executionMandateMessage(mandate, mandateDigest);
+    const account = privateKeyToAccount(`0x${"1".repeat(64)}`);
+    const signer = account.address;
+    const signature = await account.signMessage({ message });
     const { integrity: _integrity, receiptId: _receiptId, ...body } = pre;
     void _integrity; void _receiptId;
     const authorized = sealReceipt({
       ...body,
       createdAt: "2026-08-28T06:00:01.000Z",
-      authorization: { method: "wallet-signature", signer, signedPayloadHash: sha256(message), approvedAt: "2026-08-28T06:00:01.000Z", snapshotDigest: pre.integrity.digest },
+      authorization: { method: "wallet-signature", signer, signedPayloadHash: sha256(message), approvedAt: "2026-08-28T06:00:01.000Z", preExecutionReceiptDigest: pre.integrity.digest, mandateDigest },
       previousReceiptDigest: pre.integrity.digest
     });
-    const bundle: ExecutionBundle = { schemaVersion: "outcomeguard.execution-bundle.v1", createdAt: "2026-08-28T06:00:01.000Z", preExecutionReceipt: pre, authorizedReceipt: authorized, message, signature: `0x${"2".repeat(130)}`, signer };
-    expect(verifyExecutionBundle(bundle).valid).toBe(true);
+    const bundle: ExecutionBundle = { schemaVersion: "outcomeguard.execution-bundle.v1", createdAt: "2026-08-28T06:00:01.000Z", preExecutionReceipt: pre, authorizedReceipt: authorized, mandate, message, signature, signer };
+    expect((await verifyExecutionBundle(bundle, { nowMs: Date.parse("2026-08-28T06:00:30.000Z"), executionSigner: executionProposal.executionSigner })).valid).toBe(true);
+    expect((await verifyExecutionBundle(bundle, { nowMs: Date.parse(mandate.authorizationDeadline) })).valid).toBe(false);
+    expect((await verifyExecutionBundle(bundle, { nowMs: Date.parse("2026-08-28T06:00:30.000Z"), executionSigner: `0x${"7".repeat(40)}` })).valid).toBe(false);
+    const rawTamper = structuredClone(bundle);
+    rawTamper.mandate.quantityRaw = "29000000";
+    expect((await verifyExecutionBundle(rawTamper, { nowMs: Date.parse("2026-08-28T06:00:30.000Z") })).valid).toBe(false);
     const substituted = structuredClone(bundle);
     substituted.signer = `0x${"3".repeat(40)}`;
-    expect(verifyExecutionBundle(substituted).valid).toBe(false);
+    expect((await verifyExecutionBundle(substituted, { nowMs: Date.parse("2026-08-28T06:00:30.000Z") })).valid).toBe(false);
   });
 });

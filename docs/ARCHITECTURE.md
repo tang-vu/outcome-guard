@@ -25,7 +25,7 @@ The product language may express a premium budget in “USDso,” but the verifi
 
 ## System structure
 
-The diagram below is the target transaction lifecycle. At this checkpoint the web implements preview plus a verified intent signature and the DreamDEX adapter implements the guarded write boundary; the execution coordinator between them is not yet wired or evidenced.
+The diagram below is the target transaction lifecycle. At this checkpoint the web implements preview plus a verified exact raw-unit execution mandate and the DreamDEX adapter implements the guarded write boundary; the durable execution coordinator between them is not yet wired or evidenced.
 
 ```mermaid
 flowchart LR
@@ -57,7 +57,7 @@ The indexer supplies discovery, venue metadata, and history. Every write is scop
 
 | Component | Responsibility | Must not do |
 | --- | --- | --- |
-| `apps/web` | Exposure and intent entry, live market presentation, scenario chart, visible policy gate, verified intent signature, receipt explorer, labeled judge replay; transaction approval/status remain target coordinator work | Hold private keys; infer successful execution from a submitted hash |
+| `apps/web` | Exposure and intent entry, live market presentation, scenario chart, visible policy gate, exact execution-mandate signature, receipt explorer, labeled judge replay; transaction approval/status remain target coordinator work | Hold private keys; infer successful execution from a submitted hash |
 | `apps/agent` | Refresh discovery and books, recompute proposals, serialize a dedicated test-agent signer, reconcile positions, monitor settlement, propose rolling protection | Write mainnet; bypass approval; mutate historical receipts |
 | `packages/dreamdex` | Venue-scoped discovery, market-ID identity, chain verification, book reads, integer quantization, IOC placement, receipt/status checks, positions, finalized history, redemption | Trust indexer status for writes; hardcode decimals or per-window pools |
 | `packages/hedge-engine` | Deterministic hedge sizing and scenario P&L using integers/decimal strings; report basis risk | Predict price; promise perfect protection |
@@ -115,7 +115,7 @@ Binary protection is nonlinear and has strike, timing, liquidity, oracle, and ba
 5. Calculate and quantize with exact units. Reject zero size and any budget/depth overflow after quantization.
 6. Produce the preview policy result and authorization payload hash.
 7. Immediately before signing, refresh the market, book, balances, gas, parameters, expiry, and chain ID. Run the same policy evaluator and invalidate approval when tolerance is exceeded.
-8. Submit an intentionally bounded IOC order with a future nanosecond expiry through one serialized signer queue.
+8. Target protocol: durably claim the authorization, reserve/reconcile the signer nonce, then submit the bounded IOC with its signed future nanosecond expiry. The current adapter only serializes within one process and write mode remains disabled until the durable coordinator is complete.
 9. Require a successful mined receipt. For unified SDK calls the receipt is in `order.info as PlaceOrderResult`; a transaction hash alone is not confirmation.
 10. Reconcile fills and the position from chain data. Persist a linked post-execution receipt.
 11. Discover terminal markets using finalized binary-market history, verify resolution, redeem explicitly, and persist settlement/redemption receipts.

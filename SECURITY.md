@@ -27,8 +27,8 @@ Never include private keys, seed phrases, access tokens, raw authorization heade
 - Shannon chain ID `50312` is enforced in configuration, policy, adapter, signer, and receipt layers. Mainnet chain ID `5031` is rejected.
 - The browser uses an injected wallet. A worker key, when explicitly enabled, must be a disposable Shannon-only key supplied at runtime.
 - DreamDEX indexer data is used for discovery, venue metadata, and history. Writes require an explicit allowed venue plus fresh direct on-chain status, market generation, book parameters, balance, gas, and receipt checks. Venue membership remains indexer-derived and is disclosed as a trust limitation.
-- Prices and quantities use exact integer units. Token decimals, tick size, lot size, and minimum quantity are read from the venue.
-- Preview and pre-sign checks must use the same deterministic policy implementation. The guarded write adapter rejects a failed/unknown check or missing verified authorization; the current UI is an intent-signature prototype and is not the transaction coordinator.
+- Prices and quantities use exact integer units. Collateral decimals are read directly from ERC-20 metadata and must agree with market metadata; tick size, lot size, and minimum quantity are read from the venue.
+- Preview and pre-sign checks must use the same deterministic policy implementation. A live UI challenge binds an exact raw IOC mandate to a human EIP-191 signature, but the crash-safe worker transaction coordinator remains an open release gate.
 - A transaction hash is not confirmation. Confirmation requires a successful mined receipt and on-chain position reconciliation.
 - Lifecycle records are append-only canonical receipts linked by digest. Changed fields fail verification.
 - Fixtures and historical replay must remain visibly labeled and cannot contain fabricated transaction links.

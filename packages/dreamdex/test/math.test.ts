@@ -53,6 +53,14 @@ describe("DreamDEX exact-unit order construction", () => {
     expect(stableFingerprint({ b: 2n, a: 1 })).toBe(stableFingerprint({ a: 1, b: 2n }));
   });
 
+  it("rejects a NO price whose complemented YES call price is off-grid", () => {
+    expect(() => buildPreparedIoc({
+      market, book, params: { ...params, tickSize: 3_000n }, outcome: "NO",
+      quantityRaw: 1_000_000n, maximumOutcomePriceRaw: 480_000n, premiumBudgetRaw: 500_000n,
+      maximumBookMoveBps: 200n, expirySeconds: 300, nowMs: Date.parse("2026-08-28T00:00:00.000Z")
+    })).toThrow(/YES price.*tick/);
+  });
+
   it("cannot reach a write without a policy-and-signature execution guard", async () => {
     const order = buildPreparedIoc({
       market,

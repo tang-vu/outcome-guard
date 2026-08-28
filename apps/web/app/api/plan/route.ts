@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
-import { createShannonAdapter, formatDecimal, type BookParameters, type EventMarketSnapshot as AdapterMarket, type EventOrderBook } from "@outcome-guard/dreamdex";
+import { buildPreparedIoc, createShannonAdapter, formatDecimal, parseDecimal, type BookParameters, type EventMarketSnapshot as AdapterMarket, type EventOrderBook } from "@outcome-guard/dreamdex";
 import { buildHedgePlan } from "@outcome-guard/hedge-engine";
 import { evaluatePreview } from "@outcome-guard/policy-engine";
-import { sealReceipt } from "@outcome-guard/receipt";
-import { hedgeIntentSchema, type EventMarketSnapshot } from "@outcome-guard/schemas";
-import { DREAMDEX_VENUE_ID, MARKETS_SDK_VERSION, TESTNET_COLLATERAL } from "@outcome-guard/shared";
+import { computeMandateDigest, computeMarketSnapshotDigest, sealReceipt } from "@outcome-guard/receipt";
+import { executionMandateSchema, hedgeIntentSchema, type EventMarketSnapshot, type ExecutionProposal } from "@outcome-guard/schemas";
+import { DREAMDEX_VENUE_ID, executionMandateMessage, MARKETS_SDK_VERSION, TESTNET_COLLATERAL } from "@outcome-guard/shared";
 import { z } from "zod";
 
 const hash = (value: string) => `0x${createHash("sha256").update(value).digest("hex")}` as const;
@@ -45,13 +45,39 @@ export async function POST(request: Request) {
     const parsed = requestSchema.parse(body);
     const { liveMarketId, ...intent } = parsed;
     let market: EventMarketSnapshot;
+    let liveInputs: { market: AdapterMarket; book: EventOrderBook; parameters: BookParameters } | undefined;
     if (liveMarketId) {
       adapter = createShannonAdapter({ mode: "live", venueId: DREAMDEX_VENUE_ID });
       const raw = await adapter.getMarket(liveMarketId as `0x${string}`);
       const [book, parameters] = await Promise.all([adapter.getBook(raw, 20), adapter.getBookParameters(raw)]);
+      liveInputs = { market: raw, book, parameters };
       market = liveSchemaMarket(raw, book, parameters);
     } else market = fixtureMarket(intent.asset, intent.horizonMinutes);
     const plan = buildHedgePlan({ intent, market, constraints: { maxSharesPerMarket: 250, maxTotalPremium: 50, maxPriceImpactPct: 2, maxSpreadPct: 8 } });
+    const configuredSigner = process.env.AGENT_SIGNER_ADDRESS;
+    let executionProposal: ExecutionProposal | undefined;
+    if (liveInputs && configuredSigner && /^0x[0-9a-fA-F]{40}$/.test(configuredSigner)) {
+      const decimals = liveInputs.market.collateralDecimals;
+      const prepared = buildPreparedIoc({
+        market: liveInputs.market, book: liveInputs.book, params: liveInputs.parameters, outcome: "NO",
+        quantityRaw: parseDecimal(plan.normalizedShares.toString(), decimals),
+        maximumOutcomePriceRaw: parseDecimal(plan.worstPrice.toString(), decimals),
+        premiumBudgetRaw: parseDecimal(intent.maxPremium.toString(), decimals),
+        maximumBookMoveBps: BigInt(Math.floor(intent.maxSlippagePct * 100)),
+        expirySeconds: Math.min(90, Math.max(15, Math.floor(liveInputs.market.intervalSec * 0.05))),
+        nowMs: Date.now()
+      });
+      executionProposal = {
+        schemaVersion: "outcomeguard.execution-proposal.v1", chainId: prepared.chainId, venueId: prepared.venueId, marketId: prepared.marketId,
+        pool: prepared.pool, poolNonce: prepared.poolNonce.toString(), outcomeToken: prepared.outcomeToken, yesId: prepared.yesId.toString(), noId: prepared.noId.toString(),
+        outcome: "NO", side: "BUY_NO", orderType: "IOC", yesPriceRaw: prepared.yesPriceRaw.toString(), outcomePriceRaw: prepared.outcomePriceRaw.toString(),
+        quantityRaw: prepared.quantityRaw.toString(), maximumPremiumRaw: prepared.maximumPremiumRaw.toString(), estimatedPremiumRaw: prepared.estimatedPremiumRaw.toString(),
+        visibleExecutableQuantityRaw: prepared.visibleExecutableQuantityRaw.toString(), orderExpiryNs: prepared.expireTimestampNs.toString(),
+        observedBestAskRaw: prepared.observedBestAskRaw.toString(), maximumBookMoveBps: prepared.maximumBookMoveBps.toString(),
+        authorizationFingerprint: prepared.authorizationFingerprint, preparedAt: prepared.preparedAt,
+        marketSnapshotDigest: computeMarketSnapshotDigest(market), snapshotCapturedAt: market.capturedAt, executionSigner: configuredSigner
+      };
+    }
     const policies = evaluatePreview({
       chainId: 50312, intent, market, plan, now: new Date(), gasBalanceWei: null, totalPremiumAtRisk: null, portfolioAsset: intent.asset, portfolioExposureUsd: intent.exposureUsd, portfolioReadKnown: true,
       humanApproved: false, receiptInputsReproducible: true, authorizationMarket: market,
@@ -61,10 +87,16 @@ export async function POST(request: Request) {
       schemaVersion: "1.0.0", createdAt: new Date().toISOString(), lifecycleStage: "PRE_EXECUTION",
       network: { name: "somnia-shannon", chainId: 50312 }, intent: { normalized: intent, intentHash: hash(JSON.stringify(intent)) },
       portfolioBefore: { capturedAt: new Date().toISOString(), source: "manual-demo", asset: intent.asset, exposureUsd: String(intent.exposureUsd), readStatus: "known" },
-      marketSnapshot: market, hedgePlan: plan, policyEvaluation: policies,
+      marketSnapshot: market, hedgePlan: plan, ...(executionProposal ? { executionProposal } : {}), policyEvaluation: policies,
       authorization: { method: "wallet-signature", signer: "0x0000000000000000000000000000000000000000" }, execution: { status: "NOT_SUBMITTED" }
     });
-    return Response.json({ mode: liveMarketId ? "live" : "fixture", market, plan, policies, receipt }, { headers: { "cache-control": "no-store" } });
+    let authorizationChallenge;
+    if (executionProposal) {
+      const mandate = executionMandateSchema.parse({ ...executionProposal, proposalSchemaVersion: executionProposal.schemaVersion, schemaVersion: "outcomeguard.execution-mandate.v1", receiptDigest: receipt.integrity.digest, receiptId: receipt.receiptId, authorizationDeadline: new Date(Math.min(Date.parse(market.expiry), Date.parse(receipt.createdAt) + 120_000)).toISOString(), autoRedeem: false });
+      const mandateDigest = computeMandateDigest(mandate);
+      authorizationChallenge = { mandate, mandateDigest, message: executionMandateMessage(mandate, mandateDigest) };
+    }
+    return Response.json({ mode: liveMarketId ? "live" : "fixture", market, plan, policies, receipt, ...(authorizationChallenge ? { authorizationChallenge } : {}) }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Invalid request" }, { status: 400 });
   } finally { if (adapter) await Promise.race([adapter.close(), new Promise<void>((resolve) => setTimeout(resolve, 2_000))]); }

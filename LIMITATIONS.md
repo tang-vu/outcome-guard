@@ -1,12 +1,12 @@
 # Known Limitations
 
-Snapshot date: 2026-08-28. These limitations describe the current repository, not planned capabilities.
+Snapshot date: 2026-08-29. These limitations describe the current repository, not planned capabilities.
 
 ## Product and integration
 
 - The primary web judge flow defaults to an explicitly labeled deterministic fixture. Its `LIVE READ EVIDENCE` panel can select `Derive live plan`; the server then refetches that market ID and rebuilds the plan, policy, and receipt from Shannon. Live planning remains opt-in so endpoint failure does not collapse the demo.
 - Live discovery evidence exists in `docs/evidence/market-snapshot.json`. The execution and settlement artifacts are intentionally marked `NOT_PERFORMED`; there is no claimed IOC, fill, reconciled position, settlement, or redemption transaction yet.
-- The web authorization button obtains a message signature and verifies the recovered signer server-side. Its envelope includes a receipt nonce and deadline, but it is not typed EIP-712 authorization and does not submit or authorize a DreamDEX transaction.
+- With `AGENT_SIGNER_ADDRESS` configured, a live plan seals an exact raw-unit IOC proposal and the web signs a short-lived EIP-191 execution mandate containing its receipt, market snapshot, worker signer, price, quantity, premium and nanosecond expiry. The server recovers the human signer and returns a linked bundle. This still does not submit a transaction; the crash-safe worker coordinator is not implemented yet.
 - `packages/dreamdex` implements guarded live IOC placement, successful-receipt checking, position reads, finalized-market discovery, and redemption. Those methods have not yet been exercised with a funded Shannon signer in this repository's evidence.
 - The agent is a serialized market observer with health diagnostics. It does not yet persist jobs, recompute hedge proposals, automatically reconcile submitted orders after restart, monitor a held position through settlement, or request rolling-hedge authorization.
 - Exposure is entered manually. Wallet WETH/WBTC balance discovery and USD valuation are not implemented in the judge flow.
@@ -29,7 +29,7 @@ Snapshot date: 2026-08-28. These limitations describe the current repository, no
 - Testnet liquidity, uptime, prices, token value, and settlement behavior do not establish mainnet performance.
 - DreamDEX core addresses are proxies and venue parameters are mutable. Stable proxy addresses do not guarantee stable implementations.
 - The default RPC/indexer are external availability dependencies. The deterministic fallback preserves the demo but cannot execute or prove new live state.
-- Current endpoint validation enforces URL schemes and rejects embedded credentials, but it does not yet fully block redirects, private/link-local DNS resolution, or arbitrary HTTPS hosts. Do not enable untrusted endpoint overrides in write mode.
+- Current adapter endpoint validation enforces Shannon host allowlists, TLS schemes, default ports and no embedded credentials. Redirect and DNS-rebinding behavior has not been independently penetration-tested; do not add untrusted endpoint overrides in write mode.
 
 ## Receipts and evidence
 
@@ -45,8 +45,8 @@ Snapshot date: 2026-08-28. These limitations describe the current repository, no
 - The built-in secret scanner checks tracked and unignored working-tree files, not the full Git history. A separate full-history scan is required before public release.
 - The in-memory signer queue serializes writes within one process only. Multiple worker replicas or a process restart require a durable distributed nonce/idempotency design before write mode is safe.
 - The worker has a health endpoint and graceful shutdown, but no durable database, alerting integration, dead-letter queue, or operator dashboard.
-- The Dockerfile and hosted deployment have not yet been verified in the published evidence.
-- Dependency audit results and Playwright release-gate results must be recorded from the final commit; their existence is not claimed here.
+- The fixture agent container has been built and its health endpoint verified locally. It is not yet hardened as a non-root, persistent-volume execution container or verified on a public host.
+- Dependency audit and Playwright results exist for the current checkpoint, but must be regenerated from the final release commit.
 
 ## Submission status
 

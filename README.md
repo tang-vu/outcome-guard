@@ -151,17 +151,17 @@ npm run verify
 
 It composes lint, strict type checking, unit/property tests, production build, Playwright E2E, working-tree secret scanning, and dependency audit. Individual commands are in [`package.json`](package.json).
 
-**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 19 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 95-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
+**Checkpoint truth:** `npm run verify` passed locally on 28 August 2026: lint, strict workspace type checks, 20 Vitest tests, production builds, six Playwright checks across desktop and 390 px mobile, a 95-file working-tree secret scan, and an npm audit with zero known vulnerabilities. See [`docs/evidence/test-report.md`](docs/evidence/test-report.md).
 
 ## 14. Security model
 
 - Writes are hard-blocked outside Shannon chain `50312`.
 - The browser uses an injected wallet; the worker accepts only a disposable testnet key.
 - AI can normalize or explain but cannot calculate, waive policy, construct a transaction, or sign.
-- Preview and pre-sign expose the same evaluator; the guarded write boundary requires fresh passing results and a verified authorization envelope. The current UI implements preview and an intent signature, not the transaction coordinator.
+- Preview and pre-sign expose the same evaluator. A live plan can issue an exact raw-unit IOC mandate only when a dedicated worker address is configured; the server verifies the EIP-191 signature and seals a linked bundle. The current worker still lacks the durable transaction coordinator required to consume that bundle.
 - A tx hash alone is not confirmation; a successful mined receipt and position evidence are required.
 - Venue ambiguity, stale state, unknown balances, zero normalized size, changed book, or irreproducible receipt inputs block execution.
-- Writes are serialized per signer to avoid nonce races.
+- Adapter writes are serialized in memory within one process. Durable per-signer nonce serialization and crash-safe replay prevention remain a release gate before worker write mode may be enabled.
 
 See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md) and [`SECURITY.md`](SECURITY.md).
 

@@ -25,8 +25,8 @@ flowchart TB
     end
 
     subgraph B3[Boundary 3 — Execution service]
-      COORD[Coordinator]
-      NONCE[Per-signer nonce queue]
+      COORD[Target durable coordinator - not enabled]
+      NONCE[Target durable nonce journal - open gate]
       KEY[Disposable testnet key or wallet request]
     end
 
@@ -96,4 +96,3 @@ Authorization is a one-time capability, not general consent. It binds:
 - approval timestamp and authorization expiry.
 
 Rolling protection always creates a new proposal and authorization. Settlement monitoring may be automatic, but redemption follows the configured authorization method and cannot be inferred from approval of the opening order.
-

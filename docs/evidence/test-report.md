@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 16:52 UTC
+Date: 2026-08-28 17:14 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -12,7 +12,7 @@ Command: `npm run verify`
 | --- | --- | --- |
 | ESLint | pass | `eslint .` exited 0 |
 | TypeScript strict workspaces | pass | agent, web, dreamdex, hedge-engine, policy-engine, receipt, schemas, shared |
-| Unit/property/security-boundary tests | pass | 4 files, 19 tests |
+| Unit/property/security-boundary tests | pass | 4 files, 20 tests |
 | Production build | pass | Next.js 16.3.3 plus all buildable workspaces; metadata, manifest, robots, icon, and Open Graph routes generated |
 | Desktop judge flow | pass | 3 Playwright Chromium checks, 1440 px |
 | Mobile judge flow | pass | 3 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
@@ -27,9 +27,11 @@ Additional checks:
 - Live Shannon evidence capture succeeded for market `0x…bcbe` at block `473363505`.
 - Receipt tamper, unsupported-claim, and linked-chain regression tests passed.
 - Preview and pre-sign policy entry points are the same function and have an equality test.
-- DreamDEX writes are blocked without a policy-and-signature execution guard; the adapter also requires a one-time receipt digest and matching order fingerprint.
+- DreamDEX writes are blocked without a policy-and-signature execution guard. Its current one-time set and signer queue are process-local, not restart-safe; durable coordination remains an explicit write-mode gate.
 - The authorization API independently verifies canonical receipt integrity before producing a linked authorization receipt and execution bundle.
 - Receipt tampering and execution-bundle signer substitution are rejected by regression tests.
+- Exact execution mandates bind raw IOC price, quantity, premium, expiry, market snapshot, worker signer and receipt. Tests recover a real EIP-191 test signature and reject raw-field tampering, wrong worker identity and deadline boundaries.
+- DreamDEX order construction checks both outcome and transmitted YES tick grids. Live snapshots directly read ERC-20 metadata and fail if collateral decimals disagree; pool-scoped events distinguish `OrderPlaced` from actual `OrderRested` evidence.
 - Fixture worker started without a key in `DRY_RUN=true`, returned healthy on `/health`, produced structured logs, and observed one deterministic market.
 
 ## Honest exclusions

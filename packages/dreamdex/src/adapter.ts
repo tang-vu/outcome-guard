@@ -2,11 +2,12 @@ import {
   ORDER_TYPE,
   SOMNIA_TESTNET_ADDRESSES,
   SomniaMarkets,
+  orderBookEventsAbi,
   type BinaryMarket,
   type MarketOnchain,
 } from "@somnia-chain/markets-sdk";
 import { somniaShannon } from "@somnia-chain/markets-sdk/chains";
-import { defineChain, type Address, type Hex } from "viem";
+import { decodeEventLog, defineChain, type Address, type Hex, type TransactionReceipt } from "viem";
 import { deterministicFixture } from "./fixtures";
 import { buildPreparedIoc, executableDepth, premiumAtLimit, stableFingerprint } from "./math";
 import {
@@ -72,6 +73,26 @@ function averageFillPrice(fills: readonly { fillPrice: bigint; quantityFilled: b
     return sum + ownPrice * fill.quantityFilled;
   }, 0n);
   return numerator / quantity;
+}
+
+function decodePoolOrderEvidence(receipt: TransactionReceipt, pool: Address): {
+  orderId?: bigint;
+  fills: { takerOrderId: bigint; makerOrderId: bigint; quantityFilled: bigint; takerRemainingQuantity: bigint; makerRemainingQuantity: bigint; fillPrice: bigint }[];
+  restedOrderIds: Set<bigint>;
+} {
+  let orderId: bigint | undefined;
+  const fills: { takerOrderId: bigint; makerOrderId: bigint; quantityFilled: bigint; takerRemainingQuantity: bigint; makerRemainingQuantity: bigint; fillPrice: bigint }[] = [];
+  const restedOrderIds = new Set<bigint>();
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== pool.toLowerCase()) continue;
+    try {
+      const decoded = decodeEventLog({ abi: orderBookEventsAbi, data: log.data, topics: log.topics });
+      if (decoded.eventName === "OrderPlaced") orderId = decoded.args.orderId;
+      if (decoded.eventName === "OrderRested") restedOrderIds.add(decoded.args.orderId);
+      if (decoded.eventName === "OrderFilled") fills.push(decoded.args);
+    } catch { /* The pool can emit other events in the same transaction. */ }
+  }
+  return { ...(orderId !== undefined ? { orderId } : {}), fills, restedOrderIds };
 }
 
 /**
@@ -247,7 +268,7 @@ export class DreamDexAdapter {
     if (order.quantityRaw % params.lotSize !== 0n || order.quantityRaw < params.minQuantity) {
       throw new Error("pre-sign policy failed: quantity no longer satisfies the book grid");
     }
-    if (order.outcomePriceRaw % params.tickSize !== 0n) throw new Error("pre-sign policy failed: price no longer satisfies the book grid");
+    if (order.outcomePriceRaw % params.tickSize !== 0n || order.yesPriceRaw % params.tickSize !== 0n) throw new Error("pre-sign policy failed: outcome or transmitted YES price no longer satisfies the book grid");
     const depth = executableDepth(book, order.outcome, order.outcomePriceRaw);
     if (depth.bestAskRaw === undefined || order.quantityRaw > depth.quantityRaw) {
       throw new Error("pre-sign policy failed: visible executable depth changed");
@@ -282,11 +303,14 @@ export class DreamDexAdapter {
       autoApprove: false,
     });
     if (!result.receipt || result.receipt.status !== "success") throw new Error(`IOC was not confirmed successful: ${result.hash}`);
-    if (result.orderId !== undefined) throw new Error(`IOC unexpectedly left a resting order ${result.orderId}`);
-    const filled = result.fills.reduce((sum, fill) => sum + fill.quantityFilled, 0n);
+    const poolEvidence = decodePoolOrderEvidence(result.receipt, order.pool);
+    if (result.orderId !== undefined && poolEvidence.orderId !== result.orderId) throw new Error(`confirmed IOC order ID did not reproduce from pool-scoped logs: ${result.hash}`);
+    if (poolEvidence.orderId !== undefined && poolEvidence.restedOrderIds.has(poolEvidence.orderId)) throw new Error(`IOC emitted OrderRested for taker ${poolEvidence.orderId}`);
+    if (poolEvidence.orderId !== undefined && await exchange.client.getOrderOnchain(order.pool, poolEvidence.orderId) !== null) throw new Error(`IOC taker ${poolEvidence.orderId} remains active on-chain`);
+    const filled = poolEvidence.fills.reduce((sum, fill) => sum + fill.quantityFilled, 0n);
     if (filled === 0n) throw new Error(`IOC confirmed but produced no fill: ${result.hash}`);
-    const avg = averageFillPrice(result.fills, order.outcome, one);
-    const premium = result.fills.reduce((sum, fill) => {
+    const avg = averageFillPrice(poolEvidence.fills, order.outcome, one);
+    const premium = poolEvidence.fills.reduce((sum, fill) => {
       const price = order.outcome === "YES" ? fill.fillPrice : one - fill.fillPrice;
       return sum + premiumAtLimit(fill.quantityFilled, price, one);
     }, 0n);
@@ -296,8 +320,12 @@ export class DreamDexAdapter {
       exchange.client.getErc20Balance(current.collateral, exchange.walletAddress),
     ]);
     const positionDeltaRaw = order.outcome === "YES" ? position.yesRaw - positionBefore.yesRaw : position.noRaw - positionBefore.noRaw;
-    if (positionDeltaRaw < filled) throw new Error(`IOC succeeded but position reconciliation failed: delta ${positionDeltaRaw} < filled ${filled}`);
+    if (positionDeltaRaw !== filled) throw new Error(`IOC succeeded but position reconciliation failed: delta ${positionDeltaRaw} != filled ${filled}`);
+    const oppositeBefore = order.outcome === "YES" ? positionBefore.noRaw : positionBefore.yesRaw;
+    const oppositeAfter = order.outcome === "YES" ? position.noRaw : position.yesRaw;
+    if (oppositeAfter !== oppositeBefore) throw new Error("IOC succeeded but the opposite outcome position changed unexpectedly");
     const collateralSpentRaw = collateralBalance >= collateralAfter ? collateralBalance - collateralAfter : 0n;
+    if (collateralSpentRaw > order.maximumPremiumRaw) throw new Error("IOC succeeded but collateral decrease exceeded the authorization");
     return {
       status: "confirmed",
       txHash: result.hash,
@@ -434,7 +462,12 @@ export class DreamDexAdapter {
     if (this.venueId && !sameHex(this.venueId, row.venueId)) {
       throw new Error(`market venue ${row.venueId} is not configured venue ${this.venueId}`);
     }
-    const onchain = await this.requireExchange().client.getMarketOnchain(row.marketId);
+    const client = this.requireExchange().client;
+    const onchain = await client.getMarketOnchain(row.marketId);
+    const metadata = await client.getErc20Metadata(onchain.collateral);
+    if (!Number.isSafeInteger(metadata.decimals) || metadata.decimals < 0 || metadata.decimals > 36 || metadata.decimals !== onchain.decimals) {
+      throw new Error(`collateral decimals mismatch for ${onchain.collateral}: direct=${metadata.decimals}, market=${onchain.decimals}`);
+    }
     return this.combine(row, onchain, asset);
   }
 

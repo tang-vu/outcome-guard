@@ -104,6 +104,7 @@ export function buildPreparedIoc(args: {
   const expirySec = Math.min(nowSec + args.expirySeconds, market.expiry);
   if (expirySec <= nowSec) throw new Error("order expiry is not in the future");
   const yesPrice = outcome === "YES" ? price : one - price;
+  if (yesPrice % params.tickSize !== 0n) throw new RangeError("transmitted YES price is not aligned to the venue tick");
   const prepared = {
     chainId: 50_312,
     venueId: market.venueId,

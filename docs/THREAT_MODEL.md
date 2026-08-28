@@ -32,7 +32,7 @@ Protected assets include the disposable testnet wallet, user authorization, toke
 | T11 | SSRF through configurable endpoints | Internal-network access/data theft | Production endpoint allowlist; parse URL; HTTPS/WSS only; block credentials, localhost, private/link-local IPs and redirects; fixed timeouts/body caps | URL validator tests |
 | T12 | Prompt injection in natural-language intent | Policy bypass or arbitrary tool call | Treat text as data; schema-constrained parser; allowed enum/range validation; deterministic manual fallback; AI never calculates, signs, or selects permissions | Adversarial intent fixtures |
 | T13 | Unauthorized policy change | Limits silently weakened | Versioned policy bundle; protected code ownership; receipt records version/hash; approval invalidated by policy change | Policy-hash mismatch test |
-| T14 | Nonce race and ambiguous retry | Duplicate or replaced transaction | Exactly one serialized queue per signer; track nonce/hash; reconcile pending tx before retry; idempotency key by authorization digest | Concurrent execution and restart tests |
+| T14 | Nonce race and ambiguous retry | Duplicate or replaced transaction | **Open release gate:** current adapter queue is process-local. Add a durable per-signer journal, explicit nonce/hash reconciliation, and one-time authorization claim before enabling worker writes | Concurrent execution and restart tests pending |
 | T15 | False confirmation from transaction hash or SDK misuse | UI/receipt lies | Require successful mined receipt; unified SDK receipt read from `order.info`; decode expected contract/fill; reconcile resulting position | Mined-revert and hash-only tests |
 | T16 | Settlement mismatch or oracle confusion | Wrong claim/outcome | Bind oracle question/settlement reference; use finalized history plus on-chain state; surface oracle evidence; support `VOID`; do not infer from spot price | Settlement outcome fixtures and chain reconciliation |
 | T17 | False redemption completion | Missing funds, dishonest evidence | Require successful redemption tx or verified already-redeemed chain balance/state; append linked receipt | Redemption failure test |
@@ -40,7 +40,7 @@ Protected assets include the disposable testnet wallet, user authorization, toke
 | T19 | Gas depletion or native-token confusion | Failed execution/retry storm | Native SOMI balance preflight and reserve; missing read is unknown; cap retries and stop on deterministic revert | Zero/unknown gas tests |
 | T20 | Book movement/front-running | Cost/slippage exceeds intent | Refresh book before sign; snapshot tolerance; max price and IOC; bound executable depth and impact; short order expiry | Changed-book invalidation test |
 | T21 | Invisible resting remainder | Unintended open risk | IOC intentionally; verify order result and any open-order state | Partial-fill integration fixture |
-| T22 | Worker crash between stages | Duplicate writes/incomplete audit | Durable idempotency key; append-only stage journal; reconcile chain before resume; graceful shutdown | Kill/restart integration test |
+| T22 | Worker crash between stages | Duplicate writes/incomplete audit | **Open release gate:** implement durable idempotency claim and append-only stage journal; reconcile chain before resume; graceful shutdown alone is insufficient | Kill/restart integration test pending |
 | T23 | Fixture or replay presented as live | Misleading judges/users | Cryptographic fixture digest and provenance; persistent `fixture`/`verified-replay` label; real hashes only; no synthetic explorer links | E2E label assertions |
 | T24 | Cross-site scripting in intent, market metadata, or receipt view | Wallet/user compromise | Render as text; sanitize downloads/links; CSP; no HTML interpretation; safe URL allowlist | XSS fixture tests |
 
@@ -75,4 +75,3 @@ The release gate must prove:
 On a suspected compromise: disable execution mode; stop the worker without deleting its journal; preserve logs and receipt digests; inspect pending nonces and on-chain allowances; revoke testnet allowances where safe; rotate the disposable key; compare local receipts with chain data; document the discrepancy without rewriting historical artifacts. Never expose a suspected key in a bug report.
 
 Responsible disclosure instructions belong in `SECURITY.md`. Implementation boundaries are detailed in [Trust Boundaries](architecture/trust-boundaries.md).
-
