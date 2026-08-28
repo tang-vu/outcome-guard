@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+const publishedReceiptDigest = "0xddfd60734a404cc9e18089b8fb399ff019fc3aaf63aa0bb2bb60829653991206";
+
 test("judge can compose and inspect bounded protection", async ({ page }) => {
   await page.route("**/api/markets", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ source: "unavailable", error: "deterministic E2E fixture" }) }));
   await page.goto("/");
@@ -43,4 +45,26 @@ test("health identifies network and honest mode", async ({ request }) => {
   const replay = await request.get("/api/replay");
   expect(replay.ok()).toBe(true);
   await expect(replay.json()).resolves.toMatchObject({ label: "VERIFIED_REPLAY", terminalState: { status: "Resolved", winningOutcome: "NO" }, redemptionEvidence: { status: "NOT_PERFORMED" }, verification: { valid: true } });
+});
+
+test("receipt explorer verifies, discloses lifecycle truth, and serves the artifact", async ({ page, request }) => {
+  await page.goto(`/receipts/${publishedReceiptDigest}`);
+  await expect(page.getByText("VERIFIED", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Protection objective" })).toBeVisible();
+  await expect(page.getByText(/This artifact proves planning and policy evaluation only/)).toBeVisible();
+  await expect(page.getByText("NOT SUBMITTED", { exact: false })).toBeVisible();
+  await expect(page.locator(".explorerPolicies details[open]")).toHaveCount(3);
+
+  const artifact = await request.get(`/api/receipts/${publishedReceiptDigest}?download=1`);
+  expect(artifact.ok()).toBe(true);
+  expect(artifact.headers()["content-disposition"]).toContain("attachment");
+  await expect(artifact.json()).resolves.toMatchObject({ lifecycleStage: "PRE_EXECUTION", integrity: { digest: publishedReceiptDigest }, execution: { status: "NOT_SUBMITTED" } });
+});
+
+test("unknown receipt digests fail closed", async ({ page, request }) => {
+  const unknown = `0x${"0".repeat(64)}`;
+  await page.goto(`/receipts/${unknown}`);
+  await expect(page.getByRole("heading", { name: "Receipt not found." })).toBeVisible();
+  await expect(page.getByText("FAIL CLOSED", { exact: true })).toBeVisible();
+  expect((await request.get(`/api/receipts/${unknown}`)).status()).toBe(404);
 });

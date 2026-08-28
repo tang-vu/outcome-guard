@@ -98,7 +98,7 @@ Receipts are strict versioned JSON. OutcomeGuard canonicalizes their JSON-compat
 npm run receipt:verify -- docs/evidence/pre-execution-receipt.json
 ```
 
-Changing any sealed field must produce a digest mismatch. The verifier and tamper tests are in [`packages/receipt`](packages/receipt). The human/raw receipt route is implemented at `/receipts/[digest]`; release validation remains part of the full gate.
+Changing any sealed field must produce a digest mismatch. The verifier and tamper tests are in [`packages/receipt`](packages/receipt). The release packages a verified human/raw explorer at `/receipts/0xddfd60734a404cc9e18089b8fb399ff019fc3aaf63aa0bb2bb60829653991206`; unknown digests fail closed, and the API serves a downloadable artifact only after server-side verification.
 
 ## 10. Differentiation
 

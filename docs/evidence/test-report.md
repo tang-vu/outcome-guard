@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 17:55 UTC
+Date: 2026-08-28 18:08 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -14,10 +14,10 @@ Command: `npm run verify`
 | TypeScript strict workspaces | pass | agent, web, dreamdex, execution-coordinator, hedge-engine, policy-engine, receipt, schemas, shared |
 | Unit/property/security-boundary tests | pass | 5 files, 25 tests |
 | Production build | pass | Next.js 16.3.3 plus all buildable workspaces; metadata, manifest, robots, icon, and Open Graph routes generated |
-| Desktop judge flow | pass | 3 Playwright Chromium checks, 1440 px |
-| Mobile judge flow | pass | 3 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
+| Desktop judge flow | pass | 5 Playwright Chromium checks, 1440 px |
+| Mobile judge flow | pass | 5 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
-| Working-tree secret scan | pass | 106 files at run time |
+| Working-tree secret scan | pass | 108 files at run time |
 | Full-history secret scan | pass | Gitleaks 8.30.1 scanned 8 commits / ~818 KB; exact public-contract false-positive allowlist only |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Clean install | pass | final lockfile installed with `npm ci` |
@@ -31,6 +31,7 @@ Additional checks:
 - DreamDEX writes are blocked without a policy-and-signature execution guard. The explicit local-file-only `execute-once` path now adds a durable bundle claim, signer lock, fresh shared-policy pass and submission journal; it retains the lock after ambiguity instead of retrying.
 - The authorization API independently verifies canonical receipt integrity before producing a linked authorization receipt and execution bundle.
 - Receipt tampering and execution-bundle signer substitution are rejected by regression tests.
+- The packaged receipt explorer revalidates schema and canonical digest server-side, exposes an attachment endpoint, discloses incomplete lifecycle stages, and returns `404` for unknown digests. Desktop and 390 px E2E checks cover the valid and fail-closed paths.
 - Exact execution mandates bind raw IOC price, quantity, premium, expiry, market snapshot, worker signer and receipt. Tests recover a real EIP-191 test signature and reject raw-field tampering, wrong worker identity and deadline boundaries.
 - DreamDEX order construction checks both outcome and transmitted YES tick grids. Live snapshots directly read ERC-20 metadata and fail if collateral decimals disagree; pool-scoped events distinguish `OrderPlaced` from actual `OrderRested` evidence.
 - Durable journal tests cover restart hash-chain verification, exclusive signer locking, changed/torn record refusal, absolute-path enforcement, and 25 concurrent appends with unique ordered sequence numbers. Explicit nonce/raw-transaction recovery and crash-injection evidence remain excluded.
