@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public ERC-6909 outcome-token contract address in the deterministic DreamDEX fixture; not credential material."
+regexTarget = "line"
+paths = ['''packages/dreamdex/src/fixtures\.ts''']
+regexes = ['''outcomeToken:\s*"0xB52c5934113Af5c0Bb20eb3C72290C8215f755b9"''']

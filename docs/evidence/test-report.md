@@ -18,6 +18,7 @@ Command: `npm run verify`
 | Mobile judge flow | pass | 3 Playwright Chromium checks, 390 px; overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
 | Working-tree secret scan | pass | 101 files at run time |
+| Full-history secret scan | pass | Gitleaks 8.30.1 scanned 8 commits / ~818 KB; exact public-contract false-positive allowlist only |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Clean install | pass | final lockfile installed with `npm ci` |
 | Agent container | pass | Docker image built; non-root `outcomeguard` fixture container reached Docker `healthy`, returned `/health`, and used an isolated state mount |
@@ -37,4 +38,4 @@ Additional checks:
 
 ## Honest exclusions
 
-The release gate does not prove a wallet-authorized IOC, fill, resulting position, settlement, redemption, public deployment, video, or full-history scan. Those remain external-action blockers and are not claimed.
+The release gate does not prove a wallet-authorized IOC, fill, resulting position, settlement, redemption, public deployment, or video. Those remain external-action blockers and are not claimed.

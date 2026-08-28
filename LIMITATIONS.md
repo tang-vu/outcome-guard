@@ -42,7 +42,7 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 ## Security and operations
 
 - The code has not received an independent security audit.
-- The built-in secret scanner checks tracked and unignored working-tree files, not the full Git history. A separate full-history scan is required before public release.
+- The built-in scanner covers tracked and unignored working-tree files. A separate Gitleaks 8.30.1 scan of all 8 current commits passed with one narrowly documented public-contract false-positive allowlist; it must be rerun after every new release commit.
 - The execution-coordinator is wired only to the explicit `execute-once` command for a single Linux-volume replica. It claims before submission and retains the signer lock after ambiguity, but the SDK path does not expose explicit nonce/raw-transaction persistence and automatic recovery. Multi-replica signing remains unsupported; this is testnet software, not production custody infrastructure.
 - The worker has a health endpoint and graceful shutdown, but no durable database, alerting integration, dead-letter queue, or operator dashboard.
 - The fixture agent container has been built and its health endpoint verified locally. It is not yet hardened as a non-root, persistent-volume execution container or verified on a public host.

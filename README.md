@@ -164,7 +164,7 @@ It composes lint, strict type checking, unit/property tests, production build, P
 - Venue ambiguity, stale state, unknown balances, zero normalized size, changed book, or irreproducible receipt inputs block execution.
 - The local execution path durably claims one-time bundles, locks a signer, hash-chains execution states, journals the submission boundary, and refuses automatic retry after ambiguity. A real funded Shannon run, explicit nonce/raw-transaction recovery and crash-injection evidence remain release gates before claiming production readiness.
 
-See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md) and [`SECURITY.md`](SECURITY.md).
+See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md), [`SECURITY.md`](SECURITY.md), and the passing [full-history Gitleaks report](docs/evidence/full-history-secret-scan.md).
 
 ## 15. Known limitations
 
