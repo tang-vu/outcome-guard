@@ -52,6 +52,22 @@ test("natural-language intent is schema-bound to deterministic controls", async 
   await expect(page.getByText(/Structured truth: protect \$750\.00 of BTC/)).toBeVisible();
 });
 
+test("market selection never falls back across intent horizons", async ({ page }) => {
+  await page.route("**/api/markets", (route) => route.fulfill({
+    contentType: "application/json",
+    body: JSON.stringify({ source: "live", snapshots: [{
+      market: { marketId: `0x${"9".repeat(64)}`, venueId: `0x${"8".repeat(64)}`, asset: "ETH", intervalSec: 3600, expiry: 1788022800, status: 1, statusName: "Trading", question: "ETH closes at or above its opening price", collateralDecimals: 6 },
+      book: { capturedAt: "2026-08-29T16:00:00.000Z", blockNumber: "1", yesBids: [{ priceRaw: "550000", quantityRaw: "10000000" }], yesAsks: [{ priceRaw: "580000", quantityRaw: "10000000" }] },
+      parameters: { tickSize: "1000", lotSize: "1000", minQuantity: "1000" }
+    }] })
+  }));
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Derive live plan", exact: true })).toBeVisible();
+  await page.locator("button", { hasText: "15 minutes" }).click();
+  await expect(page.getByText(/No live ETH 15-minute market is currently eligible/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Derive live plan", exact: true })).toHaveCount(0);
+});
+
 test("health identifies network and honest mode", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.ok()).toBe(true);
