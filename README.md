@@ -138,7 +138,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000`. The default composer is a clearly labeled deterministic fallback. The live market endpoint is `http://localhost:3000/api/markets` and fails honestly with HTTP 503 if Shannon reads are unavailable.
+Open `http://localhost:3217`. OutcomeGuard reserves this project-specific development port to avoid silently opening an unrelated service on the common port 3000. The default composer is a clearly labeled deterministic fallback. The live market endpoint is `http://localhost:3217/api/markets` and fails honestly with HTTP 503 if Shannon reads are unavailable.
 
 Run the observer worker:
 

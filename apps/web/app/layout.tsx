@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3217"),
   title: { default: "OutcomeGuard — policy-bound portfolio protection", template: "%s · OutcomeGuard" },
   description: "Turn BTC or ETH downside concern into transparent, policy-bound short-duration protection using DreamDEX Event Contracts on Somnia Shannon.",
   applicationName: "OutcomeGuard",

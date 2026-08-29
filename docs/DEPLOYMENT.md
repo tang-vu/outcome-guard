@@ -23,13 +23,13 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000`. The default environment is `DRY_RUN=true` and `FIXTURE_MODE=true`. The judge screen labels its deterministic fallback; `/api/markets` separately attempts live Shannon discovery.
+Open `http://localhost:3217`. The project reserves port 3217 for local development so a different application on the conventional port 3000 cannot be mistaken for OutcomeGuard. The default environment is `DRY_RUN=true` and `FIXTURE_MODE=true`. The judge screen labels its deterministic fallback; `/api/markets` separately attempts live Shannon discovery.
 
 Check:
 
 ```text
-GET http://localhost:3000/api/health
-GET http://localhost:3000/api/markets
+GET http://localhost:3217/api/health
+GET http://localhost:3217/api/markets
 ```
 
 An unavailable live endpoint should produce an honest 503 response from `/api/markets` while the labeled fixture preview remains usable.

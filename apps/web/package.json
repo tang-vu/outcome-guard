@@ -2,7 +2,7 @@
   "name": "@outcome-guard/web",
   "version": "0.1.0",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "typecheck": "tsc --noEmit" },
+  "scripts": { "dev": "next dev --port 3217", "build": "next build", "start": "next start", "typecheck": "tsc --noEmit" },
   "dependencies": {
     "@outcome-guard/dreamdex": "0.1.0",
     "@outcome-guard/hedge-engine": "0.1.0",
