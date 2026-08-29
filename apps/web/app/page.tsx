@@ -27,6 +27,7 @@ const money = (value: number) => new Intl.NumberFormat("en-US", { style: "curren
 const short = (value: string) => `${value.slice(0, 8)}…${value.slice(-6)}`;
 
 export default function Home() {
+  const [hydrated, setHydrated] = useState(false);
   const [asset, setAsset] = useState<"ETH" | "BTC">("ETH");
   const [exposure, setExposure] = useState(1000);
   const [horizon, setHorizon] = useState<15 | 60>(60);
@@ -59,7 +60,7 @@ export default function Home() {
     } finally { setLiveLoading(false); }
   };
 
-  useEffect(() => { void refreshLive(); void fetch("/api/replay").then((response) => response.json()).then((value) => setSettledReplay(value as SettledReplay)); }, []);
+  useEffect(() => { setHydrated(true); void refreshLive(); void fetch("/api/replay").then((response) => response.json()).then((value) => setSettledReplay(value as SettledReplay)); }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -161,7 +162,7 @@ export default function Home() {
         <div className="segmented"><button aria-pressed={asset === "ETH"} className={asset === "ETH" ? "active" : ""} onClick={() => setAsset("ETH")}>ETH</button><button aria-pressed={asset === "BTC"} className={asset === "BTC" ? "active" : ""} onClick={() => setAsset("BTC")}>BTC</button></div>
         <label>Exposure value <span>Manual demo override</span><div className="input"><i>$</i><input aria-label="Exposure value" type="number" min="1" value={exposure} onChange={(e) => setExposure(Number(e.target.value))} /></div></label>
         <div className="step"><b>02</b><span>Protection intent</span></div>
-        <label className="intentParser">Natural-language intent <span>Optional</span><textarea aria-label="Natural-language protection intent" maxLength={1000} value={intentText} onChange={(event) => setIntentText(event.target.value)} /><button type="button" onClick={applyNaturalIntent}>Apply to controls</button><small aria-live="polite">{parserNote}</small></label>
+        <label className="intentParser">Natural-language intent <span>Optional</span><textarea aria-label="Natural-language protection intent" maxLength={1000} value={intentText} onChange={(event) => setIntentText(event.target.value)} disabled={!hydrated} aria-busy={!hydrated} /><button type="button" onClick={applyNaturalIntent} disabled={!hydrated} aria-busy={!hydrated}>Apply to controls</button><small aria-live="polite">{parserNote}</small></label>
         <label>Horizon<div className="segmented"><button aria-pressed={horizon === 15} className={horizon === 15 ? "active" : ""} onClick={() => setHorizon(15)}>15 minutes</button><button aria-pressed={horizon === 60} className={horizon === 60 ? "active" : ""} onClick={() => setHorizon(60)}>1 hour</button></div></label>
         <label>Maximum premium <span>{data?.market.collateral.symbol ?? "collateral"}</span><input aria-label="Maximum premium" type="range" min="1" max="50" value={maxPremium} onChange={(e) => setMaxPremium(Number(e.target.value))} /><output>{money(maxPremium)}</output></label>
         <div className="twocol"><label>Scenario<input aria-label="Adverse move scenario" type="number" min="0.1" max="25" step="0.1" value={adverseMove} onChange={(e) => setAdverseMove(Number(e.target.value))} /><small>% down</small></label><label>Slippage<input aria-label="Slippage" type="number" min="0" max="3" step="0.1" value={slippage} onChange={(e) => setSlippage(Number(e.target.value))} /><small>% max</small></label><label>Protection<input aria-label="Protection target" type="number" min="1" max="100" value={protection} onChange={(e) => setProtection(Number(e.target.value))} /><small>% target</small></label></div>

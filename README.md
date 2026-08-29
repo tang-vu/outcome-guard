@@ -44,7 +44,7 @@ At the current checkpoint, steps 1–5 and pre-execution receipt generation work
 
 ## 5. Live deployment
 
-**Pending external artifact — no public URL is claimed.** Deployment should occur only after `npm run verify` passes, repository and git-history secret scans pass, and the release candidate is frozen.
+The public judge build is live at [`https://outcomeguard.tangvu.dev`](https://outcomeguard.tangvu.dev). A named Cloudflare Tunnel is the only public ingress to the loopback-bound production origin; PM2 supervises both the web process and tunnel and restores its saved process list after Windows reboot and user logon. The captured HTTP, health, security-header, tunnel, and persistence facts are in [`docs/evidence/deployment.json`](docs/evidence/deployment.json).
 
 The web health route is `/api/health`; the worker exposes `/health`. See [`Dockerfile`](Dockerfile) and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the intended web/worker split.
 
@@ -140,6 +140,8 @@ npm run dev
 
 Open `http://localhost:3217`. OutcomeGuard reserves this project-specific development port to avoid silently opening an unrelated service on the common port 3000. The default composer is a clearly labeled deterministic fallback. The live market endpoint is `http://localhost:3217/api/markets` and fails honestly with HTTP 503 if Shannon reads are unavailable.
 
+Public judge deployment: [`https://outcomeguard.tangvu.dev`](https://outcomeguard.tangvu.dev). It is routed through a named Cloudflare Tunnel to a loopback-only production origin supervised by PM2; the deterministic fallback remains available when live Shannon reads fail.
+
 Run the observer worker:
 
 ```bash
@@ -179,7 +181,7 @@ See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md), [`SECURITY.md`](SECURITY.md)
 - The composer defaults to a judge-reliable fixture. Its `LIVE READ EVIDENCE` panel can opt into `Derive live plan`, which refetches the selected market ID server-side and rebuilds the plan, policy, and receipt from fresh Shannon data.
 - Exposure is a manual demo override; connected-wallet BTC/ETH valuation is not yet a verified production feed.
 - Testnet liquidity can change materially between short windows; every preview must be refreshed and reauthorized.
-- No public deployment, video, user research, revenue, AUM, return, hedge-performance, or adoption metric is claimed.
+- No video, user research, revenue, AUM, return, hedge-performance, or adoption metric is claimed. The public deployment is evidenced separately and does not imply production financial readiness.
 - SHA-256 proves receipt integrity, not that every economic input is true; chain evidence supplies provenance.
 
 See [`LIMITATIONS.md`](LIMITATIONS.md), [`docs/evidence/limitations.md`](docs/evidence/limitations.md), and the honest competitive mitigation section in [`docs/COMPETITIVE_POSITIONING.md`](docs/COMPETITIVE_POSITIONING.md#honest-outcomeguard-weaknesses-and-demo-mitigation).
@@ -202,7 +204,7 @@ OutcomeGuard is MIT licensed; see [`LICENSE`](LICENSE). The implementation uses 
 | Policy and receipts | Shared evaluator, canonical receipts, CLI, and tamper tests implemented |
 | Testnet execution | **Blocked pending funded disposable Shannon signer and explicit authorization** |
 | Settlement/redemption | **Pending verified position and terminal market evidence** |
-| Product/deployment | Local product and full local release gate pass; public preview pending account authorization |
-| Submission | Text package and screenshots ready; video, public URLs, and explorer transaction proof pending |
+| Product/deployment | Public preview healthy at `outcomeguard.tangvu.dev`; PM2 web/tunnel restore is configured after Windows logon |
+| Submission | Text package, screenshots, and deployment URL ready; video and explorer transaction proof pending |
 
 The internal judge-ready target is **7 September 2026**. **8 September 2026** is reserved for video, deployment verification, full-history secret scanning, public release, and DoraHacks submission.

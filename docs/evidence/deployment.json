@@ -1,0 +1,52 @@
+{
+  "capturedAt": "2026-08-29T17:38:44.891Z",
+  "deployedSourceCommit": "37c1bd2ef465e83cc3c0d4ad867b94474e12c4cb",
+  "url": "https://outcomeguard.tangvu.dev",
+  "http": {
+    "status": 200,
+    "title": "OutcomeGuard — policy-bound portfolio protection",
+    "edge": "cloudflare",
+    "contentSecurityPolicyPresent": true,
+    "strictTransportSecurityPresent": true
+  },
+  "health": {
+    "service": "outcome-guard-web",
+    "network": "somnia-shannon",
+    "chainId": 50312
+  },
+  "origin": {
+    "bind": "127.0.0.1",
+    "port": 3217,
+    "publicInboundPort": false
+  },
+  "tunnel": {
+    "provider": "Cloudflare Tunnel",
+    "name": "outcome-guard",
+    "id": "1f393f16-936c-4b4a-8f17-4be02157121a",
+    "hostname": "outcomeguard.tangvu.dev",
+    "cloudflaredVersion": "2026.7.1",
+    "credentialCommitted": false,
+    "catchAll": "http_status:404",
+    "verifiedConnections": 4,
+    "protocol": "quic"
+  },
+  "supervision": {
+    "manager": "PM2",
+    "version": "6.0.14",
+    "processes": [
+      { "name": "outcome-guard-web", "namespace": "outcomeguard", "autorestart": true },
+      { "name": "outcome-guard-tunnel", "namespace": "outcomeguard", "autorestart": true }
+    ],
+    "savedProcessDump": true,
+    "windowsRestoreTask": "PM2 Resurrect",
+    "restoreTrigger": "user-logon-after-reboot",
+    "preLoginGuarantee": false
+  },
+  "verification": [
+    "local /api/health returned the expected service, network and chain",
+    "public /api/health returned the same service, network and chain through Cloudflare",
+    "homepage returned HTTP 200 with the expected title and security headers",
+    "tunnel ingress configuration validated and the hostname matched rule zero",
+    "PM2 dump contains both OutcomeGuard processes with autorestart enabled"
+  ]
+}

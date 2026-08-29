@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-28 18:34 UTC
+Date: 2026-08-29 17:54 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -14,12 +14,13 @@ Command: `npm run verify`
 | TypeScript strict workspaces | pass | agent, web, dreamdex, execution-coordinator, hedge-engine, policy-engine, receipt, schemas, shared |
 | Unit/property/security-boundary tests | pass | 6 files, 28 tests, including provider validation and prompt-injection-as-data behavior |
 | Production build | pass | Next.js 16.3.3 plus all buildable workspaces; metadata, manifest, robots, icon, and Open Graph routes generated |
-| Desktop judge flow | pass | 6 Playwright Chromium checks, 1440 px |
-| Mobile judge flow | pass | 6 Playwright Chromium checks, 390 px; parser binding, overflow and reduced-motion assertions included |
+| Desktop judge flow | pass | 7 Playwright Chromium checks, 1440 px |
+| Mobile judge flow | pass | 7 Playwright Chromium checks, 390 px; hydration-safe parser binding, market-horizon binding, overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
-| Portable tree/history secret scan | pass | 110 files plus 18 commits/refs at run time; provider, PEM, bearer, mnemonic and private-key patterns |
-| Full-history secret scan | pass | Gitleaks 8.30.1 scanned 8 commits / ~818 KB; exact public-contract false-positive allowlist only |
+| Portable tree/history secret scan | pass | 115 files plus 22 commits/refs at run time; provider, PEM, bearer, mnemonic and private-key patterns |
+| Independent secret scan | pass | Gitleaks 8.30.1 scanned the 115-file release-tree snapshot with no leaks and scanned 22 commits / ~897 KB with no leaks |
 | Dependency audit | pass | `found 0 vulnerabilities` |
+| Public deployment | pass | local and Cloudflare-routed health returned `outcome-guard-web` on Shannon `50312`; homepage returned HTTP 200 with CSP and HSTS |
 | Clean install | pass | final lockfile installed with `npm ci` |
 | Agent container | pass | Docker image built; non-root `outcomeguard` fixture container reached Docker `healthy`, returned `/health`, and used an isolated state mount |
 
@@ -40,4 +41,4 @@ Additional checks:
 
 ## Honest exclusions
 
-The release gate does not prove a wallet-authorized IOC, fill, resulting position, settlement, redemption, public deployment, or video. Those remain external-action blockers and are not claimed.
+The release gate does not prove a wallet-authorized IOC, fill, resulting position, settlement, redemption, or video. Those remain external-action blockers and are not claimed. Public deployment is separately evidenced in `deployment.json` and does not imply production financial readiness.

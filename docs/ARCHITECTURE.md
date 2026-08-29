@@ -18,6 +18,8 @@ OutcomeGuard turns an existing BTC or ETH exposure and a bounded protection inte
 | Explorer | `https://shannon-explorer.somnia.network` | official documentation |
 | SDK address bundle | `SOMNIA_TESTNET_ADDRESSES` | SDK 0.28.1 README |
 | Event collateral on Shannon | `tUSDC`, 6 decimals, `0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E` | [Event Contract addresses](https://docs.dreamdex.io/developers/event-contracts/contracts-and-addresses) |
+| Judge deployment | `https://outcomeguard.tangvu.dev` | [`evidence/deployment.json`](evidence/deployment.json) |
+| Public ingress | Named Cloudflare Tunnel to loopback `127.0.0.1:3217` | [`DEPLOYMENT.md`](DEPLOYMENT.md) |
 
 The SDK must be pinned exactly in the lockfile. The official documentation requires version 0.28.0 or newer: versions before 0.23.0 no longer read the current indexer schema, and versions before 0.28.0 can convert ordinary JavaScript float prices to values outside an 18-decimal venue's tick grid. OutcomeGuard still uses integer arithmetic and validates tick and lot alignment rather than relying on this SDK fix alone.
 

@@ -49,15 +49,9 @@ Required proof before Gate 5 can be claimed:
 - post-redemption balance/state reconciliation;
 - settlement and redemption receipts linked to the execution receipt digest.
 
-## C. Vercel or equivalent public preview
+## C. Public preview — resolved
 
-Owner action required:
-
-1. Authorize access to a Vercel or equivalent hosting account and choose the owning account/team.
-2. Approve creation/linking of the project from this repository and the public preview URL. No wallet key is required or permitted in the web deployment.
-3. Approve any custom domain or DNS change separately; it is not required for the hackathon preview.
-
-Engineering can then apply the settings in `docs/DEPLOYMENT.md`, deploy the exact verified commit, test `/api/health`, `/api/markets`, desktop/mobile judge flow, and record the URL. A deployment URL must not be claimed before those health and release checks pass.
+No owner action remains for preview hosting. `https://outcomeguard.tangvu.dev` is routed through a named Cloudflare Tunnel to the loopback-only OutcomeGuard production process. Local and public health checks, security headers, tunnel connections, PM2 supervision, and post-reboot logon restore configuration are recorded in `docs/evidence/deployment.json`.
 
 ## D. Public repository release
 

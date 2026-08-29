@@ -131,9 +131,9 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - [x] Verified historical terminal-market replay is present, digest-checked, and labeled separately from live execution.
 - [ ] Redemption is proved or honestly marked pending.
 - [x] Desktop and 390 px mobile judge paths pass.
-- [ ] Deployment health checks pass.
+- [x] Deployment health checks pass at `https://outcomeguard.tangvu.dev`; reproducible facts are recorded in `docs/evidence/deployment.json`.
 - [x] Working tree and full git history pass secret scanning while the repository remains private; rerun immediately before public release.
-- [ ] Public GitHub, deployment, video, explorer, and DoraHacks links are inserted.
+- [ ] Public GitHub, video, explorer, and DoraHacks links are inserted; the deployment link is complete.
 - [ ] Every numerical submission claim points to reproducible evidence.
 
 Internal target: judge-ready on **7 September 2026**; release verification and submission on **8 September 2026**.

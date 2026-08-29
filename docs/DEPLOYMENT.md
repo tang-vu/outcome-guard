@@ -32,6 +32,31 @@ GET http://localhost:3217/api/health
 GET http://localhost:3217/api/markets
 ```
 
+## Windows production host
+
+The judge deployment is served at `https://outcomeguard.tangvu.dev`. The origin binds only to `127.0.0.1:3217`; Cloudflare Tunnel is the sole public ingress and no router port-forward is required.
+
+`ecosystem.config.cjs` defines two fail-restarting PM2 processes: `outcome-guard-web` and `outcome-guard-tunnel`. The tunnel credential and ingress file stay outside Git under `%LOCALAPPDATA%\OutcomeGuard\cloudflared`. Deploy after a verified build with:
+
+```powershell
+$env:NEXT_PUBLIC_SITE_URL = "https://outcomeguard.tangvu.dev"
+npm run build
+pm2 startOrReload ecosystem.config.cjs
+pm2 save
+```
+
+This Windows host has a Task Scheduler logon trigger that runs the absolute `pm2.cmd resurrect` command as the owning user. It restores the saved process set following reboot and user logon. True pre-login PM2 startup requires an Administrator-managed service identity and is intentionally not simulated by running PM2 under `SYSTEM`, which would use a different `PM2_HOME`.
+
+Verify the release from both sides:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:3217/api/health
+Invoke-RestMethod https://outcomeguard.tangvu.dev/api/health
+pm2 status
+```
+
+Never commit the tunnel JSON credential, Cloudflare account certificate, PM2 dump, logs, `.env.local`, or wallet material.
+
 An unavailable live endpoint should produce an honest 503 response from `/api/markets` while the labeled fixture preview remains usable.
 
 ## Web deployment on Vercel
