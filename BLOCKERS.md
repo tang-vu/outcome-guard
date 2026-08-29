@@ -6,15 +6,20 @@ The repository currently has verified live Shannon read evidence but no claimed 
 
 ## A. Real Shannon IOC and position reconciliation
 
-Owner action required, in this order:
+Local preparation completed on 2026-08-29:
 
-1. Create a new disposable EVM account used only for this Shannon demo. Do not use a personal, treasury, or mainnet-funded wallet.
-2. Add/select Somnia Shannon in the wallet: chain ID `50312`, RPC `https://api.infra.testnet.somnia.network`, explorer `https://shannon-explorer.somnia.network`.
-3. Use the official Shannon faucet at `https://testnet.somnia.network/` to fund that address with the native testnet gas token. This faucet interaction cannot be performed autonomously. The faucet UI may use legacy/current gas-token naming; the required fact is a nonzero native balance on chain 50312.
-4. Authorize one on-chain test-collateral faucet call for the verified Event Contract collateral, currently tUSDC at `0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E` with 6 decimals. The SDK method is `exchange.trader.faucet()` and each documented call is capped at 10,000 tUSDC. Verify the token address/decimals on chain before signing.
-5. Put only the disposable key into the local/deployment secret store as `PRIVATE_KEY`, and configure its public address as server-only `AGENT_SIGNER_ADDRESS`. Never put the key in chat, source, committed `.env`, command history, logs, screenshots, or any `NEXT_PUBLIC_` variable.
-6. Review the fresh live preview showing chain `50312`, venue ID, market ID, dedicated execution signer, expiry, exact raw IOC quantity/price, maximum tUSDC premium, book-move tolerance, mandate digest and policy results. Sign that one EIP-191 mandate with the injected human-authorization wallet and download the verified bundle. A generic “go ahead” does not authorize a refreshed market.
-7. Set an absolute persistent `EXECUTION_STATE_DIR` and an `INITIAL_TOTAL_PREMIUM_AT_RISK` value reconciled from the disposable wallet's actual open positions. Run `npm run execute-once -w @outcome-guard/agent -- --bundle <signed-bundle.json>`. Never retry automatically after `AMBIGUOUS_SUBMISSION`; reconcile the signer nonce and Shannon state first.
+- A dedicated disposable Worker account was generated with a CSPRNG. Its public address is `0x1A3b41966bd8fFf0637685D5398762778FdeFfc2`.
+- Its private key is stored only as Windows DPAPI ciphertext outside the repository at `%LOCALAPPDATA%\OutcomeGuard\secrets\worker-key.dpapi`, with an ACL limited to the current Windows user. The key was never printed or committed.
+- `.env.local` binds the public `AGENT_SIGNER_ADDRESS`; secure PowerShell runners decrypt the key only into process memory and remove the environment value afterward.
+- A direct Shannon read confirmed chain `50312` and a zero native STT balance. The collateral helper therefore failed closed before simulation or broadcast.
+
+Remaining owner actions, in this order:
+
+1. Use an official Shannon faucet at `https://testnet.somnia.network/` to send native STT to `0x1A3b41966bd8fFf0637685D5398762778FdeFfc2`. This web/CAPTCHA interaction cannot be completed autonomously. The required fact is a nonzero native balance on chain `50312`.
+2. After STT is visible, engineering will run `scripts/fund-secure-worker.ps1`. It verifies chain, STT balance, tUSDC address/symbol/decimals, simulation, successful receipt and exact balance increase before accepting the collateral faucet result.
+3. Add/select Somnia Shannon in an injected browser wallet used for human authorization: chain ID `50312`, official RPC `https://dream-rpc.somnia.network`, explorer `https://shannon-explorer.somnia.network`.
+4. Review the fresh live preview showing chain `50312`, venue ID, market ID, dedicated execution signer, expiry, exact raw IOC quantity/price, maximum tUSDC premium, book-move tolerance, mandate digest and policy results. Sign that one EIP-191 mandate with the injected human-authorization wallet and download the verified bundle. A generic “go ahead” does not authorize a refreshed market.
+5. Engineering will run `scripts/run-secure-worker.ps1` with the downloaded bundle. It supplies the absolute persistent state directory and uses zero initial premium-at-risk only while this new Worker has no prior trades. Never retry automatically after `AMBIGUOUS_SUBMISSION`; reconcile signer nonce and Shannon state first.
 
 After those actions, the engineering workflow must re-run the same policy engine immediately before signing, submit exactly one bounded IOC, require a successful mined receipt, decode fills, read the outcome-token position from chain, and write linked evidence. If the book moves or a policy fails, authorization expires and a new preview/signature is required.
 
