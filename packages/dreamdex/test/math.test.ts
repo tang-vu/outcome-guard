@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DreamDexAdapter } from "../src/adapter.js";
 import { deterministicFixture } from "../src/fixtures.js";
-import { buildPreparedIoc, floorToStep, parseDecimal, premiumAtLimit, stableFingerprint } from "../src/math.js";
+import { buildPreparedIoc, floorToStep, parseDecimal, premiumAtLimit, stableFingerprint, worstExecutablePriceRaw } from "../src/math.js";
 
 describe("DreamDEX exact-unit order construction", () => {
   const market = deterministicFixture.markets[0]!;
@@ -12,6 +12,13 @@ describe("DreamDEX exact-unit order construction", () => {
     expect(parseDecimal("15", 6)).toBe(15_000_000n);
     expect(parseDecimal("0.048", 6)).toBe(48_000n);
     expect(() => parseDecimal("0.0000001", 6)).toThrow();
+  });
+
+  it("derives a decimal-artifact-prone NO limit from exact raw book units", () => {
+    const yesBidRaw = 897_000n;
+    const exactNoAsk = 1_000_000n - yesBidRaw;
+    expect(1 - Number(yesBidRaw) / 1_000_000).toBe(0.10299999999999998);
+    expect(worstExecutablePriceRaw([{ priceRaw: exactNoAsk, quantityRaw: 30_000_000n }], 20_000_000n)).toBe(103_000n);
   });
 
   it("rounds quantities down and never exceeds the premium budget", () => {

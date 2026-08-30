@@ -15,6 +15,21 @@ export function premiumAtLimit(quantityRaw: bigint, priceRaw: bigint, oneCollate
   return ceilDiv(quantityRaw * priceRaw, oneCollateral);
 }
 
+/** Return the exact raw price of the last ask needed to fill a quantity. */
+export function worstExecutablePriceRaw(levels: readonly BookLevel[], quantityRaw: bigint): bigint {
+  if (quantityRaw <= 0n) throw new RangeError("quantity must be positive");
+  let remaining = quantityRaw;
+  let worstPriceRaw: bigint | undefined;
+  for (const level of [...levels].sort((a, b) => a.priceRaw < b.priceRaw ? -1 : a.priceRaw > b.priceRaw ? 1 : 0)) {
+    if (level.quantityRaw <= 0n) continue;
+    const take = level.quantityRaw < remaining ? level.quantityRaw : remaining;
+    if (take > 0n) worstPriceRaw = level.priceRaw;
+    remaining -= take;
+    if (remaining === 0n) return worstPriceRaw!;
+  }
+  throw new RangeError("quantity exceeds executable visible depth");
+}
+
 export function parseDecimal(value: string, decimals: number): bigint {
   if (!/^\d+(?:\.\d+)?$/.test(value)) throw new TypeError(`invalid unsigned decimal: ${value}`);
   if (!Number.isSafeInteger(decimals) || decimals < 0) throw new RangeError("invalid decimals");
