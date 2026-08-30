@@ -77,7 +77,10 @@ export default function Home() {
       .then(async (response) => { const json = await response.json() as PlanResponse & { error?: string }; if (!response.ok) throw new Error(json.error ?? "Plan failed"); return json; })
       .then((json) => {
         setData(json); setError(undefined); setSignature(undefined); setExecutionBundle(undefined);
-        setAuthorizationStatus(json.mode === "live" ? { state: "ready", message: "Fresh live mandate sealed. Review the exact order, then sign." } : undefined);
+        const blockingPolicies = json.policies.filter((policy) => policy.status === "FAIL" && !AUTHORIZATION_PENDING_POLICIES.has(policy.policyId));
+        setAuthorizationStatus(json.mode !== "live" ? undefined : blockingPolicies.length > 0
+          ? { state: "error", message: `Live plan sealed, but authorization is blocked by ${blockingPolicies.map((policy) => policy.policyId).join(", ")}.` }
+          : { state: "ready", message: "Fresh live mandate sealed. Review the exact order, then sign." });
       })
       .catch((reason: unknown) => {
         if ((reason as { name?: string }).name !== "AbortError") {
