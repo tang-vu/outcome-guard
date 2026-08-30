@@ -26,7 +26,7 @@ test("truth labels, policy drill-down, receipt inspection, and mobile width rema
   await page.route("**/api/markets", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ source: "unavailable", error: "deterministic E2E fixture" }) }));
   await page.goto("/");
   await expect(page.getByText("FIXTURE", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Derive live plan first/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "No eligible live market" })).toBeDisabled();
   await expect(page.locator(".policySummary")).toContainText("3 preflight pending");
   await expect(page.locator(".policySummary")).toContainText("0 blocking authorization");
   await page.getByRole("button", { name: /Inspect all 22 checks/ }).click();
@@ -65,6 +65,7 @@ test("market selection never falls back across intent horizons", async ({ page }
   }));
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Derive live plan", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Derive live plan & prepare mandate" })).toBeEnabled();
   await page.locator("button", { hasText: "15 minutes" }).click();
   await expect(page.getByText(/No live ETH 15-minute market is currently eligible/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Derive live plan", exact: true })).toHaveCount(0);
