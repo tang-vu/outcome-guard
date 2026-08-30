@@ -5,8 +5,9 @@ const path = require("node:path");
 const root = __dirname;
 const webRoot = path.join(root, "apps", "web");
 const localAppData = process.env.LOCALAPPDATA;
+const userProfile = process.env.USERPROFILE;
 
-if (!localAppData) throw new Error("LOCALAPPDATA is required for the machine-local tunnel configuration.");
+if (!localAppData || !userProfile) throw new Error("LOCALAPPDATA and USERPROFILE are required for machine-local services.");
 
 const cloudflared = process.env.OUTCOMEGUARD_CLOUDFLARED_BIN
   ?? "C:\\Program Files (x86)\\cloudflared\\cloudflared.exe";
@@ -51,6 +52,22 @@ module.exports = {
       listen_timeout: 15_000,
       time: true,
       env: sharedEnvironment
+    },
+    {
+      name: "outcome-guard-executor-watch",
+      namespace: "outcomeguard",
+      cwd: root,
+      script: path.join(root, "scripts", "watch-signed-bundles.mjs"),
+      args: [path.join(userProfile, "Downloads")],
+      interpreter: process.execPath,
+      instances: 1,
+      autorestart: true,
+      min_uptime: "10s",
+      max_restarts: 20,
+      restart_delay: 2_000,
+      max_memory_restart: "256M",
+      kill_timeout: 15_000,
+      time: true
     },
     {
       name: "outcome-guard-tunnel",
