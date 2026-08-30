@@ -55,6 +55,32 @@ test("natural-language intent is schema-bound to deterministic controls", async 
 });
 
 test("market selection never falls back across intent horizons", async ({ page }) => {
+  let fixturePlan: Record<string, unknown> | undefined;
+  await page.route("**/api/plan", async (route) => {
+    const request = route.request().postDataJSON() as { liveMarketId?: string };
+    if (!request.liveMarketId) {
+      const response = await route.fetch();
+      const body = await response.body();
+      fixturePlan = JSON.parse(body.toString()) as Record<string, unknown>;
+      await route.fulfill({ status: response.status(), headers: response.headers(), body });
+      return;
+    }
+    if (!fixturePlan) throw new Error("Fixture preview must load before live selection");
+    const market = { ...(fixturePlan.market as Record<string, unknown>), source: "live", marketId: request.liveMarketId };
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        ...fixturePlan,
+        mode: "live",
+        market,
+        authorizationChallenge: {
+          mandate: { maximumPremiumRaw: "15000000", outcomePriceRaw: "450000", quantityRaw: "20000000", orderExpiryNs: ((BigInt(Date.now()) + 60_000n) * 1_000_000n).toString() },
+          mandateDigest: `0x${"7".repeat(64)}`,
+          message: "OutcomeGuard deterministic E2E mandate"
+        }
+      })
+    });
+  });
   await page.route("**/api/markets", (route) => route.fulfill({
     contentType: "application/json",
     body: JSON.stringify({ source: "live", snapshots: [{
@@ -66,9 +92,35 @@ test("market selection never falls back across intent horizons", async ({ page }
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Derive live plan", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Derive live plan & prepare mandate" })).toBeEnabled();
+  await page.getByRole("button", { name: "Derive live plan & prepare mandate" }).click();
+  await expect(page.locator(".authorizationStatus")).toContainText("Fresh live mandate sealed");
+  await expect(page.getByText("LIVE-DERIVED", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Review & sign exact mandate" })).toBeEnabled();
   await page.locator("button", { hasText: "15 minutes" }).click();
   await expect(page.getByText(/No live ETH 15-minute market is currently eligible/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Derive live plan", exact: true })).toHaveCount(0);
+});
+
+test("connected wallet can be explicitly disconnected", async ({ page }) => {
+  await page.addInitScript(() => {
+    const account = `0x${"a".repeat(40)}`;
+    Object.assign(window, {
+      __walletRevoked: false,
+      ethereum: {
+        request: async ({ method }: { method: string }) => {
+          if (method === "eth_accounts" || method === "eth_requestAccounts") return [account];
+          if (method === "wallet_revokePermissions") { Object.assign(window, { __walletRevoked: true }); return null; }
+          throw new Error(`Unsupported method ${method}`);
+        }
+      }
+    });
+  });
+  await page.route("**/api/markets", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ source: "unavailable", error: "deterministic E2E fixture" }) }));
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Disconnect" })).toBeVisible();
+  await page.getByRole("button", { name: "Disconnect" }).click();
+  await expect(page.getByRole("button", { name: "Connect wallet" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => Boolean((window as unknown as { __walletRevoked?: boolean }).__walletRevoked))).toBe(true);
 });
 
 test("health identifies network and honest mode", async ({ request }) => {

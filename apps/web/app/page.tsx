@@ -12,7 +12,11 @@ type LiveSnapshot = {
 };
 type LiveResponse = { source: "live" | "unavailable"; snapshots?: LiveSnapshot[]; error?: string };
 type SettledReplay = { label: "VERIFIED_REPLAY"; capturedAt: string; blockNumber: string; market: { marketId: string; asset: string; intervalSec: number; expiry: number; question: string; oracleQuestionId: string }; terminalState: { status: string; winningOutcome: "YES" | "NO"; portfolioMeaning: "UP" | "DOWN" }; positionEvidence: { status: string; reason: string }; redemptionEvidence: { status: string; reason: string }; integrity: { digest: string }; verification: { valid: true; computedDigest: string } };
-type EthereumProvider = { request(args: { method: string; params?: unknown[] }): Promise<unknown> };
+type EthereumProvider = {
+  request(args: { method: string; params?: unknown[] }): Promise<unknown>;
+  on?(event: "accountsChanged", listener: (accounts: string[]) => void): void;
+  removeListener?(event: "accountsChanged", listener: (accounts: string[]) => void): void;
+};
 declare global { interface Window { ethereum?: EthereumProvider } }
 
 const rawDecimal = (value: string | undefined, decimals = 6) => {
@@ -42,6 +46,7 @@ export default function Home() {
   const [signature, setSignature] = useState<string>();
   const [executionBundle, setExecutionBundle] = useState<ExecutionBundle>();
   const [error, setError] = useState<string>();
+  const [authorizationStatus, setAuthorizationStatus] = useState<{ state: "preparing" | "ready" | "error"; message: string }>();
   const [liveRead, setLiveRead] = useState<LiveResponse>();
   const [liveLoading, setLiveLoading] = useState(false);
   const [livePlanMarketId, setLivePlanMarketId] = useState<string>();
@@ -70,8 +75,17 @@ export default function Home() {
     setLoading(true);
     fetch("/api/plan", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ asset, exposureUsd: exposure, horizonMinutes: horizon, adverseMovePct: adverseMove, maxPremium, maxSlippagePct: slippage, targetProtectionPct: protection, ...(livePlanMarketId ? { liveMarketId: livePlanMarketId } : {}) }), signal: controller.signal })
       .then(async (response) => { const json = await response.json() as PlanResponse & { error?: string }; if (!response.ok) throw new Error(json.error ?? "Plan failed"); return json; })
-      .then((json) => { setData(json); setError(undefined); setSignature(undefined); setExecutionBundle(undefined); })
-      .catch((reason: unknown) => { if ((reason as { name?: string }).name !== "AbortError") setError(reason instanceof Error ? reason.message : String(reason)); })
+      .then((json) => {
+        setData(json); setError(undefined); setSignature(undefined); setExecutionBundle(undefined);
+        setAuthorizationStatus(json.mode === "live" ? { state: "ready", message: "Fresh live mandate sealed. Review the exact order, then sign." } : undefined);
+      })
+      .catch((reason: unknown) => {
+        if ((reason as { name?: string }).name !== "AbortError") {
+          const message = reason instanceof Error ? reason.message : String(reason);
+          setError(message);
+          if (livePlanMarketId) setAuthorizationStatus({ state: "error", message: `Live mandate failed: ${message}. Press retry to use a fresh market snapshot.` });
+        }
+      })
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, [asset, exposure, horizon, maxPremium, slippage, adverseMove, protection, livePlanMarketId, liveRefreshVersion]);
@@ -96,7 +110,19 @@ export default function Home() {
 
   useEffect(() => {
     setLivePlanMarketId(undefined);
+    setAuthorizationStatus(undefined);
   }, [asset, horizon]);
+  useEffect(() => {
+    const provider = window.ethereum;
+    if (!provider) return;
+    const syncAccounts = (accounts: string[]) => {
+      setWallet(accounts[0]);
+      if (!accounts[0]) { setSignature(undefined); setExecutionBundle(undefined); }
+    };
+    void provider.request({ method: "eth_accounts" }).then((accounts) => syncAccounts(accounts as string[])).catch(() => undefined);
+    provider.on?.("accountsChanged", syncAccounts);
+    return () => provider.removeListener?.("accountsChanged", syncAccounts);
+  }, []);
   const connectWallet = async () => {
     if (!window.ethereum) { setError("No injected wallet found. Preview remains available; install a wallet to connect."); return; }
     try {
@@ -104,6 +130,17 @@ export default function Home() {
       if (!accounts[0]) throw new Error("Wallet returned no account");
       setWallet(accounts[0]); setError(undefined);
     } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
+  };
+  const disconnectWallet = async () => {
+    const provider = window.ethereum;
+    try {
+      await provider?.request({ method: "wallet_revokePermissions", params: [{ eth_accounts: {} }] });
+    } catch {
+      // Some injected wallets do not expose permission revocation. Local state is still cleared.
+    } finally {
+      setWallet(undefined); setSignature(undefined); setExecutionBundle(undefined);
+      setError(undefined); setAuthorizationStatus(undefined);
+    }
   };
   const authorize = async () => {
     if (!data) return;
@@ -126,14 +163,28 @@ export default function Home() {
       setWallet(account); setSignature(signed); setExecutionBundle(authorized.executionBundle); setError(undefined);
     } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
   };
-  const prepareOrAuthorize = () => {
+  const prepareOrAuthorize = async () => {
     if (data?.mode !== "live") {
-      if (!liveMarket) { setError(`No eligible live ${asset} ${horizon}-minute market is available.`); return; }
+      setLoading(true);
       setError(undefined);
-      setLivePlanMarketId(liveMarket.market.marketId);
+      setAuthorizationStatus({ state: "preparing", message: `Refreshing DreamDEX and sealing a live ${asset} ${horizon}-minute mandate…` });
+      try {
+        const response = await fetch("/api/markets", { cache: "no-store" });
+        const fresh = await response.json() as LiveResponse;
+        if (!response.ok || fresh.source !== "live") throw new Error(fresh.error ?? "Live market discovery failed");
+        setLiveRead(fresh);
+        const selected = fresh.snapshots?.find(({ market }) => market.asset === asset && market.intervalSec === horizon * 60);
+        if (!selected) throw new Error(`No eligible live ${asset} ${horizon}-minute market is available`);
+        setLivePlanMarketId(selected.market.marketId);
+        setLiveRefreshVersion((version) => version + 1);
+      } catch (reason) {
+        const message = reason instanceof Error ? reason.message : String(reason);
+        setLoading(false); setError(message);
+        setAuthorizationStatus({ state: "error", message: `${message}. Press retry when a matching market is available.` });
+      }
       return;
     }
-    void authorize();
+    await authorize();
   };
 
   const downloadBundle = () => {
@@ -164,7 +215,7 @@ export default function Home() {
 
   return <main>
     <a className="skipLink" href="#command-center">Skip to protection command center</a>
-    <nav><a className="brand" href="#top" aria-label="OutcomeGuard home"><span className="shield">◇</span> OutcomeGuard</a><div className="navMeta"><span className={`sourcePill ${data?.mode === "live" ? "isLive" : "isFixture"}`}><i />{data?.mode === "live" ? "LIVE-DERIVED" : "FIXTURE"}</span><span className="network">Shannon · 50312</span><button className="ghost" onClick={() => void connectWallet()}>{wallet ? short(wallet) : "Connect wallet"}</button></div></nav>
+    <nav><a className="brand" href="#top" aria-label="OutcomeGuard home"><span className="shield">◇</span> OutcomeGuard</a><div className="navMeta"><span className={`sourcePill ${data?.mode === "live" ? "isLive" : "isFixture"}`}><i />{data?.mode === "live" ? "LIVE-DERIVED" : "FIXTURE"}</span><span className="network">Shannon · 50312</span>{wallet ? <div className="walletControl"><span title={wallet}>{short(wallet)}</span><button className="ghost" onClick={() => void disconnectWallet()}>Disconnect</button></div> : <button className="ghost" onClick={() => void connectWallet()}>Connect wallet</button>}</div></nav>
     <header id="top" className="hero">
       <div><p className="eyebrow">PORTFOLIO-AWARE ROLLING PROTECTION</p><h1>Turn a downside concern into <em>bounded, verifiable protection.</em></h1><p className="lede">OutcomeGuard derives a short-duration hedge from your existing exposure, applies one deterministic policy contract, and preserves a linked intent-to-settlement trail.</p></div>
       <div className={`mode ${data?.mode === "live" ? "modeLive" : "modeFixture"}`}><span>JUDGE DEMO · SOURCE STATE</span><strong>{data?.mode === "live" ? "Live-derived plan" : "Deterministic fallback"}</strong><small>{data?.mode === "live" ? "Indexer discovery + chain-reconciled status and parameters" : "Clearly labeled fixture · no transaction simulation"}</small></div>
@@ -221,7 +272,7 @@ export default function Home() {
           <div className="policyGrid">{(showAllPolicies ? data?.policies : failures)?.map((policy) => { const isAuthorizationPending = policy.status === "FAIL" && AUTHORIZATION_PENDING_POLICIES.has(policy.policyId); return <details key={policy.policyId} open={policy.status === "FAIL"}><summary><b className={isAuthorizationPending ? "warn" : policy.status.toLowerCase()}>{policy.status === "PASS" ? "✓ PASS" : policy.status === "WARN" || isAuthorizationPending ? "! PENDING" : "× FAIL"}</b><span>{policy.policyId}</span></summary><small>{isAuthorizationPending ? `Expected before signing/execution preflight: ${policy.reason}` : policy.reason}</small><dl><div><dt>Observed</dt><dd>{JSON.stringify(policy.observed)}</dd></div><div><dt>Limit</dt><dd>{JSON.stringify(policy.limit)}</dd></div></dl></details>; })}</div>
         </section>
 
-        <section className="authorize card"><div><span>EXACT EXECUTION MANDATE · NO TRANSACTION</span><h2>Buy {data?.plan.normalizedShares.toFixed(3) ?? "—"} DOWN shares · IOC</h2><div className="orderReview"><span><small>Chain</small>Shannon · 50312</span><span><small>Maximum premium</small>{data?.authorizationChallenge?.mandate.maximumPremiumRaw ?? "—"} raw</span><span><small>NO price / quantity</small>{data?.authorizationChallenge ? `${data.authorizationChallenge.mandate.outcomePriceRaw} / ${data.authorizationChallenge.mandate.quantityRaw}` : "—"}</span><span><small>Market</small>{data ? short(data.market.marketId) : "—"}</span><span><small>Order expiry</small>{data?.authorizationChallenge ? new Date(Number(BigInt(data.authorizationChallenge.mandate.orderExpiryNs) / 1_000_000n)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}</span><span><small>Mandate seal</small>{data?.authorizationChallenge ? short(data.authorizationChallenge.mandateDigest) : "Not issued"}</span></div><p>Signing binds the exact raw IOC, live snapshot, dedicated execution signer, deadline and receipt. It does not submit a transaction. The worker must independently recover this signature and rerun fresh fail-closed checks.</p></div><div className="authorizationActions"><button onClick={prepareOrAuthorize} disabled={loading || (data?.mode === "live" ? !data.authorizationChallenge || authorizableFailures.length > 0 : !liveMarket)}>{authorizationButtonLabel}</button>{authorizableFailures.length > 0 && <small role="status">Execution is fail-closed: {authorizableFailures.map((policy) => policy.policyId).join(", ")}. Choose a fresh eligible market or refresh after rollover.</small>}{executionBundle && <button className="secondaryAction" onClick={downloadBundle}>Download signed bundle</button>}</div></section>
+        <section className="authorize card"><div><span>EXACT EXECUTION MANDATE · NO TRANSACTION</span><h2>Buy {data?.plan.normalizedShares.toFixed(3) ?? "—"} DOWN shares · IOC</h2><div className="orderReview"><span><small>Chain</small>Shannon · 50312</span><span><small>Maximum premium</small>{data?.authorizationChallenge?.mandate.maximumPremiumRaw ?? "—"} raw</span><span><small>NO price / quantity</small>{data?.authorizationChallenge ? `${data.authorizationChallenge.mandate.outcomePriceRaw} / ${data.authorizationChallenge.mandate.quantityRaw}` : "—"}</span><span><small>Market</small>{data ? short(data.market.marketId) : "—"}</span><span><small>Order expiry</small>{data?.authorizationChallenge ? new Date(Number(BigInt(data.authorizationChallenge.mandate.orderExpiryNs) / 1_000_000n)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}</span><span><small>Mandate seal</small>{data?.authorizationChallenge ? short(data.authorizationChallenge.mandateDigest) : "Not issued"}</span></div><p>Signing binds the exact raw IOC, live snapshot, dedicated execution signer, deadline and receipt. It does not submit a transaction. The worker must independently recover this signature and rerun fresh fail-closed checks.</p></div><div className="authorizationActions"><button onClick={() => void prepareOrAuthorize()} disabled={loading || (data?.mode === "live" ? !data.authorizationChallenge || authorizableFailures.length > 0 : !liveMarket)}>{authorizationButtonLabel}</button>{authorizationStatus && <small className={`authorizationStatus ${authorizationStatus.state}`} role={authorizationStatus.state === "error" ? "alert" : "status"}>{authorizationStatus.state === "preparing" ? "● " : authorizationStatus.state === "ready" ? "✓ " : "× "}{authorizationStatus.message}</small>}{authorizableFailures.length > 0 && <small role="status">Execution is fail-closed: {authorizableFailures.map((policy) => policy.policyId).join(", ")}. Choose a fresh eligible market or refresh after rollover.</small>}{executionBundle && <button className="secondaryAction" onClick={downloadBundle}>Download signed bundle</button>}</div></section>
 
         <section className="card receipt"><div className="cardHead"><div><span>VERIFIABLE RECEIPT · POLICY SEAL</span><h2>Intent → snapshot → math → policy → authorization → chain</h2></div><b>{signature ? "AUTHORIZED" : data ? "PRE-EXECUTION" : "SEALING"}</b></div><div className="timeline"><i className={data ? "done" : ""}>Intent</i><i className={data ? "done" : ""}>Plan</i><i className={data ? "done" : ""}>Policy</i><i className={signature ? "done" : ""}>Authorize</i><i>Execution</i><i>Settlement</i><i>Claim</i></div><div className="digestRow"><code className="digest">{data?.receipt.integrity.digest ?? "Computing deterministic receipt…"}</code><span className={`verifiedBadge ${data ? "" : "pending"}`}>{data ? "✓ Verified locally" : "Verification pending"}</span></div><div className="receiptActions"><button className="textButton" onClick={() => void copyDigest()} disabled={!data}>Copy digest</button><button className="textButton" onClick={downloadReceipt} disabled={!data}>Download JSON</button><button className="textButton" onClick={() => setShowReceipt((current) => !current)} aria-expanded={showReceipt} disabled={!data}>{showReceipt ? "Close raw view" : "Inspect raw JSON"}</button></div>{showReceipt && <pre className="rawReceipt">{JSON.stringify(data?.receipt, null, 2)}</pre>}<p>Verification recomputes canonical SHA-256. Any changed field breaks the seal. Later lifecycle records link to this digest instead of rewriting history.</p></section>
         <section className="card settledReplay"><div className="cardHead"><div><span>VERIFIED REPLAY · HISTORICAL VENUE LIFECYCLE</span><h2>{settledReplay?.market.question ?? "Loading finalized DreamDEX evidence…"}</h2></div><b>{settledReplay?.terminalState.status ?? "READING"}</b></div>{settledReplay && <><div className="replayFlow"><div><small>Finalized market</small><strong>{short(settledReplay.market.marketId)}</strong><span>{settledReplay.market.asset} · {settledReplay.market.intervalSec / 60}m</span></div><i>→</i><div><small>On-chain terminal state</small><strong>{settledReplay.terminalState.status}</strong><span>Block {settledReplay.blockNumber}</span></div><i>→</i><div className="replayOutcome"><small>Winning outcome</small><strong>{settledReplay.terminalState.winningOutcome} / {settledReplay.terminalState.portfolioMeaning}</strong><span>Oracle question {settledReplay.market.oracleQuestionId}</span></div><i>→</i><div className="notClaimed"><small>Position / claim</small><strong>NOT CLAIMED</strong><span>No fabricated ownership or redemption</span></div></div><div className="replaySeal"><span>✓ Evidence digest verified</span><code>{settledReplay.integrity.digest}</code></div><p><b>Replay boundary:</b> finalized discovery and terminal state are verified venue evidence. This is not the live preview above, not an OutcomeGuard execution, and not proof that the demo wallet owned or redeemed this position.</p></>}</section>
