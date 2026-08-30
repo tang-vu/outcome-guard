@@ -25,6 +25,7 @@ const rawDecimal = (value: string | undefined, decimals = 6) => {
 
 const money = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(value);
 const short = (value: string) => `${value.slice(0, 8)}…${value.slice(-6)}`;
+const AUTHORIZATION_PENDING_POLICIES = new Set(["premium.total-risk", "wallet.gas", "authorization.human"]);
 
 export default function Home() {
   const [hydrated, setHydrated] = useState(false);
@@ -44,6 +45,7 @@ export default function Home() {
   const [liveRead, setLiveRead] = useState<LiveResponse>();
   const [liveLoading, setLiveLoading] = useState(false);
   const [livePlanMarketId, setLivePlanMarketId] = useState<string>();
+  const [liveRefreshVersion, setLiveRefreshVersion] = useState(0);
   const [showAllPolicies, setShowAllPolicies] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [settledReplay, setSettledReplay] = useState<SettledReplay>();
@@ -55,6 +57,7 @@ export default function Home() {
     try {
       const response = await fetch("/api/markets", { cache: "no-store" });
       setLiveRead(await response.json() as LiveResponse);
+      if (livePlanMarketId) setLiveRefreshVersion((version) => version + 1);
     } catch (reason) {
       setLiveRead({ source: "unavailable", error: reason instanceof Error ? reason.message : String(reason) });
     } finally { setLiveLoading(false); }
@@ -71,11 +74,13 @@ export default function Home() {
       .catch((reason: unknown) => { if ((reason as { name?: string }).name !== "AbortError") setError(reason instanceof Error ? reason.message : String(reason)); })
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, [asset, exposure, horizon, maxPremium, slippage, adverseMove, protection, livePlanMarketId]);
+  }, [asset, exposure, horizon, maxPremium, slippage, adverseMove, protection, livePlanMarketId, liveRefreshVersion]);
 
   const failures = useMemo(() => data?.policies.filter((p) => p.status === "FAIL") ?? [], [data]);
   const passes = useMemo(() => data?.policies.filter((p) => p.status === "PASS") ?? [], [data]);
-  const authorizableFailures = useMemo(() => failures.filter((policy) => !["premium.total-risk", "wallet.gas", "authorization.human"].includes(policy.policyId)), [failures]);
+  const authorizableFailures = useMemo(() => failures.filter((policy) => !AUTHORIZATION_PENDING_POLICIES.has(policy.policyId)), [failures]);
+  const authorizationPendingFailures = useMemo(() => failures.filter((policy) => AUTHORIZATION_PENDING_POLICIES.has(policy.policyId)), [failures]);
+  const readyToAuthorize = data?.mode === "live" && Boolean(data.authorizationChallenge) && authorizableFailures.length === 0;
   const liveMarket = useMemo(() => liveRead?.snapshots?.find(({ market }) => market.asset === asset && market.intervalSec === horizon * 60), [liveRead, asset, horizon]);
   const authorizationButtonLabel = loading
     ? "Recomputing live mandate…"
@@ -177,7 +182,7 @@ export default function Home() {
           <div><small>Scenario loss</small><strong>{selectedScenario ? money(selectedScenario.underlyingPnlUsd) : "—"}</strong><span>{adverseMove}% adverse move</span></div>
           <div><small>Premium at risk</small><strong>{data ? money(data.plan.premiumUsd) : "—"}</strong><span>capped at {money(maxPremium)}</span></div>
           <div className="protectedMetric"><small>Conditional net P&amp;L</small><strong>{selectedScenario ? money(selectedScenario.hedgedPnlUsd) : "—"}</strong><span>{selectedScenario?.protectionRatioPct.toFixed(0) ?? "—"}% scenario protection</span></div>
-          <div className={`verdict ${!data || loading ? "pending" : failures.length ? "blocked" : "ready"}`}><small>Policy seal</small><strong>{!data || loading ? "COMPUTING" : failures.length ? "BLOCKED" : "READY"}</strong><span>{data ? `${passes.length} pass · ${failures.length} fail` : "Awaiting deterministic evaluation"}</span></div>
+          <div className={`verdict ${!data || loading ? "pending" : authorizableFailures.length ? "blocked" : "ready"}`}><small>Policy seal</small><strong>{!data || loading ? "COMPUTING" : authorizableFailures.length ? "BLOCKED" : readyToAuthorize ? "READY TO SIGN" : "PREVIEW READY"}</strong><span>{data ? `${passes.length} pass · ${authorizationPendingFailures.length} preflight pending${authorizableFailures.length ? ` · ${authorizableFailures.length} blocking` : ""}` : "Awaiting deterministic evaluation"}</span></div>
         </section>
         <div className="evidenceGrid">
         <section className="card liveEvidence">
@@ -202,9 +207,9 @@ export default function Home() {
           <div className="riskNote"><b>Basis risk is real.</b> These are conditional scenarios, not forecasts. Binary Event Contracts pay by their settlement rule—not by your exact spot loss. Strike, timing, oracle, liquidity and fees can create mismatch.</div>
         </section>
 
-        <section className="card gate"><div className="cardHead"><div><span>POLICY GATE</span><h2>{failures.length ? `${failures.length} checks block execution` : "Deterministic checks are clear"}</h2></div><b className={failures.length ? "fail" : "pass"}>{failures.length ? "BLOCKED" : "READY"}</b></div>
-          <div className="policySummary"><span><b>{passes.length}</b> passed</span><span className={failures.length ? "hasFailures" : ""}><b>{failures.length}</b> blocking</span><button className="textButton" onClick={() => setShowAllPolicies((current) => !current)} aria-expanded={showAllPolicies}>{showAllPolicies ? "Collapse evidence" : `Inspect all ${data?.policies.length ?? 0} checks`}</button></div>
-          <div className="policyGrid">{(showAllPolicies ? data?.policies : failures)?.map((policy) => <details key={policy.policyId} open={policy.status === "FAIL"}><summary><b className={policy.status.toLowerCase()}>{policy.status === "PASS" ? "✓ PASS" : policy.status === "WARN" ? "! WARN" : "× FAIL"}</b><span>{policy.policyId}</span></summary><small>{policy.reason}</small><dl><div><dt>Observed</dt><dd>{JSON.stringify(policy.observed)}</dd></div><div><dt>Limit</dt><dd>{JSON.stringify(policy.limit)}</dd></div></dl></details>)}</div>
+        <section className="card gate"><div className="cardHead"><div><span>POLICY GATE</span><h2>{authorizableFailures.length ? `${authorizableFailures.length} market or plan checks block authorization` : readyToAuthorize ? "Market checks are clear — ready for human authorization" : "Preview checks are clear — derive a live plan to authorize"}</h2></div><b className={authorizableFailures.length ? "fail" : "pass"}>{authorizableFailures.length ? "BLOCKED" : readyToAuthorize ? "READY TO SIGN" : "PREVIEW"}</b></div>
+          <div className="policySummary"><span><b>{passes.length}</b> passed</span><span><b>{authorizationPendingFailures.length}</b> preflight pending</span><span className={authorizableFailures.length ? "hasFailures" : ""}><b>{authorizableFailures.length}</b> blocking authorization</span><button className="textButton" onClick={() => setShowAllPolicies((current) => !current)} aria-expanded={showAllPolicies}>{showAllPolicies ? "Collapse evidence" : `Inspect all ${data?.policies.length ?? 0} checks`}</button></div>
+          <div className="policyGrid">{(showAllPolicies ? data?.policies : failures)?.map((policy) => { const isAuthorizationPending = policy.status === "FAIL" && AUTHORIZATION_PENDING_POLICIES.has(policy.policyId); return <details key={policy.policyId} open={policy.status === "FAIL"}><summary><b className={isAuthorizationPending ? "warn" : policy.status.toLowerCase()}>{policy.status === "PASS" ? "✓ PASS" : policy.status === "WARN" || isAuthorizationPending ? "! PENDING" : "× FAIL"}</b><span>{policy.policyId}</span></summary><small>{isAuthorizationPending ? `Expected before signing/execution preflight: ${policy.reason}` : policy.reason}</small><dl><div><dt>Observed</dt><dd>{JSON.stringify(policy.observed)}</dd></div><div><dt>Limit</dt><dd>{JSON.stringify(policy.limit)}</dd></div></dl></details>; })}</div>
         </section>
 
         <section className="authorize card"><div><span>EXACT EXECUTION MANDATE · NO TRANSACTION</span><h2>Buy {data?.plan.normalizedShares.toFixed(3) ?? "—"} DOWN shares · IOC</h2><div className="orderReview"><span><small>Chain</small>Shannon · 50312</span><span><small>Maximum premium</small>{data?.authorizationChallenge?.mandate.maximumPremiumRaw ?? "—"} raw</span><span><small>NO price / quantity</small>{data?.authorizationChallenge ? `${data.authorizationChallenge.mandate.outcomePriceRaw} / ${data.authorizationChallenge.mandate.quantityRaw}` : "—"}</span><span><small>Market</small>{data ? short(data.market.marketId) : "—"}</span><span><small>Order expiry</small>{data?.authorizationChallenge ? new Date(Number(BigInt(data.authorizationChallenge.mandate.orderExpiryNs) / 1_000_000n)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}</span><span><small>Mandate seal</small>{data?.authorizationChallenge ? short(data.authorizationChallenge.mandateDigest) : "Not issued"}</span></div><p>Signing binds the exact raw IOC, live snapshot, dedicated execution signer, deadline and receipt. It does not submit a transaction. The worker must independently recover this signature and rerun fresh fail-closed checks.</p></div><div className="authorizationActions"><button onClick={authorize} disabled={loading || data?.mode !== "live" || !data?.authorizationChallenge || authorizableFailures.length > 0}>{authorizationButtonLabel}</button>{authorizableFailures.length > 0 && <small role="status">Execution is fail-closed: {authorizableFailures.map((policy) => policy.policyId).join(", ")}. Choose a fresh eligible market or refresh after rollover.</small>}{executionBundle && <button className="secondaryAction" onClick={downloadBundle}>Download signed bundle</button>}</div></section>

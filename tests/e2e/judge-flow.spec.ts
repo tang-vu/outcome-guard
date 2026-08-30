@@ -27,6 +27,8 @@ test("truth labels, policy drill-down, receipt inspection, and mobile width rema
   await page.goto("/");
   await expect(page.getByText("FIXTURE", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /Derive live plan first/ })).toBeDisabled();
+  await expect(page.locator(".policySummary")).toContainText("3 preflight pending");
+  await expect(page.locator(".policySummary")).toContainText("0 blocking authorization");
   await page.getByRole("button", { name: /Inspect all 22 checks/ }).click();
   await expect(page.locator(".policyGrid details")).toHaveCount(22);
   await page.getByRole("button", { name: /Inspect raw JSON/ }).click();
