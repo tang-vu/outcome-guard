@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import publishedReceipt from "../../docs/evidence/pre-execution-receipt.json";
+import executionReceipt from "../../docs/evidence/execution-receipt.json";
 
 const publishedReceiptDigest = publishedReceipt.integrity.digest;
+const executionReceiptDigest = executionReceipt.integrity.digest;
 
 test("judge can compose and inspect bounded protection", async ({ page }) => {
   await page.route("**/api/markets", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ source: "unavailable", error: "deterministic E2E fixture" }) }));
@@ -138,12 +140,26 @@ test("receipt explorer verifies, discloses lifecycle truth, and serves the artif
   await expect(page.getByRole("heading", { name: "Protection objective" })).toBeVisible();
   await expect(page.getByText(/This artifact proves planning and policy evaluation only/)).toBeVisible();
   await expect(page.getByText("NOT SUBMITTED", { exact: false })).toBeVisible();
-  await expect(page.locator(".explorerPolicies details[open]")).toHaveCount(3);
+  await expect(page.locator(".explorerPolicies details[open]")).toHaveCount(publishedReceipt.policyEvaluation.filter(({ status }) => status === "FAIL").length);
 
   const artifact = await request.get(`/api/receipts/${publishedReceiptDigest}?download=1`);
   expect(artifact.ok()).toBe(true);
   expect(artifact.headers()["content-disposition"]).toContain("attachment");
   await expect(artifact.json()).resolves.toMatchObject({ lifecycleStage: "PRE_EXECUTION", integrity: { digest: publishedReceiptDigest }, execution: { status: "NOT_SUBMITTED" } });
+});
+
+test("verified execution receipt serves the reconciled Shannon artifact", async ({ request }) => {
+  const artifact = await request.get(`/api/receipts/${executionReceiptDigest}`);
+  expect(artifact.ok()).toBe(true);
+  await expect(artifact.json()).resolves.toMatchObject({ lifecycleStage: "EXECUTION", execution: { status: "RECONCILED", txHash: executionReceipt.execution.txHash }, integrity: { digest: executionReceiptDigest } });
+});
+
+test("execution receipt explorer distinguishes test-agent proof from settlement", async ({ page }) => {
+  await page.goto(`/receipts/${executionReceiptDigest}`);
+  await expect(page.getByText("VERIFIED", { exact: true })).toBeVisible();
+  await expect(page.getByText(/mined Shannon transaction and reconciled position/)).toBeVisible();
+  await expect(page.getByText("dedicated-test-agent", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Inspect transaction/ })).toHaveAttribute("href", executionReceipt.execution.explorerUrl);
 });
 
 test("unknown receipt digests fail closed", async ({ page, request }) => {

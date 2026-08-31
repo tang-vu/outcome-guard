@@ -6,7 +6,7 @@ const usd = (value: number) => new Intl.NumberFormat("en-US", { style: "currency
 
 export default async function ReceiptPage({ params }: { params: Promise<{ digest: string }> }) {
   const { digest } = await params;
-  const receipt = findPublishedReceipt(digest);
+  const receipt = await findPublishedReceipt(digest);
   const verification = receipt ? verifyReceipt(receipt) : { valid: false, errors: ["No packaged evidence receipt matches this digest."] };
 
   if (!receipt) return <main className="explorerShell">
@@ -47,7 +47,9 @@ export default async function ReceiptPage({ params }: { params: Promise<{ digest
       <section className="card lifecycleCard">
         <div className="cardHead"><div><span>IMMUTABLE LINEAGE</span><h2>Lifecycle truth, at a glance</h2></div><small>Created {new Date(receipt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC</small></div>
         <div className="timeline explorerTimeline"><i className="done">Intent</i><i className="done">Plan</i><i className="done">Policy</i><i className={authorized ? "done" : ""}>Authorize</i><i className={executed ? "done" : ""}>Execution</i><i className={settled ? "done" : ""}>Settlement</i><i className={redeemed ? "done" : ""}>Claim</i></div>
-        <p className="truthDisclosure"><strong>{receipt.execution.status.replace("_", " ")}</strong> — This artifact proves planning and policy evaluation only. It does not claim wallet authorization, a submitted transaction, a fill, settlement, or redemption.</p>
+        <p className="truthDisclosure"><strong>{receipt.execution.status.replace("_", " ")}</strong> — {executed
+          ? <>This artifact proves a mined Shannon transaction and reconciled position under <b>{receipt.authorization.method}</b> authorization. It does not yet claim settlement or redemption.{receipt.execution.explorerUrl ? <> <a href={receipt.execution.explorerUrl} target="_blank" rel="noreferrer">Inspect transaction ↗</a></> : null}</>
+          : <>This artifact proves planning and policy evaluation only. It does not claim wallet authorization, a submitted transaction, a fill, settlement, or redemption.</>}</p>
       </section>
 
       <section className="card mathCard">

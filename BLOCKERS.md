@@ -2,7 +2,7 @@
 
 Status: `PARTIALLY RESOLVED`, last updated 2026-08-31. This file lists only actions that require a secret, wallet/faucet interaction, account authorization, waiting for external chain state, or an irreversible public-release decision.
 
-The repository currently has verified live Shannon read evidence but no claimed order, fill, reconciled position, settlement, redemption, public deployment, video, or DoraHacks submission.
+The repository now has a real mined, fully filled and position-reconciled Shannon IOC produced by the explicitly labeled dedicated test agent. Human-wallet execution, settlement, redemption, video publication, and DoraHacks submission remain incomplete.
 
 ## A. Real Shannon IOC and position reconciliation
 

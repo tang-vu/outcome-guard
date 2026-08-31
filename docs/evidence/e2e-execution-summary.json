@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "outcomeguard.live-e2e-summary.v1",
+  "capturedAt": "2026-08-31T06:46:17.574Z",
+  "network": { "name": "somnia-shannon", "chainId": 50312 },
+  "testMode": "dedicated-test-agent",
+  "humanAuthorizationClaimed": false,
+  "marketId": "0x000000000000000000000000000000000000000000000000000000000000ea9a",
+  "asset": "BTC",
+  "execution": {
+    "status": "RECONCILED",
+    "txHash": "0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be",
+    "blockNumber": "475857493",
+    "explorerUrl": "https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be",
+    "requestedPrice": "0.495",
+    "averageFillPrice": "0.486",
+    "requestedSize": "29.182",
+    "filledSize": "29.182",
+    "collateralSpent": "14.182452"
+  },
+  "position": {
+    "yesBefore": "0",
+    "noBefore": "0",
+    "yesAfter": "0",
+    "noAfter": "29.182",
+    "positionDelta": "29.182"
+  },
+  "receiptDigest": "0x2cdeed07d710ace2360624c29989bca315260bf25eb03ca803e6ce90db304d79",
+  "receiptVerification": "PASS",
+  "journalEvents": ["JOB_ACCEPTED", "PREFLIGHT_PASSED", "SUBMISSION_INTENT_RECORDED", "TX_MINED_SUCCESS", "POSITION_RECONCILED", "RECEIPT_SEALED"]
+}

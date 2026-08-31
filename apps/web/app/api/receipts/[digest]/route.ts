@@ -3,7 +3,7 @@ import { findPublishedReceipt } from "../../../../lib/published-receipts";
 
 export async function GET(request: Request, { params }: { params: Promise<{ digest: string }> }) {
   const { digest } = await params;
-  const receipt = findPublishedReceipt(digest);
+  const receipt = await findPublishedReceipt(digest);
   if (!receipt) return Response.json({ error: "No packaged evidence receipt matches this digest." }, { status: 404 });
 
   const verification = verifyReceipt(receipt);

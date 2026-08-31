@@ -176,7 +176,7 @@ See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md), [`SECURITY.md`](SECURITY.md)
 
 ## 15. Known limitations
 
-- No real OutcomeGuard Shannon order, fill, or reconciled position has been produced at this checkpoint.
+- A real Shannon bounded IOC is recorded in dedicated-test-agent mode: transaction [`0xbe1b…03be`](https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be) filled `29.182` NO at average `0.486`; the worker reconciled the position delta and sealed receipt `0x2cde…d79`. This is not represented as a human wallet authorization.
 - No settled historical replay or OutcomeGuard redemption proof is included yet.
 - The composer defaults to a judge-reliable fixture. Its `LIVE READ EVIDENCE` panel can opt into `Derive live plan`, which refetches the selected market ID server-side and rebuilds the plan, policy, and receipt from fresh Shannon data.
 - Exposure is a manual demo override; connected-wallet BTC/ETH valuation is not yet a verified production feed.
@@ -202,7 +202,7 @@ OutcomeGuard is MIT licensed; see [`LICENSE`](LICENSE). The implementation uses 
 | DreamDEX reads | Live Shannon market, book, venue, status, and parameters captured |
 | Hedge engine | Deterministic baseline and property tests implemented |
 | Policy and receipts | Shared evaluator, canonical receipts, CLI, and tamper tests implemented |
-| Testnet execution | **Blocked pending funded disposable Shannon signer and explicit authorization** |
+| Testnet execution | Dedicated-test-agent IOC mined, filled and position-reconciled; human wallet authorization remains a separate demo step |
 | Settlement/redemption | **Pending verified position and terminal market evidence** |
 | Product/deployment | Public preview healthy at `outcomeguard.tangvu.dev`; PM2 web/tunnel restore is configured after Windows logon |
 | Submission | Text package, screenshots, and deployment URL ready; video and explorer transaction proof pending |
