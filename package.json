@@ -23,6 +23,7 @@
     "receipt:verify": "tsx packages/receipt/src/cli.ts",
     "demo:capture": "node scripts/demo/capture-demo.mjs",
     "demo:audio": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo/run-mimo-audio-secure.ps1",
+    "demo:validate": "node scripts/demo/validate-demo.mjs",
     "demo:render": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo/render-demo.ps1",
     "demo:inspect": "ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate,sample_rate,channels -of json docs/demo/video/outcomeguard-demo.mp4",
     "secrets:scan": "node scripts/secret-scan.mjs",

@@ -8,8 +8,8 @@ Target runtime: **2:35**. Capture at 1080p or higher, 30 fps, with legible UI at
 | --- | --- | --- |
 | Release candidate | Commit that passed `npm ci` and `npm run verify` | Current redemption-evidence release commit; record final hash after push |
 | Public app URL | Healthy release deployment | `https://outcomeguard.tangvu.dev` |
-| Live market proof | Shannon `50312`, explicit venue, fresh book and onchain status | Live-read evidence exists; final recording snapshot **PENDING** |
-| Passing authorization snapshot | All mandatory policies pass | **PENDING** |
+| Live market proof | Shannon `50312`, explicit venue, fresh book and onchain status | Captured from the public app; final recording derives the current live plan |
+| Passing authorization snapshot | All mandatory market/plan policies pass | Captured `READY TO SIGN`; human-signature and balance checks remain preflight-only |
 | Execution proof | Successful mined IOC receipt, fill, reconciled position | Complete: `0xabc2…be99`, `4.171 NO` |
 | Receipt proof | Immutable final JSON and digest, CLI verification | Complete through redemption digest `0xc272…8205` |
 | Settlement proof | Independently verified terminal DreamDEX market | Owned market `…eec6`, block `476073320`, `NO / DOWN` |

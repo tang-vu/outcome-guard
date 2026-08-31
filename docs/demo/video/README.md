@@ -2,6 +2,8 @@
 
 This directory contains the reproducible 2:35 judge-video timeline. Generated audio, browser captures, ASR reports, and exports are intentionally ignored because they may contain account-scoped API output or large binaries.
 
+The integration follows Xiaomi's current official [MiMo V2.5 TTS guide](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/audio/speech-synthesis-v2.5) and [MiMo V2.5 ASR guide](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/audio/Speech-Recognition). It uses built-in voice synthesis only; no voice clone or biometric sample is required.
+
 ## Truth boundary
 
 - Live discovery is recorded from `https://outcomeguard.tangvu.dev` and labeled as a current Shannon read.
@@ -21,6 +23,7 @@ This directory contains the reproducible 2:35 judge-video timeline. Generated au
 3. Capture the real application journey:
 
    ```powershell
+   npm run demo:validate
    npm run demo:capture
    ```
 

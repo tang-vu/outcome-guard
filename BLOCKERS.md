@@ -63,11 +63,17 @@ This is intentionally last. Do not make the repository public while execution ev
 
 Owner action required:
 
-1. Choose/authorize the recording and upload accounts.
-2. During recording, approve any live Shannon wallet signature needed for the authorized-order segment. No seed phrase or private key should appear; crop wallet account details not needed as public evidence.
+1. Revoke the MiMo key that was pasted into chat on 2026-08-31. Treat it as compromised even if it still works.
+2. Create a replacement Token Plan key, then enter it only through the hidden local prompt—never through chat, source code, `.env`, or a shell command argument:
+
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo/setup-mimo-key.ps1
+   ```
+
+   This stores Windows DPAPI ciphertext outside the repository with a current-user-only ACL. After that, engineering can run `npm run demo:audio`, review the MiMo V2.5 ASR back-check, and render the final cut without seeing or logging plaintext.
 3. Review the final 2–3 minute cut and explicitly approve its public upload and URL.
 
-The video must distinguish live discovery, live execution, deterministic fixture, and verified historical replay on screen. It must not claim settlement/redemption unless the evidence in section B exists.
+The 1080p evidence capture, 2:35 English narration timeline, subtitles, MiMo TTS/ASR integration, and reproducible FFmpeg render pipeline are complete. A new live wallet signature is not required: the recording uses the already-verified dedicated-test-agent execution and redemption lifecycle, with its evidence boundary shown on screen.
 
 ## F. DoraHacks submission
 

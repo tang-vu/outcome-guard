@@ -110,9 +110,10 @@ Do not represent the dedicated test agent as a human wallet.
 
 ## Final link card
 
-- Public app: **PENDING**
+- Public app: **https://outcomeguard.tangvu.dev**
 - GitHub: **PENDING public-release decision and history scan**
-- Explorer transaction: **PENDING successful execution**
-- Receipt digest: insert from the final immutable evidence artifact
+- Explorer transaction: **`0xabc2f01852be3f1d75ec643524330d47dff2a50bb2ad890b85814e924e8abe99`**
+- Redemption transaction: **`0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc`**
+- Receipt digest: **`0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205`**
 
 Do not spend video time explaining folders. Keep cursor movement deliberate, use 125–150% zoom where needed, and keep text captions on for every mode change and external proof.
