@@ -69,7 +69,18 @@ async function main(): Promise<void> {
   let knownBlockNumber: bigint | undefined;
   try {
     await journal.initialize(); await journal.acquireSignerLock(); lockAcquired = true;
-    const market = await adapter.getMarket(bundle.mandate.marketId as `0x${string}`);
+    const order = orderFromBundle(bundle);
+    const signedMarket = bundle.preExecutionReceipt.marketSnapshot;
+    const market = await adapter.reconcileAuthorizedMarket(order, {
+      collateral: signedMarket.collateral.address as `0x${string}`,
+      collateralDecimals: signedMarket.collateral.decimals,
+      asset: signedMarket.asset,
+      intervalSec: signedMarket.intervalSec,
+      expiry: Math.floor(Date.parse(signedMarket.expiry) / 1_000),
+      question: signedMarket.settlementReference,
+      ...(signedMarket.oracleQuestionId ? { oracleQuestionId: signedMarket.oracleQuestionId } : {}),
+      strikeRaw: signedMarket.strike,
+    });
     const [book, params, gasBalance] = await Promise.all([adapter.getBook(market, 20), adapter.getBookParameters(market), adapter.exchange!.client.getViemClient().getBalance({ address: account.address })]);
     const freshMarket = schemaMarket(market, book, params);
     freshPolicies = evaluatePreSign({
@@ -84,7 +95,7 @@ async function main(): Promise<void> {
     await journal.append({ event: "PREFLIGHT_PASSED", jobId, signer: account.address, chainId: 50312, authorizationDigest: bundle.authorizedReceipt.authorization.mandateDigest!, orderFingerprint: bundle.mandate.authorizationFingerprint });
     await journal.append({ event: "SUBMISSION_INTENT_RECORDED", jobId, signer: account.address, chainId: 50312, authorizationDigest: bundle.authorizedReceipt.authorization.mandateDigest!, orderFingerprint: bundle.mandate.authorizationFingerprint });
     submissionRecorded = true;
-    const result = await adapter.executeBoundedIoc(orderFromBundle(bundle));
+    const result = await adapter.executeBoundedIoc(order);
     knownTxHash = result.txHash; knownBlockNumber = result.blockNumber;
     await journal.append({ event: "TX_MINED_SUCCESS", jobId, signer: account.address, chainId: 50312, authorizationDigest: bundle.authorizedReceipt.authorization.mandateDigest!, orderFingerprint: bundle.mandate.authorizationFingerprint, txHash: result.txHash, blockNumber: result.blockNumber.toString() });
     await journal.append({ event: "POSITION_RECONCILED", jobId, signer: account.address, chainId: 50312, authorizationDigest: bundle.authorizedReceipt.authorization.mandateDigest!, orderFingerprint: bundle.mandate.authorizationFingerprint, txHash: result.txHash, blockNumber: result.blockNumber.toString() });
@@ -115,4 +126,9 @@ async function main(): Promise<void> {
   }
 }
 
-void main().catch((error) => { console.error(JSON.stringify({ status: "FAILED", error: safeError(error) })); process.exitCode = 1; });
+void main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(JSON.stringify({ status: "FAILED", error: safeError(error) }));
+    process.exit(1);
+  });

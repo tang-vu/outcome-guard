@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-08-28T18:11:15.831Z",
-  "capturedFromCommit": "351b014bfb9fa7ea6082fbdd47d10765a159925b",
+  "capturedAt": "2026-08-31T06:16:49.517Z",
+  "capturedFromCommit": "fe408abba6a3db9321f0912e1998442122c0f321",
   "sourceTreeClean": true,
   "captureCommand": "npm run evidence",
   "node": "v24.14.1",

@@ -122,6 +122,19 @@ export interface PreparedIocOrder {
   preparedAt: string;
 }
 
+/** Indexer-derived descriptive fields already covered by the human-signed receipt. */
+export interface AuthorizedMarketMetadata {
+  collateral: Address;
+  collateralDecimals: number;
+  asset: SupportedAsset;
+  intervalSec: number;
+  expiry: number;
+  question: string;
+  oracleQuestion?: string;
+  oracleQuestionId?: string;
+  strikeRaw: string;
+}
+
 export interface ConfirmedIocExecution {
   status: "confirmed";
   txHash: Hash;

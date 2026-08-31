@@ -68,8 +68,8 @@
     "version": "1.0.0",
     "status": "PASS",
     "observed": {
-      "plan": "0x000000000000000000000000000000000000000000000000000000000000c248",
-      "market": "0x000000000000000000000000000000000000000000000000000000000000c248"
+      "plan": "0x000000000000000000000000000000000000000000000000000000000000ea15",
+      "market": "0x000000000000000000000000000000000000000000000000000000000000ea15"
     },
     "limit": "equal",
     "reason": "Plan is bound to this market ID.",
@@ -79,7 +79,7 @@
     "policyId": "premium.user-budget",
     "version": "1.0.0",
     "status": "PASS",
-    "observed": 15,
+    "observed": 8.36,
     "limit": 15,
     "reason": "Premium fits the authorized budget.",
     "evidenceRefs": []
@@ -88,7 +88,7 @@
     "policyId": "shares.per-market",
     "version": "1.0.0",
     "status": "PASS",
-    "observed": 23.183,
+    "observed": 23.364,
     "limit": 250,
     "reason": "Share size is within the market cap.",
     "evidenceRefs": []
@@ -105,10 +105,10 @@
   {
     "policyId": "book.spread",
     "version": "1.0.0",
-    "status": "PASS",
-    "observed": 4.584980237154154,
+    "status": "FAIL",
+    "observed": 8.442503639010198,
     "limit": 8,
-    "reason": "Executable DOWN spread is within limit.",
+    "reason": "Executable DOWN spread exceeds the limit.",
     "evidenceRefs": []
   },
   {
@@ -125,7 +125,7 @@
     "version": "1.0.0",
     "status": "PASS",
     "observed": 200,
-    "limit": 23.183,
+    "limit": 23.364,
     "reason": "Visible depth covers the normalized order.",
     "evidenceRefs": []
   },
@@ -142,7 +142,7 @@
     "policyId": "market.expiry-headroom",
     "version": "1.0.0",
     "status": "PASS",
-    "observed": 2921.212,
+    "observed": 2587.224,
     "limit": 300,
     "reason": "Market has sufficient expiry headroom.",
     "evidenceRefs": []
@@ -193,7 +193,7 @@
     "policyId": "order.non-zero",
     "version": "1.0.0",
     "status": "PASS",
-    "observed": 23.183,
+    "observed": 23.364,
     "limit": "> 0",
     "reason": "Normalized order is non-zero.",
     "evidenceRefs": []

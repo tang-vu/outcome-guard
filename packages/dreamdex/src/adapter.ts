@@ -15,6 +15,7 @@ import {
   SHANNON_CHAIN_ID,
   SHANNON_EXPLORER,
   type BookParameters,
+  type AuthorizedMarketMetadata,
   type BoundedIocRequest,
   type ConfirmedIocExecution,
   type ConfirmedRedemption,
@@ -179,19 +180,60 @@ export class DreamDexAdapter {
       if (!book) throw new Error(`fixture book missing: ${market.marketId}`);
       return book;
     }
+    return this.getLiveBook(market.marketId, market.pool, market.collateralDecimals, depth);
+  }
+
+  private async getLiveBook(marketId: Hex, pool: Address, collateralDecimals: number, depth = 20): Promise<EventOrderBook> {
     const exchange = this.requireExchange();
     const [raw, blockNumber] = await Promise.all([
-      exchange.client.getBinaryOrderBook(market.pool, { depth, decimals: market.collateralDecimals }),
+      exchange.client.getBinaryOrderBook(pool, { depth, decimals: collateralDecimals }),
       exchange.client.getViemClient().getBlockNumber(),
     ]);
     return {
-      marketId: market.marketId,
+      marketId,
       capturedAt: new Date(this.now()).toISOString(),
       blockNumber,
       yesBids: raw.yesBids.map(({ price, quantity }) => ({ priceRaw: price, quantityRaw: quantity })),
       yesAsks: raw.yesAsks.map(({ price, quantity }) => ({ priceRaw: price, quantityRaw: quantity })),
       noBids: raw.noBids.map(({ price, quantity }) => ({ priceRaw: price, quantityRaw: quantity })),
       noAsks: raw.noAsks.map(({ price, quantity }) => ({ priceRaw: price, quantityRaw: quantity })),
+    };
+  }
+
+  /**
+   * Rebuild a write-time market snapshot from the signed metadata and direct
+   * chain state. This deliberately avoids a second indexer dependency after
+   * authorization while still failing closed on every execution-critical field.
+   */
+  async reconcileAuthorizedMarket(order: PreparedIocOrder, metadata: AuthorizedMarketMetadata): Promise<EventMarketSnapshot> {
+    if (this.mode !== "live") throw new Error("fixture mode cannot reconcile an authorized market");
+    const onchain = await this.getAuthorizedOnchain(order);
+    if (!sameHex(onchain.collateral, metadata.collateral)) throw new Error("authorized collateral differs from chain state");
+    if (onchain.decimals !== metadata.collateralDecimals) throw new Error("authorized collateral decimals differ from chain state");
+    if (Number(onchain.expiry) !== metadata.expiry) throw new Error("authorized market expiry differs from chain state");
+    return {
+      marketId: order.marketId,
+      marketAddress: onchain.marketAddress,
+      pool: onchain.pool,
+      poolNonce: onchain.nonce,
+      outcomeToken: onchain.outcomeToken,
+      yesId: onchain.yesId,
+      noId: onchain.noId,
+      collateral: onchain.collateral,
+      collateralDecimals: onchain.decimals,
+      asset: metadata.asset,
+      intervalSec: metadata.intervalSec,
+      tradingStart: metadata.expiry - metadata.intervalSec,
+      expiry: Number(onchain.expiry),
+      venueId: order.venueId,
+      status: onchain.status,
+      statusName: statusName(onchain.status),
+      question: metadata.question,
+      ...(metadata.oracleQuestion ? { oracleQuestion: metadata.oracleQuestion } : {}),
+      ...(metadata.oracleQuestionId ? { oracleQuestionId: metadata.oracleQuestionId } : {}),
+      strikeRaw: metadata.strikeRaw,
+      fetchedAt: new Date(this.now()).toISOString(),
+      source: "shannon-chain+indexer",
     };
   }
 
@@ -259,12 +301,12 @@ export class DreamDexAdapter {
     if (!exchange.walletAddress) throw new Error("a wallet signer is required for execution");
     const chainId = await exchange.client.getViemClient().getChainId();
     if (chainId !== SHANNON_CHAIN_ID) throw new Error(`write blocked: connected chain ${chainId} is not Shannon ${SHANNON_CHAIN_ID}`);
-    const current = await this.getMarket(order.marketId);
+    const current = await this.getAuthorizedOnchain(order);
     if (current.status !== 1) throw new Error("pre-sign policy failed: market is not Trading");
-    if (!sameHex(current.pool, order.pool) || current.poolNonce !== order.poolNonce) {
-      throw new Error("pre-sign policy failed: pool generation changed");
-    }
-    const [book, params] = await Promise.all([this.getBook(current), this.getBookParameters(current)]);
+    const [book, params] = await Promise.all([
+      this.getLiveBook(order.marketId, current.pool, current.decimals),
+      exchange.client.getBinaryBookParams(current.pool),
+    ]);
     if (order.quantityRaw % params.lotSize !== 0n || order.quantityRaw < params.minQuantity) {
       throw new Error("pre-sign policy failed: quantity no longer satisfies the book grid");
     }
@@ -275,7 +317,7 @@ export class DreamDexAdapter {
     }
     const maxMovedAsk = (order.observedBestAskRaw * (10_000n + order.maximumBookMoveBps)) / 10_000n;
     if (depth.bestAskRaw > maxMovedAsk) throw new Error("pre-sign policy failed: book moved beyond authorization tolerance");
-    const one = 10n ** BigInt(current.collateralDecimals);
+    const one = 10n ** BigInt(current.decimals);
     const maxPremium = premiumAtLimit(order.quantityRaw, order.outcomePriceRaw, one);
     if (maxPremium > order.maximumPremiumRaw) throw new Error("pre-sign policy failed: premium exceeds authorization");
     if (order.expireTimestampNs <= BigInt(Math.floor(this.now() / 1_000)) * 1_000_000_000n) {
@@ -285,7 +327,7 @@ export class DreamDexAdapter {
       exchange.client.getViemClient().getBalance({ address: exchange.walletAddress }),
       exchange.client.getErc20Balance(current.collateral, exchange.walletAddress),
       exchange.client.getErc20Allowance(current.collateral, exchange.walletAddress, current.pool),
-      this.readPosition(order.marketId, current, exchange.walletAddress),
+      this.readOnchainPosition(order.marketId, current.outcomeToken, current.yesId, current.noId, exchange.walletAddress),
     ]);
     if (gasBalance === 0n) throw new Error("pre-sign policy failed: native Shannon gas balance is zero");
     if (collateralBalance < maxPremium) throw new Error("pre-sign policy failed: wallet collateral is below maximum premium");
@@ -316,7 +358,7 @@ export class DreamDexAdapter {
     }, 0n);
     if (premium > order.maximumPremiumRaw) throw new Error("confirmed fills exceeded authorized premium");
     const [position, collateralAfter] = await Promise.all([
-      this.readPosition(order.marketId, current, exchange.walletAddress),
+      this.readOnchainPosition(order.marketId, current.outcomeToken, current.yesId, current.noId, exchange.walletAddress),
       exchange.client.getErc20Balance(current.collateral, exchange.walletAddress),
     ]);
     const positionDeltaRaw = order.outcome === "YES" ? position.yesRaw - positionBefore.yesRaw : position.noRaw - positionBefore.noRaw;
@@ -349,11 +391,26 @@ export class DreamDexAdapter {
     const owner = account ?? exchange.walletAddress;
     if (!owner) throw new Error("account is required to read a position");
     const current = market ?? (await this.getMarket(marketId));
+    return this.readOnchainPosition(marketId, current.outcomeToken, current.yesId, current.noId, owner);
+  }
+
+  private async readOnchainPosition(marketId: Hex, outcomeToken: Address, yesId: bigint, noId: bigint, owner: Address): Promise<OutcomePosition> {
+    const exchange = this.requireExchange();
     const [yesRaw, noRaw] = await Promise.all([
-      exchange.client.getOutcomeBalance({ outcomeToken: current.outcomeToken, account: owner, id: current.yesId }),
-      exchange.client.getOutcomeBalance({ outcomeToken: current.outcomeToken, account: owner, id: current.noId }),
+      exchange.client.getOutcomeBalance({ outcomeToken, account: owner, id: yesId }),
+      exchange.client.getOutcomeBalance({ outcomeToken, account: owner, id: noId }),
     ]);
     return { account: owner, marketId, yesRaw, noRaw, readAt: new Date(this.now()).toISOString() };
+  }
+
+  private async getAuthorizedOnchain(order: PreparedIocOrder): Promise<MarketOnchain> {
+    this.assertVenue(order.venueId);
+    const onchain = await this.requireExchange().client.getMarketOnchain(order.marketId);
+    if (!sameHex(onchain.pool, order.pool) || onchain.nonce !== order.poolNonce) throw new Error("pre-sign policy failed: pool generation changed");
+    if (!sameHex(onchain.outcomeToken, order.outcomeToken) || onchain.yesId !== order.yesId || onchain.noId !== order.noId) {
+      throw new Error("pre-sign policy failed: outcome token wiring changed");
+    }
+    return onchain;
   }
 
   async discoverFinalized(limit = 40): Promise<FinalizedMarket[]> {

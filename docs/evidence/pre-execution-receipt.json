@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "receiptId": "fd4a3b7c-2938-421d-b34d-61adcb9160f3",
-  "createdAt": "2026-08-28T18:11:15.831Z",
+  "receiptId": "a8ebfde0-3579-44ed-b8fb-3a918db2f878",
+  "createdAt": "2026-08-31T06:16:49.517Z",
   "lifecycleStage": "PRE_EXECUTION",
   "network": {
     "name": "somnia-shannon",
@@ -21,29 +21,29 @@
     "intentHash": "0xa242549723bc933afeac59df8f56fe0e7f775452e307633d537dba4eb4316350"
   },
   "portfolioBefore": {
-    "capturedAt": "2026-08-28T18:11:15.831Z",
+    "capturedAt": "2026-08-31T06:16:49.517Z",
     "source": "manual-demo",
     "asset": "ETH",
     "exposureUsd": "1000",
     "readStatus": "known"
   },
   "marketSnapshot": {
-    "capturedAt": "2026-08-28T18:11:18.776Z",
+    "capturedAt": "2026-08-31T06:16:52.768Z",
     "source": "live",
     "network": "somnia-shannon",
     "chainId": 50312,
     "sdkVersion": "0.28.1",
     "venueId": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
-    "marketId": "0x000000000000000000000000000000000000000000000000000000000000c248",
-    "poolAddress": "0x3693799C1F707162acf8777a718B7E20f54a750D",
+    "marketId": "0x000000000000000000000000000000000000000000000000000000000000ea15",
+    "poolAddress": "0x90dB0C4C4A25096103faeD8a3C7178C190abAE20",
     "asset": "ETH",
     "intervalSec": 3600,
     "strike": "0",
-    "expiry": "2026-08-28T19:00:00.000Z",
+    "expiry": "2026-08-31T07:00:00.000Z",
     "status": "Trading",
     "statusCode": 1,
     "settlementReference": "ETH closes at or above its opening price",
-    "oracleQuestionId": "46064",
+    "oracleQuestionId": "47389",
     "collateral": {
       "symbol": "tUSDC",
       "address": "0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E",
@@ -52,29 +52,33 @@
     "book": {
       "yesBids": [
         {
-          "price": "0.353",
+          "price": "0.642",
           "size": "200"
         },
         {
-          "price": "0.342",
+          "price": "0.625",
           "size": "330"
         },
         {
-          "price": "0.324",
+          "price": "0.615",
           "size": "460"
+        },
+        {
+          "price": "0.49",
+          "size": "8"
         }
       ],
       "yesAsks": [
         {
-          "price": "0.382",
+          "price": "0.671",
           "size": "200"
         },
         {
-          "price": "0.392",
+          "price": "0.674",
           "size": "330"
         },
         {
-          "price": "0.394",
+          "price": "0.684",
           "size": "460"
         }
       ]
@@ -85,49 +89,49 @@
       "minQuantity": "0.001"
     },
     "freshnessMs": 1,
-    "blockNumber": "473676996"
+    "blockNumber": "475839860"
   },
   "hedgePlan": {
     "planVersion": "1.0.0",
     "objective": "BUY_DOWN_PROTECTION",
-    "marketId": "0x000000000000000000000000000000000000000000000000000000000000c248",
-    "requestedShares": 42.492917847025495,
-    "executableShares": 23.183,
-    "normalizedShares": 23.183,
-    "worstPrice": 0.647,
-    "averageExecutablePrice": 0.647,
-    "premiumUsd": 15,
-    "expectedNetPayoutIfDownUsd": 8.18,
+    "marketId": "0x000000000000000000000000000000000000000000000000000000000000ea15",
+    "requestedShares": 23.36448598130841,
+    "executableShares": 23.364,
+    "normalizedShares": 23.364,
+    "worstPrice": 0.358,
+    "averageExecutablePrice": 0.358,
+    "premiumUsd": 8.36,
+    "expectedNetPayoutIfDownUsd": 15,
     "targetProtectedLossUsd": 15,
     "constraints": [
       {
         "name": "target",
-        "before": 42.492917847025495,
-        "after": 42.492917847025495,
+        "before": 23.36448598130841,
+        "after": 23.36448598130841,
         "binding": false
       },
       {
         "name": "premium-budget",
-        "before": 42.492917847025495,
-        "after": 23.183925811437405,
-        "binding": true
+        "before": 23.36448598130841,
+        "after": 41.077883667433454,
+        "binding": false
       },
       {
         "name": "visible-depth",
-        "before": 42.492917847025495,
-        "after": 530,
+        "before": 23.36448598130841,
+        "after": 200,
         "binding": false
       },
       {
         "name": "per-market-cap",
-        "before": 42.492917847025495,
+        "before": 23.36448598130841,
         "after": 250,
         "binding": false
       },
       {
         "name": "lot-and-minimum",
-        "before": 23.183925811437405,
-        "after": 23.183,
+        "before": 23.36448598130841,
+        "after": 23.364,
         "binding": true
       }
     ],
@@ -136,27 +140,27 @@
         "adverseMovePct": -2,
         "contractOutcome": "DOWN",
         "underlyingPnlUsd": -20,
-        "eventPayoutUsd": 23.18,
-        "premiumUsd": 15,
-        "hedgedPnlUsd": -11.82,
-        "protectionRatioPct": 40.917995
+        "eventPayoutUsd": 23.36,
+        "premiumUsd": 8.36,
+        "hedgedPnlUsd": -5,
+        "protectionRatioPct": 74.99844
       },
       {
         "adverseMovePct": -1,
         "contractOutcome": "DOWN",
         "underlyingPnlUsd": -10,
-        "eventPayoutUsd": 23.18,
-        "premiumUsd": 15,
-        "hedgedPnlUsd": -1.82,
-        "protectionRatioPct": 81.83599
+        "eventPayoutUsd": 23.36,
+        "premiumUsd": 8.36,
+        "hedgedPnlUsd": 5,
+        "protectionRatioPct": 100
       },
       {
         "adverseMovePct": -0.5,
         "contractOutcome": "DOWN",
         "underlyingPnlUsd": -5,
-        "eventPayoutUsd": 23.18,
-        "premiumUsd": 15,
-        "hedgedPnlUsd": 3.18,
+        "eventPayoutUsd": 23.36,
+        "premiumUsd": 8.36,
+        "hedgedPnlUsd": 10,
         "protectionRatioPct": 100
       },
       {
@@ -164,8 +168,8 @@
         "contractOutcome": "UP",
         "underlyingPnlUsd": 0,
         "eventPayoutUsd": 0,
-        "premiumUsd": 15,
-        "hedgedPnlUsd": -15,
+        "premiumUsd": 8.36,
+        "hedgedPnlUsd": -8.36,
         "protectionRatioPct": 0
       },
       {
@@ -173,8 +177,8 @@
         "contractOutcome": "UP",
         "underlyingPnlUsd": 10,
         "eventPayoutUsd": 0,
-        "premiumUsd": 15,
-        "hedgedPnlUsd": -5,
+        "premiumUsd": 8.36,
+        "hedgedPnlUsd": 1.64,
         "protectionRatioPct": 0
       }
     ],
@@ -250,8 +254,8 @@
       "version": "1.0.0",
       "status": "PASS",
       "observed": {
-        "plan": "0x000000000000000000000000000000000000000000000000000000000000c248",
-        "market": "0x000000000000000000000000000000000000000000000000000000000000c248"
+        "plan": "0x000000000000000000000000000000000000000000000000000000000000ea15",
+        "market": "0x000000000000000000000000000000000000000000000000000000000000ea15"
       },
       "limit": "equal",
       "reason": "Plan is bound to this market ID.",
@@ -261,7 +265,7 @@
       "policyId": "premium.user-budget",
       "version": "1.0.0",
       "status": "PASS",
-      "observed": 15,
+      "observed": 8.36,
       "limit": 15,
       "reason": "Premium fits the authorized budget.",
       "evidenceRefs": []
@@ -270,7 +274,7 @@
       "policyId": "shares.per-market",
       "version": "1.0.0",
       "status": "PASS",
-      "observed": 23.183,
+      "observed": 23.364,
       "limit": 250,
       "reason": "Share size is within the market cap.",
       "evidenceRefs": []
@@ -287,10 +291,10 @@
     {
       "policyId": "book.spread",
       "version": "1.0.0",
-      "status": "PASS",
-      "observed": 4.584980237154154,
+      "status": "FAIL",
+      "observed": 8.442503639010198,
       "limit": 8,
-      "reason": "Executable DOWN spread is within limit.",
+      "reason": "Executable DOWN spread exceeds the limit.",
       "evidenceRefs": []
     },
     {
@@ -307,7 +311,7 @@
       "version": "1.0.0",
       "status": "PASS",
       "observed": 200,
-      "limit": 23.183,
+      "limit": 23.364,
       "reason": "Visible depth covers the normalized order.",
       "evidenceRefs": []
     },
@@ -324,7 +328,7 @@
       "policyId": "market.expiry-headroom",
       "version": "1.0.0",
       "status": "PASS",
-      "observed": 2921.212,
+      "observed": 2587.224,
       "limit": 300,
       "reason": "Market has sufficient expiry headroom.",
       "evidenceRefs": []
@@ -375,7 +379,7 @@
       "policyId": "order.non-zero",
       "version": "1.0.0",
       "status": "PASS",
-      "observed": 23.183,
+      "observed": 23.364,
       "limit": "> 0",
       "reason": "Normalized order is non-zero.",
       "evidenceRefs": []
@@ -418,6 +422,6 @@
   "integrity": {
     "canonicalization": "RFC8785-JCS",
     "digestAlgorithm": "sha256",
-    "digest": "0x2b60a01fddcd5e8cb3e0b21b10d8bcfe8de3f4fee8f6dd388d310837d8731ce2"
+    "digest": "0x2bfbdb2b1008fcae68078d1213062936620798a9e4510746dcae65ad8fb7e464"
   }
 }
