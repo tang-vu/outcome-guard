@@ -10,7 +10,10 @@ const env = z.object({
   AGENT_SIGNER_ADDRESS: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
   EXECUTION_INBOX_DIR: z.string().min(1),
   EXECUTION_STATUS_DIR: z.string().min(1),
-  OUTCOMEGUARD_URL: z.string().url().default("https://outcomeguard.tangvu.dev")
+  OUTCOMEGUARD_URL: z.string().url().default("https://outcomeguard.tangvu.dev"),
+  E2E_MAX_PREMIUM: z.coerce.number().positive().max(15).default(15),
+  E2E_HORIZON_MINUTES: z.coerce.number().refine((value) => value === 15 || value === 60).default(15),
+  E2E_ASSET: z.enum(["BTC", "ETH"]).optional(),
 }).parse(process.env);
 
 type MarketResponse = {
@@ -39,7 +42,7 @@ async function main(): Promise<void> {
   process.env.AUTO_EXECUTION_ENABLED = "true";
 
   const markets = await json<MarketResponse>(await fetch(`${env.OUTCOMEGUARD_URL}/api/markets`, { cache: "no-store" }));
-  const candidates = markets.snapshots?.filter(({ market }) => market.statusName === "Trading" && (market.intervalSec === 900 || market.intervalSec === 3600)) ?? [];
+  const candidates = markets.snapshots?.filter(({ market }) => market.statusName === "Trading" && market.intervalSec === env.E2E_HORIZON_MINUTES * 60 && (!env.E2E_ASSET || market.asset === env.E2E_ASSET)) ?? [];
   let selected: (typeof candidates)[number] | undefined;
   let plan: PlanResponse | undefined;
   const rejected: string[] = [];
@@ -47,7 +50,7 @@ async function main(): Promise<void> {
     const candidatePlan = await json<PlanResponse>(await fetch(`${env.OUTCOMEGUARD_URL}/api/plan`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ asset: candidate.market.asset, exposureUsd: 1000, horizonMinutes: candidate.market.intervalSec / 60, adverseMovePct: 2, maxPremium: 15, maxSlippagePct: 2, targetProtectionPct: 75, liveMarketId: candidate.market.marketId })
+      body: JSON.stringify({ asset: candidate.market.asset, exposureUsd: 1000, horizonMinutes: candidate.market.intervalSec / 60, adverseMovePct: 2, maxPremium: env.E2E_MAX_PREMIUM, maxSlippagePct: 2, targetProtectionPct: 75, liveMarketId: candidate.market.marketId })
     }));
     const blocking = candidatePlan.policies.filter(({ status, policyId }) => status === "FAIL" && !["premium.total-risk", "wallet.gas", "authorization.human"].includes(policyId));
     if (candidatePlan.mode === "live" && candidatePlan.authorizationChallenge && blocking.length === 0) {
@@ -65,7 +68,7 @@ async function main(): Promise<void> {
   const walletClient = createWalletClient({ account, chain, transport });
   const token = plan.receipt.marketSnapshot.collateral.address as `0x${string}`;
   const pool = selected.market.pool as `0x${string}`;
-  const amount = parseUnits("15", plan.receipt.marketSnapshot.collateral.decimals);
+  const amount = parseUnits(env.E2E_MAX_PREMIUM.toString(), plan.receipt.marketSnapshot.collateral.decimals);
   const approvalAbi = [
     { type: "function", name: "approve", stateMutability: "nonpayable", inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ type: "bool" }] },
     { type: "function", name: "allowance", stateMutability: "view", inputs: [{ name: "owner", type: "address" }, { name: "spender", type: "address" }], outputs: [{ type: "uint256" }] }
@@ -117,7 +120,7 @@ async function main(): Promise<void> {
   while (Date.now() < deadline) {
     const status = await readExecutionStatus(queued.executionId);
     if (status && ["FAILED", "RECONCILED", "RECOVERY_REQUIRED"].includes(status.state)) {
-      console.log(JSON.stringify({ testMode: "dedicated-test-agent", marketId: selected.market.marketId, pool: selected.market.pool, ...(approvalTxHash ? { approvalTxHash } : {}), ...status }));
+      console.log(JSON.stringify({ testMode: "dedicated-test-agent", maximumPremium: env.E2E_MAX_PREMIUM, marketId: selected.market.marketId, pool: selected.market.pool, ...(approvalTxHash ? { approvalTxHash } : {}), ...status }));
       if (status.state !== "RECONCILED") throw new Error(status.error ?? `E2E ended in ${status.state}`);
       return;
     }
