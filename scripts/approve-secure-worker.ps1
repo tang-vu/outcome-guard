@@ -2,7 +2,7 @@ param(
   [Parameter(Mandatory = $true)]
   [ValidatePattern("^0x[0-9a-fA-F]{40}$")]
   [string]$Pool,
-  [ValidateRange(0.001, 100)]
+  [ValidateRange(0, 100)]
   [decimal]$Amount = 15
 )
 

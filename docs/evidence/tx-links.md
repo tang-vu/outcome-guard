@@ -25,5 +25,6 @@ Winning redemption lifecycle:
 - Settlement: market `0x…eec6`, direct Shannon block `476073320`, finalized `Resolved`, winning `NO / DOWN`, `4.171` claimable.
 - Redemption: [`0x7021…effc`](https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc); `4.171` winning tokens burned, `4.171 tUSDC` received, winning-token balance reconciled to zero.
 - Linked redemption receipt: `0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205`.
+- Post-campaign allowance cleanup: all five known OutcomeGuard pool allowances were reconciled to `0`; hashes and blocks are recorded in [`redemption-campaign-eec6/allowance-cleanup.json`](redemption-campaign-eec6/allowance-cleanup.json).
 
 See [`../../BLOCKERS.md`](../../BLOCKERS.md) for the exact minimal wallet actions and required evidence.

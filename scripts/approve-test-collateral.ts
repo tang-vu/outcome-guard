@@ -13,7 +13,7 @@ const abi = [
 const env = z.object({
   PRIVATE_KEY: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
   APPROVAL_POOL: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
-  APPROVAL_AMOUNT: z.coerce.number().positive().max(100),
+  APPROVAL_AMOUNT: z.coerce.number().nonnegative().max(100),
   RPC_URL: z.string().url().default("https://api.infra.testnet.somnia.network")
 }).parse(process.env);
 

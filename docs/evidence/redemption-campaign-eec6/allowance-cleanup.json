@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "outcomeguard.allowance-cleanup.v1",
+  "capturedAt": "2026-08-31T13:03:00.000Z",
+  "network": { "name": "somnia-shannon", "chainId": 50312 },
+  "account": "0x1A3b41966bd8fFf0637685D5398762778FdeFfc2",
+  "token": "0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E",
+  "result": "All known OutcomeGuard campaign pool allowances reconciled to zero",
+  "transactions": [
+    { "pool": "0x90dB0C4C4A25096103faeD8a3C7178C190abAE20", "allowanceAfter": "0", "txHash": "0x4c7d33e4b057046c02cd0928b1e2fefd592a24a64d7ec73716e012cfdc7e39f3", "blockNumber": "476081725", "explorerUrl": "https://shannon-explorer.somnia.network/tx/0x4c7d33e4b057046c02cd0928b1e2fefd592a24a64d7ec73716e012cfdc7e39f3" },
+    { "pool": "0x06B0C35e61c7cEF10689B48500fC374867e33df4", "allowanceAfter": "0", "txHash": "0xd756894bb1b6efe18e479b533d25db32c46c90f47d803da83041b225a405c48d", "blockNumber": "476081787", "explorerUrl": "https://shannon-explorer.somnia.network/tx/0xd756894bb1b6efe18e479b533d25db32c46c90f47d803da83041b225a405c48d" },
+    { "pool": "0x1DECE9CE70971207894a354b4dbFC9E8F0F72be9", "allowanceAfter": "0", "txHash": "0x7dc5f3566523c64d65718f15dcea8ac5727ba57bbe1bd559c30d3c55332404a0", "blockNumber": "476081848", "explorerUrl": "https://shannon-explorer.somnia.network/tx/0x7dc5f3566523c64d65718f15dcea8ac5727ba57bbe1bd559c30d3c55332404a0" },
+    { "pool": "0x4ABb885682402039a5D50b542aD30Ae305898963", "allowanceAfter": "0", "txHash": "0x9959a2650c12d0600781e02619fea59accf950202969846e74f730ffe9aaf1cf", "blockNumber": "476081909", "explorerUrl": "https://shannon-explorer.somnia.network/tx/0x9959a2650c12d0600781e02619fea59accf950202969846e74f730ffe9aaf1cf" },
+    { "pool": "0x4143cD6dcBAc98D05a7e0406947d46Eb14651EC9", "allowanceAfter": "0", "txHash": "0x9fd05ca6b9ed0348a887ab3550aaf83efca12469775bb9a88be46c883827f0bd", "blockNumber": "476081972", "explorerUrl": "https://shannon-explorer.somnia.network/tx/0x9fd05ca6b9ed0348a887ab3550aaf83efca12469775bb9a88be46c883827f0bd" }
+  ]
+}
