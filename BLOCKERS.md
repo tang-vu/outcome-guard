@@ -1,6 +1,6 @@
 # External Action Blockers
 
-Status: `NOT_PERFORMED`, last updated 2026-08-29. This file lists only actions that require a secret, wallet/faucet interaction, account authorization, waiting for external chain state, or an irreversible public-release decision. It is not evidence that any action occurred.
+Status: `PARTIALLY RESOLVED`, last updated 2026-08-31. This file lists only actions that require a secret, wallet/faucet interaction, account authorization, waiting for external chain state, or an irreversible public-release decision.
 
 The repository currently has verified live Shannon read evidence but no claimed order, fill, reconciled position, settlement, redemption, public deployment, video, or DoraHacks submission.
 
@@ -11,15 +11,14 @@ Local preparation completed on 2026-08-29:
 - A dedicated disposable Worker account was generated with a CSPRNG. Its public address is `0x1A3b41966bd8fFf0637685D5398762778FdeFfc2`.
 - Its private key is stored only as Windows DPAPI ciphertext outside the repository at `%LOCALAPPDATA%\OutcomeGuard\secrets\worker-key.dpapi`, with an ACL limited to the current Windows user. The key was never printed or committed.
 - `.env.local` binds the public `AGENT_SIGNER_ADDRESS`; secure PowerShell runners decrypt the key only into process memory and remove the environment value afterward.
-- A direct Shannon read confirmed chain `50312` and a zero native STT balance. The collateral helper therefore failed closed before simulation or broadcast.
+- Native STT funding is present. The guarded faucet helper minted and reconciled the worker balance to `200 tUSDC` in transaction `0x3d2e8b0188a7f58c7861ca850a415d70b14dac5e70f0e267dfcc9adb01a7112d`.
+- An exact `15 tUSDC` allowance for the current one-hour pool was confirmed in transaction `0x2eb211d6f5861abe1702532446d78fbd586ed1390a269c87ee5d899633cbebec`; unlimited approval is not used.
 
 Remaining owner actions, in this order:
 
-1. Use an official Shannon faucet at `https://testnet.somnia.network/` to send native STT to `0x1A3b41966bd8fFf0637685D5398762778FdeFfc2`. This web/CAPTCHA interaction cannot be completed autonomously. The required fact is a nonzero native balance on chain `50312`.
-2. After STT is visible, engineering will run `scripts/fund-secure-worker.ps1`. It verifies chain, STT balance, tUSDC address/symbol/decimals, simulation, successful receipt and exact balance increase before accepting the collateral faucet result.
-3. Add/select Somnia Shannon in an injected browser wallet used for human authorization: chain ID `50312`, official RPC `https://dream-rpc.somnia.network`, explorer `https://shannon-explorer.somnia.network`.
+1. Add/select Somnia Shannon in the injected human-authorization wallet: chain ID `50312`, official RPC `https://dream-rpc.somnia.network`, explorer `https://shannon-explorer.somnia.network`.
 4. Review the fresh live preview showing chain `50312`, venue ID, market ID, dedicated execution signer, expiry, exact raw IOC quantity/price, maximum tUSDC premium, book-move tolerance, mandate digest and policy results. Sign that one EIP-191 mandate with the injected human-authorization wallet and download the verified bundle. A generic “go ahead” does not authorize a refreshed market.
-5. Engineering will run `scripts/run-secure-worker.ps1` with the downloaded bundle. It supplies the absolute persistent state directory and uses zero initial premium-at-risk only while this new Worker has no prior trades. Never retry automatically after `AMBIGUOUS_SUBMISSION`; reconcile signer nonce and Shannon state first.
+3. If the selected market uses a different pool, engineering must first run `scripts/approve-secure-worker.ps1` for that exact pool and bounded amount. The PM2 worker otherwise receives the verified bundle automatically. Never retry after `AMBIGUOUS_SUBMISSION`; reconcile signer nonce and Shannon state first.
 
 After those actions, the engineering workflow must re-run the same policy engine immediately before signing, submit exactly one bounded IOC, require a successful mined receipt, decode fills, read the outcome-token position from chain, and write linked evidence. If the book moves or a policy fails, authorization expires and a new preview/signature is required.
 
