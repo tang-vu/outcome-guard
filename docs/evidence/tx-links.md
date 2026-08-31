@@ -19,4 +19,11 @@ Setup transactions are recorded separately and are not presented as hedge execut
 - Settlement: market `0x…ea9a` was read directly at Shannon block `475953729` as on-chain `Resolved` / code `4`, finalized, winning `YES / UP`. The reconciled `29.182 NO` position therefore has `0 tUSDC` claimable. Settlement receipt: `0x403e08fa79d0e0374f54886b79f00b4e6c52e90a2915b0904625ac244916537d`.
 - Redemption: `NOT_APPLICABLE` for this position because claimable is exactly zero; OutcomeGuard does not submit a zero-payout redemption.
 
+Winning redemption lifecycle:
+
+- Bounded ETH 15m IOC: [`0xabc2…be99`](https://shannon-explorer.somnia.network/tx/0xabc2f01852be3f1d75ec643524330d47dff2a50bb2ad890b85814e924e8abe99), block `476067141`; `4.171 NO` filled, `1.914489 tUSDC` spent.
+- Settlement: market `0x…eec6`, direct Shannon block `476073320`, finalized `Resolved`, winning `NO / DOWN`, `4.171` claimable.
+- Redemption: [`0x7021…effc`](https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc); `4.171` winning tokens burned, `4.171 tUSDC` received, winning-token balance reconciled to zero.
+- Linked redemption receipt: `0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205`.
+
 See [`../../BLOCKERS.md`](../../BLOCKERS.md) for the exact minimal wallet actions and required evidence.

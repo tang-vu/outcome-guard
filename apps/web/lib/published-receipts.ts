@@ -10,8 +10,8 @@ export async function findPublishedReceipt(digest: string): Promise<OutcomeGuard
   // Runtime JSON.parse preserves the exact canonical numeric representation.
   // Bundling the evidence as a JS object changed one high-precision scenario
   // number under Turbopack and correctly tripped receipt verification.
-  for (const name of ["execution-receipt.json", "settlement-receipt.json"]) {
-    const path = resolve(process.cwd(), "..", "..", "docs", "evidence", name);
+  for (const name of ["execution-receipt.json", "settlement-receipt.json", "redemption-campaign-eec6/execution-receipt.json", "redemption-campaign-eec6/settlement-receipt.json", "redemption-campaign-eec6/redemption-receipt.json"]) {
+    const path = resolve(process.cwd(), "..", "..", "docs", "evidence", ...name.split("/"));
     const receipt = receiptCoreSchema.parse(JSON.parse(await readFile(path, "utf8")));
     if (receipt.integrity.digest.toLowerCase() === digest.toLowerCase()) return receipt;
   }

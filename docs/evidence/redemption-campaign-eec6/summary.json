@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "outcomeguard.redemption-evidence.v1",
+  "network": {
+    "name": "somnia-shannon",
+    "chainId": 50312
+  },
+  "marketId": "0x000000000000000000000000000000000000000000000000000000000000eec6",
+  "asset": "ETH",
+  "execution": {
+    "txHash": "0xabc2f01852be3f1d75ec643524330d47dff2a50bb2ad890b85814e924e8abe99",
+    "explorerUrl": "https://shannon-explorer.somnia.network/tx/0xabc2f01852be3f1d75ec643524330d47dff2a50bb2ad890b85814e924e8abe99",
+    "filledOutcome": "NO",
+    "filledSize": "4.171",
+    "collateralSpent": "1.914489",
+    "receiptDigest": "0x0ce8399080edabcee34ca8c8ecccf5b136e9eb44b0abb644d469e15a7a8f9d62"
+  },
+  "settlement": {
+    "marketStatus": "Resolved · on-chain code 4",
+    "outcome": "DOWN",
+    "claimable": "4.171",
+    "settlementEvidence": [
+      "Direct Shannon RPC getMarketOnchain at block 476073320",
+      "https://shannon-explorer.somnia.network/block/476073320",
+      "Outcome-token balances read for 0x1A3b41966bd8fFf0637685D5398762778FdeFfc2: YES 0, NO 4.171"
+    ],
+    "receiptDigest": "0xba81ed0240fd570e369ba96ddf5488846407f6430eda046fc84be28268d18150"
+  },
+  "redemption": {
+    "txHash": "0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc",
+    "amount": "4.171",
+    "explorerUrl": "https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc",
+    "receiptDigest": "0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205",
+    "positionAfter": "0"
+  },
+  "authorization": {
+    "method": "dedicated-test-agent",
+    "signer": "0x1A3b41966bd8fFf0637685D5398762778FdeFfc2",
+    "mandateDigest": "0x4a535b00040ac9dedd59950773cd3ade803513d7c37b5ab8eed7c05a6a63ed61"
+  },
+  "verification": {
+    "bundle": true,
+    "executionReceipt": true,
+    "settlementReceipt": true,
+    "redemptionReceipt": true,
+    "digestLinks": true
+  }
+}

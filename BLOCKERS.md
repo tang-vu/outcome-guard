@@ -2,7 +2,7 @@
 
 Status: `PARTIALLY RESOLVED`, last updated 2026-08-31. This file lists only actions that require a secret, wallet/faucet interaction, account authorization, waiting for external chain state, or an irreversible public-release decision.
 
-The repository now has a real mined, fully filled and position-reconciled Shannon IOC produced by the explicitly labeled dedicated test agent, plus linked on-chain settlement evidence. Human-wallet execution, a winning-position redemption, video publication, and DoraHacks submission remain incomplete.
+The repository now has real mined, filled and position-reconciled Shannon IOCs plus both losing and winning settlement branches. The winning branch was redeemed and reconciled to zero. Human-wallet execution, video publication, repository visibility and DoraHacks submission remain incomplete.
 
 ## A. Real Shannon IOC and position reconciliation
 
@@ -34,21 +34,17 @@ Required proof before Gate 4 can be claimed:
 
 ## B. Settlement and redemption
 
-The first owned lifecycle reached terminal state: market `…ea9a` resolved `YES / UP`, while the worker held `29.182 NO`, so claimable was exactly zero. Its settlement receipt is linked to the execution digest. A winning redemption example still requires a future claimable position.
+Resolved on 31 August 2026. Market `…eec6` resolved `DOWN` while the worker held `4.171 NO`; redemption returned `4.171 tUSDC` and burned the winning-token position to zero. Evidence is packaged in `docs/evidence/redemption-campaign-eec6`.
 
-External state and owner action required for that remaining branch:
-
-1. Wait until the exact purchased market ID reaches on-chain `Resolved` or `Voided`. Indexer status alone is insufficient.
-2. If the held outcome is winning, or the market is voided and the position is redeemable, review the exact market ID, outcome index, amount, collateral, chain, and expected claim; then explicitly sign the redemption transaction.
-3. If the held outcome loses and has no payout, do not fabricate a claim or redeem completion. Record the losing terminal state honestly. To capture a redemption lifecycle, repeat a small authorized Shannon trade in another window and wait for a claimable result, or supply an independently verifiable historical Shannon position actually owned by the demo wallet.
+No owner action remains for the dedicated-test-agent settlement/redemption branch. A future human-wallet redemption would require its own explicit wallet confirmation.
 
 Evidence status for Gate 5:
 
-- on-chain terminal status, winning outcome, position balance, and zero claimable amount are proven in `docs/evidence/settlement-status.json`;
+- on-chain terminal status, winning outcome, position balance, and positive claimable amount are proven in `docs/evidence/redemption-campaign-eec6`;
 - the linked settlement receipt is proven and independently verifiable;
-- successful redemption hash, receipt, block, and explorer URL, or verified already-redeemed chain state;
-- post-redemption balance/state reconciliation;
-- a redemption receipt remains intentionally absent because this owned position has no payout.
+- successful redemption hash, receipt and explorer URL are committed;
+- winning-token burn and collateral increase are reconciled;
+- redemption receipt `0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205` links to settlement receipt `0xba81ed0240fd570e369ba96ddf5488846407f6430eda046fc84be28268d18150`.
 
 ## C. Public preview — resolved
 

@@ -40,7 +40,7 @@ The evidence-first Receipt Explorer verifies the packaged artifact server-side a
 6. Review the exact order and authorize it with an injected Shannon wallet.
 7. Follow confirmation, reconciliation, receipt verification, settlement, and redemption.
 
-At the current checkpoint, steps 1–5 and pre-execution receipt generation work in deterministic fixture mode and through an opt-in `Derive live plan` path that refetches the selected Shannon market server-side. Exact authorization and the guarded one-shot worker are implemented; funded-wallet execution and position reconciliation remain pending. A separately labeled historical replay verifies a real terminal market without claiming ownership or redemption.
+All lifecycle stages now have real Shannon evidence in dedicated-test-agent mode. The primary proof is an ETH 15-minute DOWN hedge that filled, resolved DOWN, exposed `4.171 tUSDC` as claimable, redeemed successfully, burned the winning position to zero, and linked every receipt digest. Human injected-wallet authorization remains a separate demo path.
 
 ## 5. Live deployment
 
@@ -94,6 +94,8 @@ The repository contains a real **live-read** Shannon snapshot captured on 28 Aug
 The latest captured market was ETH, one hour, Shannon chain `50312`, market ID ending `c248`, block `473676996`, and onchain status `Trading`. The capture was made from clean source commit `351b014bfb9fa7ea6082fbdd47d10765a159925b`; market and plan checks passed, while existing premium risk, gas balance, and human approval remained unknown or absent, so execution correctly failed closed. See the full values in the linked evidence rather than relying on a summary.
 
 OutcomeGuard also completed a real dedicated-test-agent lifecycle on 31 August 2026: bounded IOC [`0xbe1b…03be`](https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be) filled `29.182 NO`, spent `14.182452 tUSDC`, and reconciled the position on chain. Market `…ea9a` later finalized `YES / UP` at observed block `475953729`, leaving the held NO position with exactly zero claimable. The linked [execution](docs/evidence/execution-receipt.json) and [settlement](docs/evidence/settlement-receipt.json) receipts prove this honestly; no zero-value redemption is fabricated. The separate `…c124` historical replay remains available only as venue evidence.
+
+A second bounded lifecycle provides winning redemption proof: ETH 15m market `…eec6`, [`IOC 0xabc2…be99`](https://shannon-explorer.somnia.network/tx/0xabc2f01852be3f1d75ec643524330d47dff2a50bb2ad890b85814e924e8abe99), `4.171 NO` filled, `1.914489 tUSDC` spent, finalized `DOWN`, and [`redemption 0x7021…effc`](https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc) returning `4.171 tUSDC`. The [complete evidence package](docs/evidence/redemption-campaign-eec6/summary.json) verifies the bundle plus execution → settlement → redemption digest links.
 
 ## 9. Receipt verification
 
@@ -179,7 +181,7 @@ See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md), [`SECURITY.md`](SECURITY.md)
 ## 15. Known limitations
 
 - A real Shannon bounded IOC is recorded in dedicated-test-agent mode: transaction [`0xbe1b…03be`](https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be) filled `29.182` NO at average `0.486`; the worker reconciled the position delta and sealed receipt `0x2cde…d79`. This is not represented as a human wallet authorization.
-- No settled historical replay or OutcomeGuard redemption proof is included yet.
+- A complete owned winning-position redemption proof is included under `docs/evidence/redemption-campaign-eec6`; it uses dedicated-test-agent authorization and is not presented as a human-wallet trade.
 - The composer defaults to a judge-reliable fixture. Its `LIVE READ EVIDENCE` panel can opt into `Derive live plan`, which refetches the selected market ID server-side and rebuilds the plan, policy, and receipt from fresh Shannon data.
 - Exposure is a manual demo override; connected-wallet BTC/ETH valuation is not yet a verified production feed.
 - Testnet liquidity can change materially between short windows; every preview must be refreshed and reauthorized.
@@ -198,15 +200,15 @@ OutcomeGuard is MIT licensed; see [`LICENSE`](LICENSE). The implementation uses 
 
 ## 18. Release and submission status
 
-| Gate | Status on 28 August 2026 |
+| Gate | Status on 31 August 2026 |
 | --- | --- |
 | Research and architecture | Implemented; official-resource and competitor reports present |
 | DreamDEX reads | Live Shannon market, book, venue, status, and parameters captured |
 | Hedge engine | Deterministic baseline and property tests implemented |
 | Policy and receipts | Shared evaluator, canonical receipts, CLI, and tamper tests implemented |
 | Testnet execution | Dedicated-test-agent IOC mined, filled and position-reconciled; human wallet authorization remains a separate demo step |
-| Settlement/redemption | **Pending verified position and terminal market evidence** |
+| Settlement/redemption | Complete owned lifecycle: resolved DOWN, `4.171` claimable, redemption mined, position reconciled to zero |
 | Product/deployment | Public preview healthy at `outcomeguard.tangvu.dev`; PM2 web/tunnel restore is configured after Windows logon |
-| Submission | Text package, screenshots, and deployment URL ready; video and explorer transaction proof pending |
+| Submission | Text package, deployment and explorer proofs ready; final video/publication pending |
 
 The internal judge-ready target is **7 September 2026**. **8 September 2026** is reserved for video, deployment verification, full-history secret scanning, public release, and DoraHacks submission.

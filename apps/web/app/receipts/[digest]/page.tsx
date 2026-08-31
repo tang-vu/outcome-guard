@@ -60,6 +60,12 @@ export default async function ReceiptPage({ params }: { params: Promise<{ digest
         <p className="basisDisclosure">{receipt.settlement?.claimable === "0" ? "Protection expired without payout because the selected DOWN outcome did not win. This is the bounded premium-at-risk case shown before authorization." : "A claimable balance requires a separately authorized redemption transaction."}</p>
       </section> : null}
 
+      {redeemed ? <section className="card integrityCard">
+        <p className="eyebrow">REDEMPTION RECONCILED</p>
+        <dl><div><dt>Amount received</dt><dd>{receipt.redemption?.amount} tUSDC</dd></div><div><dt>Transaction</dt><dd>{receipt.redemption?.txHash ? short(receipt.redemption.txHash) : "Unknown"}</dd></div></dl>
+        <div className="explorerActions"><a href={receipt.redemption?.explorerUrl} target="_blank" rel="noreferrer">Inspect redemption ↗</a></div>
+      </section> : null}
+
       <section className="card mathCard">
         <div className="cardHead"><div><span>DETERMINISTIC HEDGE MATH</span><h2>What the protection changes</h2></div><b>{plan.normalizedShares.toFixed(3)} DOWN</b></div>
         <div className="mathEquation"><span>{usd(intent.exposureUsd)} exposure</span><i>→</i><span>{usd(plan.premiumUsd)} premium</span><i>→</i><span>{usd(plan.expectedNetPayoutIfDownUsd)} net protection</span></div>

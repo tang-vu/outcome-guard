@@ -19,6 +19,7 @@
     "settlement:reconcile": "tsx scripts/reconcile-settlement.ts",
     "positions:claimable": "tsx scripts/scan-worker-claimables.ts",
     "redemption:execute": "tsx scripts/redeem-settled-position.ts",
+    "redemption:package": "tsx scripts/package-redemption-evidence.ts",
     "receipt:verify": "tsx packages/receipt/src/cli.ts",
     "secrets:scan": "node scripts/secret-scan.mjs",
     "audit:deps": "npm audit --audit-level=high",

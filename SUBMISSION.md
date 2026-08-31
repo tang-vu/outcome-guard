@@ -12,7 +12,7 @@ OutcomeGuard turns an existing BTC or ETH downside concern into policy-bound sho
 
 ## Short description
 
-Most Event Contract products begin with a prediction or an order. OutcomeGuard begins with exposure already in a wallet or treasury. A user supplies the asset, USD exposure, adverse scenario, horizon, premium cap, slippage limit, and protection target. The deterministic engine inspects a DreamDEX market and order book, derives executable DOWN protection, shows portfolio P&L before and after, and evaluates a versioned fail-closed policy. The one-shot write coordinator independently verifies the exact signed mandate, claims it durably, refreshes chain state, and requires that same policy engine to pass again before one bounded IOC. This path is implemented and locally tested but has not yet been exercised with a funded Shannon signer. Each lifecycle stage is sealed into canonical JSON and linked by SHA-256 digest.
+Most Event Contract products begin with a prediction or an order. OutcomeGuard begins with exposure already in a wallet or treasury. A user supplies the asset, USD exposure, adverse scenario, horizon, premium cap, slippage limit, and protection target. The deterministic engine inspects a DreamDEX market and order book, derives executable DOWN protection, shows portfolio P&L before and after, and evaluates a versioned fail-closed policy. The one-shot write coordinator independently verifies the exact signed mandate, claims it durably, refreshes chain state, and requires that same policy engine to pass again before one bounded IOC. This path has been exercised with a funded disposable Shannon signer through fill, settlement and redemption. Each lifecycle stage is sealed into canonical JSON and linked by SHA-256 digest.
 
 OutcomeGuard is Shannon-testnet software and not financial advice. Binary protection is nonlinear and carries strike, timing, oracle, liquidity, and basis risk.
 
@@ -62,6 +62,8 @@ Event Contracts provide bounded-premium, short-duration outcome exposure with tr
 
 The repository contains both fail-closed preview evidence and a separate completed dedicated-test-agent lifecycle. The latter produced a real bounded Shannon fill, reconciled `29.182 NO`, then observed the owned market finalized `YES / UP`; claimable was exactly zero. See [execution evidence](docs/evidence/execution-receipt.json) and its linked [settlement evidence](docs/evidence/settlement-receipt.json). It is not represented as human-wallet authorization, and no redemption is claimed where no payout exists.
 
+A second owned lifecycle supplies the winning branch: ETH 15m market `…eec6` filled `4.171 NO`, spent `1.914489 tUSDC`, resolved `DOWN`, exposed `4.171 tUSDC` claimable, and redeemed it in [`0x7021…effc`](https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc). Winning-token balance reconciled to zero and the collateral increase reconciled to `4.171`. [Packaged evidence](docs/evidence/redemption-campaign-eec6/summary.json) verifies all linked receipts.
+
 For judge continuity, a separate [verified settled replay](docs/evidence/verified-settled-replay.json) records a real DreamDEX ETH one-hour market at Shannon block `473662365`, resolved `NO / DOWN`. It demonstrates finalized discovery and terminal-state interpretation only; it does not claim OutcomeGuard owned or redeemed a position.
 
 ## Differentiation
@@ -107,9 +109,9 @@ See [Threat Model](docs/THREAT_MODEL.md).
 
 - Binary payout does not perfectly hedge spot exposure.
 - The composer defaults to deterministic fixture data; `Derive live plan` refetches the selected market server-side and recomputes the live plan, while a labeled fixture remains available for endpoint failure.
-- Automatic wallet-balance exposure discovery and a human injected-wallet execution are not complete. Dedicated-test-agent execution, position reconciliation, owned-position settlement, public deployment, and desktop/390 px E2E proof are complete. This lifecycle ended with zero claimable, so it cannot evidence a winning-position redemption.
+- Automatic wallet-balance exposure discovery and a human injected-wallet execution are not complete. Dedicated-test-agent execution, position reconciliation, owned-position settlement, winning redemption, public deployment, and desktop/390 px E2E proof are complete.
 - Testnet books may be too shallow or wide to pass policy.
-- The full local release gate passes and the public deployment is live; a human injected-wallet lifecycle and winning-position redemption remain pending.
+- The full local release gate passes and the public deployment is live; a human injected-wallet lifecycle and final video remain pending.
 
 ## Links
 
@@ -117,7 +119,7 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - Live application: <https://outcomeguard.tangvu.dev>
 - Demo video: **PENDING — no video URL claimed**
 - Testnet transaction: <https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be>
-- Redemption transaction: **NOT APPLICABLE TO THIS RUN — losing NO position has zero claimable**
+- Redemption transaction: <https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc>
 - DoraHacks page: **PENDING — insert after account authorization/submission**
 
 ## Submission checklist
@@ -127,7 +129,7 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - [x] Web composer clearly labels fixture/live modes; `/api/markets` exposes real reads and `Derive live plan` refetches and recomputes server-side.
 - [x] Real bounded Shannon order has explorer, receipt, fill, and position evidence.
 - [x] Verified historical terminal-market replay is present, digest-checked, and labeled separately from live execution.
-- [ ] Redemption is proved or honestly marked pending.
+- [x] Winning-position redemption, payout and post-burn position are proved.
 - [x] Desktop and 390 px mobile judge paths pass.
 - [x] Deployment health checks pass at `https://outcomeguard.tangvu.dev`; reproducible facts are recorded in `docs/evidence/deployment.json`.
 - [x] Working tree and full git history pass secret scanning while the repository remains private; rerun immediately before public release.

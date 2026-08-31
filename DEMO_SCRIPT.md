@@ -88,17 +88,17 @@ Show [`docs/evidence/execution-receipt.json`](docs/evidence/execution-receipt.js
 
 ## 2:13–2:29 — Settlement and redemption
 
-**Action:** Switch to the persistent `VERIFIED REPLAY` card. Show the real finalized market ID, capture block, onchain `Resolved` state, `NO / DOWN` outcome, evidence digest, and the explicit `NOT CLAIMED / NOT PERFORMED` disclosure.
+**Action:** Switch to `VERIFIED OWNED LIFECYCLE`. Show market `…eec6`, the bounded IOC, reconciled `4.171 NO`, onchain `Resolved / DOWN`, `4.171 tUSDC` claimable, redemption transaction, zero post-redemption winning-token balance, and linked receipt digest.
 
 **Narration:**
 
-> “To demonstrate terminal-state discovery inside a short demo, this section is verified historical market evidence—not the live order we just previewed. OutcomeGuard verified the DreamDEX market resolved NO. It does not claim that our wallet owned this position or redeemed it.”
+> “This is an owned dedicated-test-agent lifecycle on Shannon. The hedge filled, resolved DOWN, exposed 4.171 tUSDC claimable, redeemed successfully, and reconciled the winning position to zero. Every stage links to the prior receipt digest.”
 
 **If the replay endpoint is unavailable or its digest fails:** Say:
 
 > “Terminal evidence is unavailable, so this build stops at the last verified stage.”
 
-Do not imply the blocker JSON is settlement evidence.
+Do not represent the dedicated test agent as a human wallet.
 
 ## 2:29–2:35 — Vision
 

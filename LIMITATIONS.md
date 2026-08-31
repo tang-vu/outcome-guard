@@ -5,9 +5,9 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 ## Product and integration
 
 - The primary web judge flow defaults to an explicitly labeled deterministic fixture. Its `LIVE READ EVIDENCE` panel can select `Derive live plan`; the server then refetches that market ID and rebuilds the plan, policy, and receipt from Shannon. Live planning remains opt-in so endpoint failure does not collapse the demo.
-- Live discovery, a mined IOC, reconciled position, and linked terminal settlement evidence now exist. The selected `29.182 NO` position lost when the market resolved `YES / UP`, so claimable is exactly zero and no redemption transaction exists.
+- Live discovery and two mined/reconciled IOC lifecycles exist. One `29.182 NO` position lost and correctly produced no claim; a second `4.171 NO` position won, redeemed `4.171 tUSDC`, and reconciled the winning-token balance to zero.
 - With `AGENT_SIGNER_ADDRESS` configured, a live plan seals an exact raw-unit IOC proposal and the web signs a short-lived EIP-191 execution mandate containing its receipt, market snapshot, worker signer, price, quantity, premium and nanosecond expiry. The server recovers the human signer and returns a linked bundle. Signing does not submit; the explicit `execute-once` worker must independently verify and consume that file.
-- `packages/dreamdex` implements guarded live IOC placement, successful-receipt checking, position reads, finalized-market discovery, and redemption. Those methods have not yet been exercised with a funded Shannon signer in this repository's evidence.
+- `packages/dreamdex` guarded IOC, receipt, position, finalized-state and redemption paths have been exercised with the funded disposable Shannon signer. This remains dedicated-test-agent evidence, not a human-wallet trade or production custody claim.
 - The agent defaults to a serialized market observer. Its local-file-only `execute-once` path has been exercised with the funded dedicated test agent and a real bounded fill. It deliberately does not auto-retry an ambiguous SDK submission; automatic recurring settlement monitoring and rolling proposals remain incomplete, while `npm run settlement:reconcile` performs the deterministic terminal-state reconciliation.
 - Exposure is entered manually. Wallet WETH/WBTC balance discovery and USD valuation are not implemented in the judge flow.
 - Natural-language intent uses a provider-neutral parser contract with a deterministic local fallback; provider output is accepted only after strict schema validation. No external or paid model provider is configured, and structured controls remain the deterministic source of truth.
@@ -36,7 +36,7 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 - A valid digest proves that a receipt has not changed under the specified canonicalization. It does not prove every assertion in the receipt is true.
 - Independent provenance requires chain receipts, decoded expected events, market state, and position reconciliation. Pre-execution evidence alone cannot prove execution.
 - The receipt explorer serves evidence artifacts packaged with the deployment; it is not a decentralized or complete receipt index.
-- The repository includes one chain-reconciled finalized market as a verified venue replay. It has no OutcomeGuard position, transaction, or redemption evidence and is labeled accordingly; it cannot satisfy Gate 5 ownership/redemption proof by itself.
+- The repository retains a historical venue replay for outage fallback, but Gate 5 proof now comes from the separately packaged owned `…eec6` execution, settlement and redemption lifecycle.
 - Live evidence was captured from clean source commit `351b014bfb9fa7ea6082fbdd47d10765a159925b`; the later evidence-packaging commit is intentionally distinct and does not rewrite the recorded source provenance.
 
 ## Security and operations
@@ -50,6 +50,6 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 
 ## Submission status
 
-- No public deployment URL, public repository release, demo video URL, DoraHacks submission, real Shannon execution link, or redemption link is claimed.
+- Public deployment plus real Shannon execution and redemption links are claimed with evidence. Public repository visibility, demo video URL and DoraHacks submission remain pending owner decisions.
 - External actions still required are listed exactly in [BLOCKERS.md](BLOCKERS.md).
 - The hackathon page does not publish a prize split, team-size limit, winner announcement date, or explicit repository-publicity clause. Its embedded close timestamp is `2026-09-08T18:00:00.000Z`; the project uses an earlier internal release target.

@@ -6,15 +6,15 @@ Target runtime: **2:35**. Capture at 1080p or higher, 30 fps, with legible UI at
 
 | Asset | Required source | Status |
 | --- | --- | --- |
-| Release candidate | Commit that passed `npm ci` and `npm run verify` | `b39eb3e` packages the verified build and fresh evidence |
-| Public app URL | Healthy release deployment | **PENDING** |
+| Release candidate | Commit that passed `npm ci` and `npm run verify` | Current redemption-evidence release commit; record final hash after push |
+| Public app URL | Healthy release deployment | `https://outcomeguard.tangvu.dev` |
 | Live market proof | Shannon `50312`, explicit venue, fresh book and onchain status | Live-read evidence exists; final recording snapshot **PENDING** |
 | Passing authorization snapshot | All mandatory policies pass | **PENDING** |
-| Execution proof | Successful mined IOC receipt, fill, reconciled position | **PENDING external wallet action** |
-| Receipt proof | Immutable final JSON and digest, CLI verification | Pre-execution exists; execution-chain receipt **PENDING** |
-| Settlement proof | Independently verified terminal DreamDEX market | Complete replay evidence: market `…c124`, block `473662365`, `NO / DOWN`; no ownership claim |
-| Redemption proof | Successful tx or verified already-redeemed chain state | **PENDING external wallet action** |
-| Historical replay label | Persistent `VERIFIED REPLAY` treatment | Complete in UI, evidence API, digest verification, and desktop/mobile E2E |
+| Execution proof | Successful mined IOC receipt, fill, reconciled position | Complete: `0xabc2…be99`, `4.171 NO` |
+| Receipt proof | Immutable final JSON and digest, CLI verification | Complete through redemption digest `0xc272…8205` |
+| Settlement proof | Independently verified terminal DreamDEX market | Owned market `…eec6`, block `476073320`, `NO / DOWN` |
+| Redemption proof | Successful tx and post-state reconciliation | Complete: `0x7021…effc`, `4.171 tUSDC`, position `0` |
+| Historical replay label | Persistent fallback treatment | Superseded in the main judge card by `VERIFIED OWNED LIFECYCLE` |
 | Mobile proof | 390 px Playwright screenshot after responsive pass | Complete: `docs/demo/outcomeguard-mobile.png` |
 
 ## Capture order
@@ -49,15 +49,15 @@ Never record a private key, seed phrase, complete environment file, wallet expor
 | 1:41–1:53 | Chain proof | Stage tracker, explorer receipt, fill, reconciled position | Full tx hash available via link; successful receipt visible |
 | 1:53–2:02 | Receipt | Human view, raw JSON, digest | Stage and previous digest visible |
 | 2:02–2:13 | Tamper | CLI valid result, then changed copy fails | `Original valid · changed copy invalid` |
-| 2:13–2:23 | Lifecycle | Switch to historical settled market | Persistent `VERIFIED REPLAY — not current live order` |
-| 2:23–2:29 | Claim truth | Show final outcome plus `NOT CLAIMED / NOT PERFORMED` | Do not imply OutcomeGuard owned the replayed position; replace only after real redemption proof exists |
+| 2:13–2:23 | Lifecycle | Switch to owned `…eec6` lifecycle | IOC → `4.171 NO` → `DOWN` → claimable |
+| 2:23–2:29 | Claim truth | Open redemption explorer link and receipt | `4.171 tUSDC redeemed · winning position 0` |
 | 2:29–2:35 | Close | Exposure → protect → verify plus link card | Only verified public URLs |
 
 ## Conditional edit paths
 
 ### A. Full evidence path
 
-Use only when execution, reconciliation, settlement/replay, and redemption all have verified artifacts. Preserve the `LIVE` versus `VERIFIED REPLAY` label through cuts; do not rely on narration alone.
+Use the full path: execution, reconciliation, settlement and redemption all have verified artifacts. Preserve the `dedicated-test-agent` label; do not imply human-wallet authorization.
 
 ### B. No executable market
 
@@ -82,7 +82,7 @@ Show the outage/fail-closed response briefly, then enter `DETERMINISTIC FIXTURE`
 - [ ] Runtime is between 2:00 and 3:00.
 - [ ] Every `LIVE` label corresponds to real Shannon state.
 - [ ] Every fixture/replay label is persistent and legible.
-- [ ] Transaction and redemption links open to the exact shown hashes.
+- [x] Transaction and redemption links open to the exact shown hashes.
 - [ ] Receipt digest matches the committed JSON.
 - [ ] Tampered copy fails independently.
 - [ ] No secrets, personal data, fabricated metrics, or placeholder URLs appear.

@@ -2,10 +2,13 @@ import { expect, test } from "@playwright/test";
 import publishedReceipt from "../../docs/evidence/pre-execution-receipt.json";
 import executionReceipt from "../../docs/evidence/execution-receipt.json";
 import settlementReceipt from "../../docs/evidence/settlement-receipt.json";
+import winningExecutionReceipt from "../../docs/evidence/redemption-campaign-eec6/execution-receipt.json";
+import redemptionReceipt from "../../docs/evidence/redemption-campaign-eec6/redemption-receipt.json";
 
 const publishedReceiptDigest = publishedReceipt.integrity.digest;
 const executionReceiptDigest = executionReceipt.integrity.digest;
 const settlementReceiptDigest = settlementReceipt.integrity.digest;
+const redemptionReceiptDigest = redemptionReceipt.integrity.digest;
 
 test("judge can compose and inspect bounded protection", async ({ page }) => {
   await page.route("**/api/markets", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ source: "unavailable", error: "deterministic E2E fixture" }) }));
@@ -21,8 +24,9 @@ test("judge can compose and inspect bounded protection", async ({ page }) => {
   await expect(page.getByText("PRE-EXECUTION")).toBeVisible();
   await expect(page.locator(".digest")).toContainText(/^0x[0-9a-f]{64}$/);
   await expect(page.getByText(/VERIFIED OWNED LIFECYCLE/)).toBeVisible();
-  await expect(page.locator(".settledReplay")).toContainText("29.182 NO");
-  await expect(page.locator(".settledReplay")).toContainText("Held outcome lost · no redemption");
+  await expect(page.locator(".settledReplay")).toContainText("4.171 NO");
+  await expect(page.locator(".settledReplay")).toContainText("Redeemed payout");
+  await expect(page.locator(".settledReplay")).toContainText("4.171 tUSDC");
 });
 
 test("truth labels, policy drill-down, receipt inspection, and mobile width remain safe", async ({ page }) => {
@@ -133,7 +137,7 @@ test("health identifies network and honest mode", async ({ request }) => {
   await expect(response.json()).resolves.toMatchObject({ ok: true, chainId: 50312, network: "somnia-shannon" });
   const replay = await request.get("/api/replay");
   expect(replay.ok()).toBe(true);
-  await expect(replay.json()).resolves.toMatchObject({ label: "VERIFIED_OWNED_LIFECYCLE", execution: { txHash: executionReceipt.execution.txHash, filledSize: "29.182", filledOutcome: "NO" }, terminalState: { status: "Resolved · on-chain code 4", winningOutcome: "UP", claimable: "0" }, verification: { valid: true, linked: true } });
+  await expect(replay.json()).resolves.toMatchObject({ label: "VERIFIED_OWNED_LIFECYCLE", execution: { txHash: winningExecutionReceipt.execution.txHash, filledSize: "4.171", filledOutcome: "NO" }, terminalState: { status: "Resolved · on-chain code 4", winningOutcome: "DOWN", claimable: "4.171" }, redemption: { txHash: redemptionReceipt.redemption.txHash, amount: "4.171", positionAfter: "0" }, verification: { valid: true, linked: true } });
 });
 
 test("receipt explorer verifies, discloses lifecycle truth, and serves the artifact", async ({ page, request }) => {
@@ -172,6 +176,16 @@ test("settlement receipt closes a losing hedge without fabricating redemption", 
   await expect(page.getByText("VERIFIED", { exact: true })).toBeVisible();
   await expect(page.getByText(/there is no payout to redeem/)).toBeVisible();
   await expect(page.getByText(/Protection expired without payout/)).toBeVisible();
+});
+
+test("redemption receipt proves payout and linked winning lifecycle", async ({ page, request }) => {
+  const artifact = await request.get(`/api/receipts/${redemptionReceiptDigest}`);
+  expect(artifact.ok()).toBe(true);
+  await expect(artifact.json()).resolves.toMatchObject({ lifecycleStage: "REDEMPTION", settlement: { outcome: "DOWN", claimable: "4.171" }, redemption: { amount: "4.171", txHash: redemptionReceipt.redemption.txHash }, integrity: { digest: redemptionReceiptDigest } });
+  await page.goto(`/receipts/${redemptionReceiptDigest}`);
+  await expect(page.getByText("VERIFIED", { exact: true })).toBeVisible();
+  await expect(page.getByText("REDEMPTION RECONCILED", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Inspect redemption/ })).toHaveAttribute("href", redemptionReceipt.redemption.explorerUrl);
 });
 
 test("unknown receipt digests fail closed", async ({ page, request }) => {
