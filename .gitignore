@@ -11,5 +11,11 @@ test-results/
 *.tsbuildinfo
 .DS_Store
 docs/evidence/live-*.json
+docs/demo/video/render/
+docs/demo/video/audio/
+docs/demo/video/*.mp4
+docs/demo/video/*.webm
+docs/demo/video/*.wav
+docs/demo/video/asr-report.json
 contracts/cache/
 contracts/out/

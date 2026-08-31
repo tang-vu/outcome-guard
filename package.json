@@ -21,6 +21,10 @@
     "redemption:execute": "tsx scripts/redeem-settled-position.ts",
     "redemption:package": "tsx scripts/package-redemption-evidence.ts",
     "receipt:verify": "tsx packages/receipt/src/cli.ts",
+    "demo:capture": "node scripts/demo/capture-demo.mjs",
+    "demo:audio": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo/run-mimo-audio-secure.ps1",
+    "demo:render": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo/render-demo.ps1",
+    "demo:inspect": "ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate,sample_rate,channels -of json docs/demo/video/outcomeguard-demo.mp4",
     "secrets:scan": "node scripts/secret-scan.mjs",
     "audit:deps": "npm audit --audit-level=high",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run build && npm run test:e2e && npm run secrets:scan && npm run audit:deps"

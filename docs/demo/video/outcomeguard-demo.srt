@@ -1,0 +1,45 @@
+1
+00:00:00,000 --> 00:00:12,000
+Prediction apps ask whether Ether goes up or down.
+OutcomeGuard turns existing exposure into bounded, verifiable protection.
+
+2
+00:00:12,000 --> 00:00:31,000
+Define exposure, horizon, downside scenario, premium cap,
+slippage, and target protection. Structured controls remain authoritative.
+
+3
+00:00:31,000 --> 00:00:51,000
+OutcomeGuard discovers DreamDEX Event Contracts on Shannon 50312,
+verifies on-chain status, and reads the real order book and venue parameters.
+
+4
+00:00:51,000 --> 00:01:13,000
+Deterministic sizing is capped and quantized by budget, depth,
+price impact, spread, lot size, and portfolio limits. Basis risk remains.
+
+5
+00:01:13,000 --> 00:01:31,000
+Every policy is visible. Unknowns fail closed.
+Preview and pre-sign execution use the same policy engine.
+
+6
+00:01:31,000 --> 00:01:52,000
+Real dedicated-test-agent evidence: bounded IOC, successful mined receipt,
+decoded fill, and reconciled 4.171 NO position on Shannon.
+
+7
+00:01:52,000 --> 00:02:12,000
+Canonical SHA-256 receipts bind intent, snapshot, math, policy,
+authorization, and chain evidence. Any sealed-field change fails verification.
+
+8
+00:02:12,000 --> 00:02:28,000
+The market resolved DOWN. 4.171 tUSDC was redeemed,
+and the winning-token position reconciled to zero.
+
+9
+00:02:28,000 --> 00:02:35,000
+Portfolio-aware rolling protection—
+policy-bound and verifiable from intent through claim.
+
