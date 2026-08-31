@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "outcomeguard.settlement-status.v1",
+  "capturedAt": "2026-08-31T09:26:42.558Z",
+  "network": {
+    "name": "somnia-shannon",
+    "chainId": 50312,
+    "rpcUrl": "https://api.infra.testnet.somnia.network"
+  },
+  "marketId": "0x000000000000000000000000000000000000000000000000000000000000ea9a",
+  "account": "0x1A3b41966bd8fFf0637685D5398762778FdeFfc2",
+  "blockNumber": "475953729",
+  "status": {
+    "code": 4,
+    "name": "Resolved",
+    "terminal": true,
+    "finalized": true,
+    "isResolved": true,
+    "isVoided": false
+  },
+  "outcome": "UP",
+  "position": {
+    "yes": "0",
+    "no": "29.182"
+  },
+  "claimable": "0",
+  "executionReceiptDigest": "0x2cdeed07d710ace2360624c29989bca315260bf25eb03ca803e6ce90db304d79"
+}

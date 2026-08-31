@@ -60,9 +60,7 @@ Event Contracts provide bounded-premium, short-duration outcome exposure with tr
 - [Policy evaluation](docs/evidence/policy-evaluation.json)
 - [Pre-execution receipt](docs/evidence/pre-execution-receipt.json)
 
-The captured live plan passes the market and sizing controls. Execution remains blocked because existing total premium risk and gas balance are unknown, and no human authorization has been supplied. That is expected fail-closed behavior, not a claimed trade.
-
-No order, fill, settlement, or redemption is yet claimed. The repository says so explicitly in [execution evidence](docs/evidence/execution-receipt.json) and [settlement evidence](docs/evidence/settlement-receipt.json).
+The repository contains both fail-closed preview evidence and a separate completed dedicated-test-agent lifecycle. The latter produced a real bounded Shannon fill, reconciled `29.182 NO`, then observed the owned market finalized `YES / UP`; claimable was exactly zero. See [execution evidence](docs/evidence/execution-receipt.json) and its linked [settlement evidence](docs/evidence/settlement-receipt.json). It is not represented as human-wallet authorization, and no redemption is claimed where no payout exists.
 
 For judge continuity, a separate [verified settled replay](docs/evidence/verified-settled-replay.json) records a real DreamDEX ETH one-hour market at Shannon block `473662365`, resolved `NO / DOWN`. It demonstrates finalized discovery and terminal-state interpretation only; it does not claim OutcomeGuard owned or redeemed a position.
 
@@ -76,7 +74,7 @@ The complete comparison to Rivo, rampart, Branch, Sluice, Market Dungeon, Predic
 
 ### Technical implementation — 25%
 
-Exact-unit DreamDEX integration, onchain/indexer trust split, chain and venue fail-closed gates, liquidity-aware hedge sizing, shared policies, append-only receipts, tamper tests, and a local release command. A real wallet lifecycle remains pending and will be claimed only after explorer and reconciliation evidence exist.
+Exact-unit DreamDEX integration, onchain/indexer trust split, chain and venue fail-closed gates, liquidity-aware hedge sizing, shared policies, append-only receipts, tamper tests, a local release command, and real explorer-backed execution through settlement. Human injected-wallet execution remains a separate pending UX path.
 
 ### Innovation and originality — 20%
 
@@ -109,17 +107,17 @@ See [Threat Model](docs/THREAT_MODEL.md).
 
 - Binary payout does not perfectly hedge spot exposure.
 - The composer defaults to deterministic fixture data; `Derive live plan` refetches the selected market server-side and recomputes the live plan, while a labeled fixture remains available for endpoint failure.
-- Wallet exposure discovery, real OutcomeGuard execution/reconciliation, owned-position settlement, redemption, and public deployment are not complete at this checkpoint. A verified historical terminal-market replay is implemented and explicitly disclaims ownership and redemption. Desktop and 390 px mobile E2E release proof is complete.
+- Automatic wallet-balance exposure discovery and a human injected-wallet execution are not complete. Dedicated-test-agent execution, position reconciliation, owned-position settlement, public deployment, and desktop/390 px E2E proof are complete. This lifecycle ended with zero claimable, so it cannot evidence a winning-position redemption.
 - Testnet books may be too shallow or wide to pass policy.
-- The full local release gate passes; public deployment and wallet lifecycle remain pending.
+- The full local release gate passes and the public deployment is live; a human injected-wallet lifecycle and winning-position redemption remain pending.
 
 ## Links
 
 - Source repository: **PENDING — insert public GitHub URL only after full-history secret scan and public-release decision**
-- Live application: **PENDING — no deployment URL claimed**
+- Live application: <https://outcomeguard.tangvu.dev>
 - Demo video: **PENDING — no video URL claimed**
-- Testnet transaction: **PENDING — insert only after successful mined receipt and position reconciliation**
-- Redemption transaction: **PENDING — insert only after successful receipt or verified already-redeemed chain state**
+- Testnet transaction: <https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be>
+- Redemption transaction: **NOT APPLICABLE TO THIS RUN — losing NO position has zero claimable**
 - DoraHacks page: **PENDING — insert after account authorization/submission**
 
 ## Submission checklist
@@ -127,7 +125,7 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - [x] `npm ci` succeeds from the committed lockfile.
 - [x] `npm run verify` passes and a timestamped test report is present.
 - [x] Web composer clearly labels fixture/live modes; `/api/markets` exposes real reads and `Derive live plan` refetches and recomputes server-side.
-- [ ] Real bounded Shannon order has explorer, receipt, fill, and position evidence.
+- [x] Real bounded Shannon order has explorer, receipt, fill, and position evidence.
 - [x] Verified historical terminal-market replay is present, digest-checked, and labeled separately from live execution.
 - [ ] Redemption is proved or honestly marked pending.
 - [x] Desktop and 390 px mobile judge paths pass.

@@ -2,7 +2,7 @@
 
 Status: `PARTIALLY RESOLVED`, last updated 2026-08-31. This file lists only actions that require a secret, wallet/faucet interaction, account authorization, waiting for external chain state, or an irreversible public-release decision.
 
-The repository now has a real mined, fully filled and position-reconciled Shannon IOC produced by the explicitly labeled dedicated test agent. Human-wallet execution, settlement, redemption, video publication, and DoraHacks submission remain incomplete.
+The repository now has a real mined, fully filled and position-reconciled Shannon IOC produced by the explicitly labeled dedicated test agent, plus linked on-chain settlement evidence. Human-wallet execution, a winning-position redemption, video publication, and DoraHacks submission remain incomplete.
 
 ## A. Real Shannon IOC and position reconciliation
 
@@ -34,19 +34,21 @@ Required proof before Gate 4 can be claimed:
 
 ## B. Settlement and redemption
 
-External state and owner action required:
+The first owned lifecycle reached terminal state: market `…ea9a` resolved `YES / UP`, while the worker held `29.182 NO`, so claimable was exactly zero. Its settlement receipt is linked to the execution digest. A winning redemption example still requires a future claimable position.
+
+External state and owner action required for that remaining branch:
 
 1. Wait until the exact purchased market ID reaches on-chain `Resolved` or `Voided`. Indexer status alone is insufficient.
 2. If the held outcome is winning, or the market is voided and the position is redeemable, review the exact market ID, outcome index, amount, collateral, chain, and expected claim; then explicitly sign the redemption transaction.
 3. If the held outcome loses and has no payout, do not fabricate a claim or redeem completion. Record the losing terminal state honestly. To capture a redemption lifecycle, repeat a small authorized Shannon trade in another window and wait for a claimable result, or supply an independently verifiable historical Shannon position actually owned by the demo wallet.
 
-Required proof before Gate 5 can be claimed:
+Evidence status for Gate 5:
 
-- on-chain terminal status, winning outcome or void state, and oracle/settlement reference;
-- pre-redemption outcome-token balance and claimable amount;
+- on-chain terminal status, winning outcome, position balance, and zero claimable amount are proven in `docs/evidence/settlement-status.json`;
+- the linked settlement receipt is proven and independently verifiable;
 - successful redemption hash, receipt, block, and explorer URL, or verified already-redeemed chain state;
 - post-redemption balance/state reconciliation;
-- settlement and redemption receipts linked to the execution receipt digest.
+- a redemption receipt remains intentionally absent because this owned position has no payout.
 
 ## C. Public preview — resolved
 

@@ -16,6 +16,7 @@ Setup transactions are recorded separately and are not presented as hedge execut
 - Live read market ID: `0x000000000000000000000000000000000000000000000000000000000000ea15`
 - Evidence source commit: `fe408abba6a3db9321f0912e1998442122c0f321` (clean tree at capture)
 - Execution: `RECONCILED` in explicitly labeled `dedicated-test-agent` mode; receipt digest `0x2cdeed07d710ace2360624c29989bca315260bf25eb03ca803e6ce90db304d79`
-- Redemption: `NOT_PERFORMED`
+- Settlement: market `0x…ea9a` was read directly at Shannon block `475953729` as on-chain `Resolved` / code `4`, finalized, winning `YES / UP`. The reconciled `29.182 NO` position therefore has `0 tUSDC` claimable. Settlement receipt: `0x403e08fa79d0e0374f54886b79f00b4e6c52e90a2915b0904625ac244916537d`.
+- Redemption: `NOT_APPLICABLE` for this position because claimable is exactly zero; OutcomeGuard does not submit a zero-payout redemption.
 
 See [`../../BLOCKERS.md`](../../BLOCKERS.md) for the exact minimal wallet actions and required evidence.

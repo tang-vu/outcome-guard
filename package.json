@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "evidence": "tsx scripts/capture-evidence.ts",
+    "settlement:reconcile": "tsx scripts/reconcile-settlement.ts",
     "receipt:verify": "tsx packages/receipt/src/cli.ts",
     "secrets:scan": "node scripts/secret-scan.mjs",
     "audit:deps": "npm audit --audit-level=high",

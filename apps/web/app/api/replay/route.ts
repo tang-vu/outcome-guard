@@ -1,9 +1,23 @@
-import replay from "../../../../../docs/evidence/verified-settled-replay.json";
-import { canonicalize, sha256 } from "@outcome-guard/receipt";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { verifyReceipt } from "@outcome-guard/receipt";
+import { receiptCoreSchema } from "@outcome-guard/schemas";
 
 export async function GET() {
-  const { integrity, ...payload } = replay;
-  const computedDigest = sha256(canonicalize(payload));
-  if (computedDigest.toLowerCase() !== integrity.digest.toLowerCase()) return Response.json({ error: "Verified replay integrity check failed" }, { status: 500 });
-  return Response.json({ ...replay, verification: { valid: true, computedDigest } }, { headers: { "cache-control": "public, max-age=300, immutable" } });
+  const evidenceRoot = resolve(process.cwd(), "..", "..", "docs", "evidence");
+  const [execution, settlement] = await Promise.all([
+    readFile(resolve(evidenceRoot, "execution-receipt.json"), "utf8").then((value) => receiptCoreSchema.parse(JSON.parse(value))),
+    readFile(resolve(evidenceRoot, "settlement-receipt.json"), "utf8").then((value) => receiptCoreSchema.parse(JSON.parse(value))),
+  ]);
+  const linked = settlement.integrity.previousReceiptDigest?.toLowerCase() === execution.integrity.digest.toLowerCase();
+  if (!verifyReceipt(execution).valid || !verifyReceipt(settlement).valid || !linked || settlement.lifecycleStage !== "SETTLEMENT") return Response.json({ error: "Owned lifecycle receipt verification failed" }, { status: 500 });
+  return Response.json({
+    label: "VERIFIED_OWNED_LIFECYCLE",
+    market: { marketId: settlement.marketSnapshot.marketId, asset: settlement.marketSnapshot.asset, intervalSec: settlement.marketSnapshot.intervalSec, question: settlement.marketSnapshot.settlementReference },
+    execution: { txHash: execution.execution.txHash, explorerUrl: execution.execution.explorerUrl, filledSize: execution.execution.filledSize, filledOutcome: execution.execution.position?.filledOutcome, receiptDigest: execution.integrity.digest },
+    terminalState: { status: settlement.settlement?.marketStatus, winningOutcome: settlement.settlement?.outcome, claimable: settlement.settlement?.claimable },
+    position: { amount: settlement.execution.position?.positionDelta, outcome: settlement.execution.position?.filledOutcome },
+    settlementReceiptDigest: settlement.integrity.digest,
+    verification: { valid: true, linked },
+  }, { headers: { "cache-control": "public, max-age=300, immutable" } });
 }

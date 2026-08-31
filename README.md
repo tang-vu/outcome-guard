@@ -93,7 +93,7 @@ The repository contains a real **live-read** Shannon snapshot captured on 28 Aug
 
 The latest captured market was ETH, one hour, Shannon chain `50312`, market ID ending `c248`, block `473676996`, and onchain status `Trading`. The capture was made from clean source commit `351b014bfb9fa7ea6082fbdd47d10765a159925b`; market and plan checks passed, while existing premium risk, gas balance, and human approval remained unknown or absent, so execution correctly failed closed. See the full values in the linked evidence rather than relying on a summary.
 
-The Judge Demo also shows a separately labeled historical venue lifecycle: ETH 1h market `…c124`, resolved on chain at captured block `473662365` with winning outcome `NO / DOWN`. It proves finalized-market discovery and terminal-state interpretation only. **No OutcomeGuard ownership, transaction, fill, reconciled position, or redemption is claimed yet.** The placeholder lifecycle files explicitly record `NOT_PERFORMED`: [`execution-receipt.json`](docs/evidence/execution-receipt.json) and [`settlement-receipt.json`](docs/evidence/settlement-receipt.json).
+OutcomeGuard also completed a real dedicated-test-agent lifecycle on 31 August 2026: bounded IOC [`0xbe1b…03be`](https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be) filled `29.182 NO`, spent `14.182452 tUSDC`, and reconciled the position on chain. Market `…ea9a` later finalized `YES / UP` at observed block `475953729`, leaving the held NO position with exactly zero claimable. The linked [execution](docs/evidence/execution-receipt.json) and [settlement](docs/evidence/settlement-receipt.json) receipts prove this honestly; no zero-value redemption is fabricated. The separate `…c124` historical replay remains available only as venue evidence.
 
 ## 9. Receipt verification
 
@@ -101,6 +101,8 @@ Receipts are strict versioned JSON. OutcomeGuard canonicalizes their JSON-compat
 
 ```bash
 npm run receipt:verify -- docs/evidence/pre-execution-receipt.json
+npm run receipt:verify -- docs/evidence/execution-receipt.json
+npm run receipt:verify -- docs/evidence/settlement-receipt.json
 ```
 
 Changing any sealed field must produce a digest mismatch. The verifier and tamper tests are in [`packages/receipt`](packages/receipt). The release packages a verified human/raw explorer at `/receipts/0x2b60a01fddcd5e8cb3e0b21b10d8bcfe8de3f4fee8f6dd388d310837d8731ce2`; unknown digests fail closed, and the API serves a downloadable artifact only after server-side verification.
@@ -123,11 +125,11 @@ The full evidence-based audit, including weaknesses, is in [`docs/COMPETITIVE_PO
 
 | Criterion | OutcomeGuard evidence and intended judge proof | Current status |
 | --- | --- | --- |
-| Technical implementation — 25% | Official SDK `0.28.1`; chain/indexer reconciliation boundary; exact bigint DreamDEX adapter; deterministic hedge/policy/receipt packages | Live reads and local core tests exist; wallet lifecycle pending |
-| Innovation — 20% | Exposure-derived Event Contract protection plus linked intent-to-settlement receipts | Implemented at plan and pre-execution stages |
+| Technical implementation — 25% | Official SDK `0.28.1`; chain/indexer reconciliation boundary; exact bigint DreamDEX adapter; deterministic hedge/policy/receipt packages | Live read, bounded fill, position reconciliation, and owned settlement proven |
+| Innovation — 20% | Exposure-derived Event Contract protection plus linked intent-to-settlement receipts | Implemented through terminal settlement |
 | UX and design — 20% | One exposure-to-authorization journey, visible failure reasons, scenario chart, deterministic fallback | Desktop and 390 px Playwright flows pass; release screenshots included |
 | Business and ecosystem impact — 20% | Wallet and treasury protection rather than speculative signals; sponsor SDK feedback | Thesis and SDK report complete; no user/traction claims |
-| Presentation — 15% | Under-90-second pre-settlement flow, real explorer proof, tamper check, labeled settled replay | Script and shot list ready; video and chain proof pending |
+| Presentation — 15% | Under-90-second pre-settlement flow, real explorer proof, tamper check, labeled settled replay | Chain proof ready; script and shot list ready; video pending |
 
 ## 12. Quick start
 

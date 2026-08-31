@@ -47,10 +47,18 @@ export default async function ReceiptPage({ params }: { params: Promise<{ digest
       <section className="card lifecycleCard">
         <div className="cardHead"><div><span>IMMUTABLE LINEAGE</span><h2>Lifecycle truth, at a glance</h2></div><small>Created {new Date(receipt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC</small></div>
         <div className="timeline explorerTimeline"><i className="done">Intent</i><i className="done">Plan</i><i className="done">Policy</i><i className={authorized ? "done" : ""}>Authorize</i><i className={executed ? "done" : ""}>Execution</i><i className={settled ? "done" : ""}>Settlement</i><i className={redeemed ? "done" : ""}>Claim</i></div>
-        <p className="truthDisclosure"><strong>{receipt.execution.status.replace("_", " ")}</strong> — {executed
+        <p className="truthDisclosure"><strong>{settled ? receipt.settlement?.marketStatus : receipt.execution.status.replace("_", " ")}</strong> — {settled
+          ? <>This linked artifact proves on-chain settlement as <b>{receipt.settlement?.outcome}</b> with <b>{receipt.settlement?.claimable ?? "unknown"}</b> claimable. {receipt.settlement?.claimable === "0" ? "The held outcome lost, so there is no payout to redeem." : redeemed ? "Redemption is linked below." : "Redemption has not been performed."}{receipt.execution.explorerUrl ? <> <a href={receipt.execution.explorerUrl} target="_blank" rel="noreferrer">Inspect original trade ↗</a></> : null}</>
+          : executed
           ? <>This artifact proves a mined Shannon transaction and reconciled position under <b>{receipt.authorization.method}</b> authorization. It does not yet claim settlement or redemption.{receipt.execution.explorerUrl ? <> <a href={receipt.execution.explorerUrl} target="_blank" rel="noreferrer">Inspect transaction ↗</a></> : null}</>
           : <>This artifact proves planning and policy evaluation only. It does not claim wallet authorization, a submitted transaction, a fill, settlement, or redemption.</>}</p>
       </section>
+
+      {settled ? <section className="card integrityCard">
+        <p className="eyebrow">ON-CHAIN SETTLEMENT</p>
+        <dl><div><dt>Terminal state</dt><dd>{receipt.settlement?.marketStatus}</dd></div><div><dt>Winning outcome</dt><dd>{receipt.settlement?.outcome}</dd></div><div><dt>Held position</dt><dd>{receipt.execution.position?.positionDelta ?? receipt.execution.filledSize} {receipt.execution.position?.filledOutcome}</dd></div><div><dt>Claimable</dt><dd>{receipt.settlement?.claimable ?? "Unknown"} tUSDC</dd></div></dl>
+        <p className="basisDisclosure">{receipt.settlement?.claimable === "0" ? "Protection expired without payout because the selected DOWN outcome did not win. This is the bounded premium-at-risk case shown before authorization." : "A claimable balance requires a separately authorized redemption transaction."}</p>
+      </section> : null}
 
       <section className="card mathCard">
         <div className="cardHead"><div><span>DETERMINISTIC HEDGE MATH</span><h2>What the protection changes</h2></div><b>{plan.normalizedShares.toFixed(3)} DOWN</b></div>

@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
 import publishedReceipt from "../../docs/evidence/pre-execution-receipt.json";
 import executionReceipt from "../../docs/evidence/execution-receipt.json";
+import settlementReceipt from "../../docs/evidence/settlement-receipt.json";
 
 const publishedReceiptDigest = publishedReceipt.integrity.digest;
 const executionReceiptDigest = executionReceipt.integrity.digest;
+const settlementReceiptDigest = settlementReceipt.integrity.digest;
 
 test("judge can compose and inspect bounded protection", async ({ page }) => {
   await page.route("**/api/markets", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ source: "unavailable", error: "deterministic E2E fixture" }) }));
@@ -18,9 +20,9 @@ test("judge can compose and inspect bounded protection", async ({ page }) => {
   await expect(page.getByText("Basis risk is real.")).toBeVisible();
   await expect(page.getByText("PRE-EXECUTION")).toBeVisible();
   await expect(page.locator(".digest")).toContainText(/^0x[0-9a-f]{64}$/);
-  await expect(page.getByText(/VERIFIED REPLAY/)).toBeVisible();
-  await expect(page.locator(".settledReplay")).toContainText("NO / DOWN");
-  await expect(page.locator(".settledReplay")).toContainText("No fabricated ownership or redemption");
+  await expect(page.getByText(/VERIFIED OWNED LIFECYCLE/)).toBeVisible();
+  await expect(page.locator(".settledReplay")).toContainText("29.182 NO");
+  await expect(page.locator(".settledReplay")).toContainText("Held outcome lost · no redemption");
 });
 
 test("truth labels, policy drill-down, receipt inspection, and mobile width remain safe", async ({ page }) => {
@@ -131,7 +133,7 @@ test("health identifies network and honest mode", async ({ request }) => {
   await expect(response.json()).resolves.toMatchObject({ ok: true, chainId: 50312, network: "somnia-shannon" });
   const replay = await request.get("/api/replay");
   expect(replay.ok()).toBe(true);
-  await expect(replay.json()).resolves.toMatchObject({ label: "VERIFIED_REPLAY", terminalState: { status: "Resolved", winningOutcome: "NO" }, redemptionEvidence: { status: "NOT_PERFORMED" }, verification: { valid: true } });
+  await expect(replay.json()).resolves.toMatchObject({ label: "VERIFIED_OWNED_LIFECYCLE", execution: { txHash: executionReceipt.execution.txHash, filledSize: "29.182", filledOutcome: "NO" }, terminalState: { status: "Resolved · on-chain code 4", winningOutcome: "UP", claimable: "0" }, verification: { valid: true, linked: true } });
 });
 
 test("receipt explorer verifies, discloses lifecycle truth, and serves the artifact", async ({ page, request }) => {
@@ -160,6 +162,16 @@ test("execution receipt explorer distinguishes test-agent proof from settlement"
   await expect(page.getByText(/mined Shannon transaction and reconciled position/)).toBeVisible();
   await expect(page.getByText("dedicated-test-agent", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /Inspect transaction/ })).toHaveAttribute("href", executionReceipt.execution.explorerUrl);
+});
+
+test("settlement receipt closes a losing hedge without fabricating redemption", async ({ page, request }) => {
+  const artifact = await request.get(`/api/receipts/${settlementReceiptDigest}`);
+  expect(artifact.ok()).toBe(true);
+  await expect(artifact.json()).resolves.toMatchObject({ lifecycleStage: "SETTLEMENT", settlement: { marketStatus: "Resolved · on-chain code 4", outcome: "UP", claimable: "0" }, integrity: { previousReceiptDigest: executionReceiptDigest } });
+  await page.goto(`/receipts/${settlementReceiptDigest}`);
+  await expect(page.getByText("VERIFIED", { exact: true })).toBeVisible();
+  await expect(page.getByText(/there is no payout to redeem/)).toBeVisible();
+  await expect(page.getByText(/Protection expired without payout/)).toBeVisible();
 });
 
 test("unknown receipt digests fail closed", async ({ page, request }) => {
