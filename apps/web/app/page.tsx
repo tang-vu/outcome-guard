@@ -12,6 +12,7 @@ type LiveSnapshot = {
 };
 type LiveResponse = { source: "live" | "unavailable"; snapshots?: LiveSnapshot[]; error?: string };
 type SettledReplay = { label: "VERIFIED_REPLAY"; capturedAt: string; blockNumber: string; market: { marketId: string; asset: string; intervalSec: number; expiry: number; question: string; oracleQuestionId: string }; terminalState: { status: string; winningOutcome: "YES" | "NO"; portfolioMeaning: "UP" | "DOWN" }; positionEvidence: { status: string; reason: string }; redemptionEvidence: { status: string; reason: string }; integrity: { digest: string }; verification: { valid: true; computedDigest: string } };
+type ExecutionStatus = { executionId: string; state: "QUEUED" | "PROCESSING" | "FAILED" | "RECONCILED" | "RECOVERY_REQUIRED"; updatedAt: string; stage?: string; txHash?: string; blockNumber?: string; receiptDigest?: string; explorerUrl?: string; error?: string };
 type EthereumProvider = {
   request(args: { method: string; params?: unknown[] }): Promise<unknown>;
   on?(event: "accountsChanged", listener: (accounts: string[]) => void): void;
@@ -45,6 +46,7 @@ export default function Home() {
   const [wallet, setWallet] = useState<string>();
   const [signature, setSignature] = useState<string>();
   const [executionBundle, setExecutionBundle] = useState<ExecutionBundle>();
+  const [executionStatus, setExecutionStatus] = useState<ExecutionStatus>();
   const [error, setError] = useState<string>();
   const [authorizationStatus, setAuthorizationStatus] = useState<{ state: "preparing" | "ready" | "error"; message: string }>();
   const [liveRead, setLiveRead] = useState<LiveResponse>();
@@ -76,7 +78,7 @@ export default function Home() {
     fetch("/api/plan", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ asset, exposureUsd: exposure, horizonMinutes: horizon, adverseMovePct: adverseMove, maxPremium, maxSlippagePct: slippage, targetProtectionPct: protection, ...(livePlanMarketId ? { liveMarketId: livePlanMarketId } : {}) }), signal: controller.signal })
       .then(async (response) => { const json = await response.json() as PlanResponse & { error?: string }; if (!response.ok) throw new Error(json.error ?? "Plan failed"); return json; })
       .then((json) => {
-        setData(json); setError(undefined); setSignature(undefined); setExecutionBundle(undefined);
+        setData(json); setError(undefined); setSignature(undefined); setExecutionBundle(undefined); setExecutionStatus(undefined);
         const blockingPolicies = json.policies.filter((policy) => policy.status === "FAIL" && !AUTHORIZATION_PENDING_POLICIES.has(policy.policyId));
         setAuthorizationStatus(json.mode !== "live" ? undefined : blockingPolicies.length > 0
           ? { state: "error", message: `Live plan sealed, but authorization is blocked by ${blockingPolicies.map((policy) => policy.policyId).join(", ")}.` }
@@ -108,7 +110,7 @@ export default function Home() {
         : !data?.authorizationChallenge
           ? "Fresh execution mandate unavailable"
           : signature
-            ? "Exact mandate signed ✓"
+            ? executionStatus ? `Execution ${executionStatus.state.toLowerCase().replace("_", " ")}` : "Exact mandate signed ✓"
             : "Review & sign exact mandate";
 
   useEffect(() => {
@@ -126,6 +128,25 @@ export default function Home() {
     provider.on?.("accountsChanged", syncAccounts);
     return () => provider.removeListener?.("accountsChanged", syncAccounts);
   }, []);
+  useEffect(() => {
+    if (!executionStatus || executionStatus.state === "FAILED" || executionStatus.state === "RECONCILED" || executionStatus.state === "RECOVERY_REQUIRED") return;
+    let active = true;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const poll = async () => {
+      try {
+        const response = await fetch(`/api/executions/${executionStatus.executionId}`, { cache: "no-store" });
+        const value = await response.json() as ExecutionStatus & { error?: string };
+        if (!response.ok) throw new Error(value.error ?? "Execution status unavailable");
+        if (active) setExecutionStatus(value);
+      } catch (reason) {
+        if (active) setError(reason instanceof Error ? reason.message : String(reason));
+      } finally {
+        if (active) timeout = setTimeout(() => void poll(), 800);
+      }
+    };
+    void poll();
+    return () => { active = false; if (timeout) clearTimeout(timeout); };
+  }, [executionStatus?.executionId, executionStatus?.state]);
   const connectWallet = async () => {
     if (!window.ethereum) { setError("No injected wallet found. Preview remains available; install a wallet to connect."); return; }
     try {
@@ -141,7 +162,7 @@ export default function Home() {
     } catch {
       // Some injected wallets do not expose permission revocation. Local state is still cleared.
     } finally {
-      setWallet(undefined); setSignature(undefined); setExecutionBundle(undefined);
+      setWallet(undefined); setSignature(undefined); setExecutionBundle(undefined); setExecutionStatus(undefined);
       setError(undefined); setAuthorizationStatus(undefined);
     }
   };
@@ -160,10 +181,14 @@ export default function Home() {
       const { mandate, message } = data.authorizationChallenge;
       const signed = await window.ethereum.request({ method: "personal_sign", params: [message, account] }) as string;
       const response = await fetch("/api/authorize", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ receipt: data.receipt, mandate, signature: signed, signer: account }) });
-      const authorized = await response.json() as { authorizedReceipt?: OutcomeGuardReceipt; executionBundle?: ExecutionBundle; error?: string };
+      const authorized = await response.json() as { authorizedReceipt?: OutcomeGuardReceipt; executionBundle?: ExecutionBundle; execution?: { queued: boolean; executionId?: string; statusUrl?: string }; error?: string };
       if (!response.ok || !authorized.authorizedReceipt || !authorized.executionBundle) throw new Error(authorized.error ?? "Authorization verification failed");
       setData({ ...data, receipt: authorized.authorizedReceipt, policies: authorized.authorizedReceipt.policyEvaluation });
       setWallet(account); setSignature(signed); setExecutionBundle(authorized.executionBundle); setError(undefined);
+      if (authorized.execution?.queued && authorized.execution.executionId) {
+        setExecutionStatus({ executionId: authorized.execution.executionId, state: "QUEUED", updatedAt: new Date().toISOString() });
+        setAuthorizationStatus({ state: "preparing", message: "Signature verified. Execution queued automatically; worker preflight is starting." });
+      } else setAuthorizationStatus({ state: "ready", message: "Signature verified. Automatic execution is disabled; the evidence bundle is available for manual handoff." });
     } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
   };
   const prepareOrAuthorize = async () => {
@@ -200,7 +225,7 @@ export default function Home() {
     const url = URL.createObjectURL(new Blob([`${JSON.stringify(data.receipt, null, 2)}\n`], { type: "application/json" }));
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${data.receipt.integrity.digest}.json`; anchor.click(); URL.revokeObjectURL(url);
   };
-  const copyDigest = async () => { if (data) await navigator.clipboard.writeText(data.receipt.integrity.digest); };
+  const copyDigest = async () => { const digest = executionStatus?.receiptDigest ?? data?.receipt.integrity.digest; if (digest) await navigator.clipboard.writeText(digest); };
   const applyNaturalIntent = () => {
     try {
       const fallback: HedgeIntent = { asset, exposureUsd: exposure, horizonMinutes: horizon, adverseMovePct: adverseMove, maxPremium, maxSlippagePct: slippage, targetProtectionPct: protection };
@@ -275,9 +300,9 @@ export default function Home() {
           <div className="policyGrid">{(showAllPolicies ? data?.policies : failures)?.map((policy) => { const isAuthorizationPending = policy.status === "FAIL" && AUTHORIZATION_PENDING_POLICIES.has(policy.policyId); return <details key={policy.policyId} open={policy.status === "FAIL"}><summary><b className={isAuthorizationPending ? "warn" : policy.status.toLowerCase()}>{policy.status === "PASS" ? "✓ PASS" : policy.status === "WARN" || isAuthorizationPending ? "! PENDING" : "× FAIL"}</b><span>{policy.policyId}</span></summary><small>{isAuthorizationPending ? `Expected before signing/execution preflight: ${policy.reason}` : policy.reason}</small><dl><div><dt>Observed</dt><dd>{JSON.stringify(policy.observed)}</dd></div><div><dt>Limit</dt><dd>{JSON.stringify(policy.limit)}</dd></div></dl></details>; })}</div>
         </section>
 
-        <section className="authorize card"><div><span>EXACT EXECUTION MANDATE · NO TRANSACTION</span><h2>Buy {data?.plan.normalizedShares.toFixed(3) ?? "—"} DOWN shares · IOC</h2><div className="orderReview"><span><small>Chain</small>Shannon · 50312</span><span><small>Maximum premium</small>{data?.authorizationChallenge?.mandate.maximumPremiumRaw ?? "—"} raw</span><span><small>NO price / quantity</small>{data?.authorizationChallenge ? `${data.authorizationChallenge.mandate.outcomePriceRaw} / ${data.authorizationChallenge.mandate.quantityRaw}` : "—"}</span><span><small>Market</small>{data ? short(data.market.marketId) : "—"}</span><span><small>Order expiry</small>{data?.authorizationChallenge ? new Date(Number(BigInt(data.authorizationChallenge.mandate.orderExpiryNs) / 1_000_000n)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}</span><span><small>Mandate seal</small>{data?.authorizationChallenge ? short(data.authorizationChallenge.mandateDigest) : "Not issued"}</span></div><p>Signing binds the exact raw IOC, live snapshot, dedicated execution signer, deadline and receipt. It does not submit a transaction. The worker must independently recover this signature and rerun fresh fail-closed checks.</p></div><div className="authorizationActions"><button onClick={() => void prepareOrAuthorize()} disabled={loading || (data?.mode === "live" ? !data.authorizationChallenge || authorizableFailures.length > 0 : !liveMarket)}>{authorizationButtonLabel}</button>{authorizationStatus && <small className={`authorizationStatus ${authorizationStatus.state}`} role={authorizationStatus.state === "error" ? "alert" : "status"}>{authorizationStatus.state === "preparing" ? "● " : authorizationStatus.state === "ready" ? "✓ " : "× "}{authorizationStatus.message}</small>}{authorizableFailures.length > 0 && <small role="status">Execution is fail-closed: {authorizableFailures.map((policy) => policy.policyId).join(", ")}. Choose a fresh eligible market or refresh after rollover.</small>}{executionBundle && <button className="secondaryAction" onClick={downloadBundle}>Download signed bundle</button>}</div></section>
+        <section className="authorize card"><div><span>EXACT EXECUTION MANDATE · NO TRANSACTION</span><h2>Buy {data?.plan.normalizedShares.toFixed(3) ?? "—"} DOWN shares · IOC</h2><div className="orderReview"><span><small>Chain</small>Shannon · 50312</span><span><small>Maximum premium</small>{data?.authorizationChallenge?.mandate.maximumPremiumRaw ?? "—"} raw</span><span><small>NO price / quantity</small>{data?.authorizationChallenge ? `${data.authorizationChallenge.mandate.outcomePriceRaw} / ${data.authorizationChallenge.mandate.quantityRaw}` : "—"}</span><span><small>Market</small>{data ? short(data.market.marketId) : "—"}</span><span><small>Order expiry</small>{data?.authorizationChallenge ? new Date(Number(BigInt(data.authorizationChallenge.mandate.orderExpiryNs) / 1_000_000n)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—"}</span><span><small>Mandate seal</small>{data?.authorizationChallenge ? short(data.authorizationChallenge.mandateDigest) : "Not issued"}</span></div><p>Signing binds the exact raw IOC, live snapshot, dedicated execution signer, deadline and receipt. It does not submit a transaction. The worker must independently recover this signature and rerun fresh fail-closed checks.</p></div><div className="authorizationActions"><button onClick={() => void prepareOrAuthorize()} disabled={loading || Boolean(signature) || (data?.mode === "live" ? !data.authorizationChallenge || authorizableFailures.length > 0 : !liveMarket)}>{authorizationButtonLabel}</button>{authorizationStatus && <small className={`authorizationStatus ${authorizationStatus.state}`} role={authorizationStatus.state === "error" ? "alert" : "status"}>{authorizationStatus.state === "preparing" ? "● " : authorizationStatus.state === "ready" ? "✓ " : "× "}{authorizationStatus.message}</small>}{executionStatus && <div className={`executionStatus ${executionStatus.state.toLowerCase()}`} role="status"><b>{executionStatus.state.replace("_", " ")}</b><span>{executionStatus.state === "QUEUED" ? "Signed mandate entered the private execution queue." : executionStatus.state === "PROCESSING" ? "Worker is rerunning fresh policy and chain preflight." : executionStatus.state === "RECONCILED" ? "Transaction mined and resulting position reconciled." : executionStatus.error ?? "Execution requires operator reconciliation."}</span>{executionStatus.explorerUrl && <a href={executionStatus.explorerUrl} target="_blank" rel="noreferrer">Open Shannon transaction ↗</a>}{executionStatus.receiptDigest && <code>{executionStatus.receiptDigest}</code>}</div>}{authorizableFailures.length > 0 && <small role="status">Execution is fail-closed: {authorizableFailures.map((policy) => policy.policyId).join(", ")}. Choose a fresh eligible market or refresh after rollover.</small>}{executionBundle && <button className="secondaryAction" onClick={downloadBundle}>Download evidence bundle</button>}</div></section>
 
-        <section className="card receipt"><div className="cardHead"><div><span>VERIFIABLE RECEIPT · POLICY SEAL</span><h2>Intent → snapshot → math → policy → authorization → chain</h2></div><b>{signature ? "AUTHORIZED" : data ? "PRE-EXECUTION" : "SEALING"}</b></div><div className="timeline"><i className={data ? "done" : ""}>Intent</i><i className={data ? "done" : ""}>Plan</i><i className={data ? "done" : ""}>Policy</i><i className={signature ? "done" : ""}>Authorize</i><i>Execution</i><i>Settlement</i><i>Claim</i></div><div className="digestRow"><code className="digest">{data?.receipt.integrity.digest ?? "Computing deterministic receipt…"}</code><span className={`verifiedBadge ${data ? "" : "pending"}`}>{data ? "✓ Verified locally" : "Verification pending"}</span></div><div className="receiptActions"><button className="textButton" onClick={() => void copyDigest()} disabled={!data}>Copy digest</button><button className="textButton" onClick={downloadReceipt} disabled={!data}>Download JSON</button><button className="textButton" onClick={() => setShowReceipt((current) => !current)} aria-expanded={showReceipt} disabled={!data}>{showReceipt ? "Close raw view" : "Inspect raw JSON"}</button></div>{showReceipt && <pre className="rawReceipt">{JSON.stringify(data?.receipt, null, 2)}</pre>}<p>Verification recomputes canonical SHA-256. Any changed field breaks the seal. Later lifecycle records link to this digest instead of rewriting history.</p></section>
+        <section className="card receipt"><div className="cardHead"><div><span>VERIFIABLE RECEIPT · POLICY SEAL</span><h2>Intent → snapshot → math → policy → authorization → chain</h2></div><b>{executionStatus?.state === "RECONCILED" ? "RECONCILED" : signature ? "AUTHORIZED" : data ? "PRE-EXECUTION" : "SEALING"}</b></div><div className="timeline"><i className={data ? "done" : ""}>Intent</i><i className={data ? "done" : ""}>Plan</i><i className={data ? "done" : ""}>Policy</i><i className={signature ? "done" : ""}>Authorize</i><i className={executionStatus?.state === "RECONCILED" ? "done" : ""}>Execution</i><i>Settlement</i><i>Claim</i></div><div className="digestRow"><code className="digest">{executionStatus?.receiptDigest ?? data?.receipt.integrity.digest ?? "Computing deterministic receipt…"}</code><span className={`verifiedBadge ${data ? "" : "pending"}`}>{data ? "✓ Verified locally" : "Verification pending"}</span></div><div className="receiptActions"><button className="textButton" onClick={() => void copyDigest()} disabled={!data}>Copy digest</button><button className="textButton" onClick={downloadReceipt} disabled={!data}>Download JSON</button><button className="textButton" onClick={() => setShowReceipt((current) => !current)} aria-expanded={showReceipt} disabled={!data}>{showReceipt ? "Close raw view" : "Inspect raw JSON"}</button></div>{showReceipt && <pre className="rawReceipt">{JSON.stringify(data?.receipt, null, 2)}</pre>}<p>Verification recomputes canonical SHA-256. Any changed field breaks the seal. Later lifecycle records link to this digest instead of rewriting history.</p></section>
         <section className="card settledReplay"><div className="cardHead"><div><span>VERIFIED REPLAY · HISTORICAL VENUE LIFECYCLE</span><h2>{settledReplay?.market.question ?? "Loading finalized DreamDEX evidence…"}</h2></div><b>{settledReplay?.terminalState.status ?? "READING"}</b></div>{settledReplay && <><div className="replayFlow"><div><small>Finalized market</small><strong>{short(settledReplay.market.marketId)}</strong><span>{settledReplay.market.asset} · {settledReplay.market.intervalSec / 60}m</span></div><i>→</i><div><small>On-chain terminal state</small><strong>{settledReplay.terminalState.status}</strong><span>Block {settledReplay.blockNumber}</span></div><i>→</i><div className="replayOutcome"><small>Winning outcome</small><strong>{settledReplay.terminalState.winningOutcome} / {settledReplay.terminalState.portfolioMeaning}</strong><span>Oracle question {settledReplay.market.oracleQuestionId}</span></div><i>→</i><div className="notClaimed"><small>Position / claim</small><strong>NOT CLAIMED</strong><span>No fabricated ownership or redemption</span></div></div><div className="replaySeal"><span>✓ Evidence digest verified</span><code>{settledReplay.integrity.digest}</code></div><p><b>Replay boundary:</b> finalized discovery and terminal state are verified venue evidence. This is not the live preview above, not an OutcomeGuard execution, and not proof that the demo wallet owned or redeemed this position.</p></>}</section>
       </div>
     </section>

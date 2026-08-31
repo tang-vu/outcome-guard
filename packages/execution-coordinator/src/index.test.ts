@@ -2,7 +2,8 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
-import { DurableExecutionJournal } from "./index.js";
+import type { ExecutionBundle } from "@outcome-guard/schemas";
+import { DurableExecutionJournal, executionJobId } from "./index.js";
 
 const roots: string[] = [];
 const signer = `0x${"1".repeat(40)}`;
@@ -20,6 +21,14 @@ async function journal(): Promise<DurableExecutionJournal> {
 afterEach(async () => { await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true }))); });
 
 describe("durable execution journal", () => {
+  it("keys one-time execution by the signed mandate rather than mutable bundle metadata", () => {
+    const mandateDigest = hash("d");
+    const first = { createdAt: "2026-08-31T00:00:00.000Z", authorizedReceipt: { authorization: { mandateDigest } } } as ExecutionBundle;
+    const laterCopy = { createdAt: "2026-08-31T00:00:01.000Z", authorizedReceipt: { authorization: { mandateDigest } } } as ExecutionBundle;
+    expect(executionJobId(first)).toBe(mandateDigest);
+    expect(executionJobId(laterCopy)).toBe(mandateDigest);
+  });
+
   it("hash-chains serialized events and verifies them after restart", async () => {
     const first = await journal();
     await first.append({ event: "JOB_ACCEPTED", jobId: hash("a"), signer, chainId: 50312, authorizationDigest: hash("b"), orderFingerprint: hash("c") });

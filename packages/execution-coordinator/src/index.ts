@@ -42,7 +42,9 @@ async function syncDirectory(path: string): Promise<void> {
 }
 
 export function executionJobId(bundle: ExecutionBundle): `0x${string}` {
-  return sha256(canonicalize(bundle as never));
+  const mandateDigest = bundle.authorizedReceipt.authorization.mandateDigest;
+  if (!mandateDigest) throw new Error("authorized bundle has no mandate digest");
+  return bytes32.parse(mandateDigest) as `0x${string}`;
 }
 
 export class DurableExecutionJournal {

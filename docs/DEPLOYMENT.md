@@ -115,13 +115,15 @@ For live observation, set `FIXTURE_MODE=false` but retain `DRY_RUN=true`. The cu
 
 The image runs as a non-root user, declares `/var/lib/outcomeguard` as its persistent state volume, and includes a container healthcheck. Never put a key in an image layer, deployment file, build argument, public variable, log, or health endpoint.
 
-The observer command never executes. The separate one-shot path is intentionally local-file-only:
+The observer command never executes. The separate one-shot path can be invoked directly for recovery or an operator-controlled handoff:
 
 ```bash
 npm run execute-once -w @outcome-guard/agent -- --bundle /secure/inbox/signed-bundle.json
 ```
 
 It requires `DRY_RUN=false`, `FIXTURE_MODE=false`, the encrypted-runtime `PRIVATE_KEY`, absolute persistent `EXECUTION_STATE_DIR`, and `INITIAL_TOTAL_PREMIUM_AT_RISK` reconciled from the dedicated wallet. It verifies that the bundle's public execution signer matches the loaded key, reruns policy from fresh Shannon reads, claims the authorization once, records the submission boundary, and seals a linked execution receipt only after fill/position reconciliation. After an ambiguous SDK call it retains the signer lock and exits; do not delete that lock or retry until the signer nonce and chain are reconciled.
+
+For the judge deployment, set `AUTO_EXECUTION_ENABLED=true`, `AUTHORIZED_HUMAN_SIGNER` to the designated human wallet address, and absolute private `EXECUTION_INBOX_DIR` / `EXECUTION_STATUS_DIR` paths. A successful `/api/authorize` request then writes the verified bundle atomically to the inbox. The single-replica PM2 watcher advances public status from `QUEUED` to `PROCESSING`, then `RECONCILED` or a fail-closed terminal state. The status API exposes only sanitized lifecycle fields. A watcher restart during processing becomes `RECOVERY_REQUIRED`; it never assumes an ambiguous transaction is safe to retry. The downloaded bundle remains optional evidence.
 
 Run one replica for any signer. Horizontal replicas are safe only for read-only observation; signing is deliberately single-replica and filesystem-locked.
 

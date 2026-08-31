@@ -3,6 +3,7 @@ import { computeMandateDigest, computeMarketSnapshotDigest, sealReceipt, sha256,
 import { executionBundleSchema, executionMandateSchema, receiptCoreSchema } from "@outcome-guard/schemas";
 import { executionMandateMessage } from "@outcome-guard/shared";
 import { z } from "zod";
+import { automaticExecutionEnabled, configuredHumanAuthorizer, enqueueExecutionBundle } from "../../../lib/execution-queue";
 
 const requestSchema = z.object({
   receipt: receiptCoreSchema,
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
     const expected = executionMandateMessage(body.mandate, mandateDigest);
     const recovered = await recoverMessageAddress({ message: expected, signature: body.signature as `0x${string}` });
     if (recovered.toLowerCase() !== body.signer.toLowerCase()) throw new Error("Signature does not match the claimed signer");
+    if (automaticExecutionEnabled() && recovered.toLowerCase() !== configuredHumanAuthorizer().toLowerCase()) throw new Error("Signer is not authorized to spend from this deployment's dedicated execution wallet");
     const { integrity: _integrity, receiptId: _sealedReceiptId, ...receiptBody } = body.receipt;
     void _integrity; void _sealedReceiptId;
     const policyEvaluation = receiptBody.policyEvaluation.map((policy) => policy.policyId === "authorization.human" ? { ...policy, status: "PASS" as const, observed: true, reason: "Wallet intent signature was cryptographically verified." } : policy);
@@ -38,7 +40,8 @@ export async function POST(request: Request) {
     const executionBundle = executionBundleSchema.parse({ schemaVersion: "outcomeguard.execution-bundle.v1", createdAt: new Date().toISOString(), preExecutionReceipt: body.receipt, authorizedReceipt, mandate: body.mandate, message: expected, signature: body.signature, signer: recovered });
     const verification = await verifyExecutionBundle(executionBundle, { nowMs: Date.now(), executionSigner: configuredSigner });
     if (!verification.valid) throw new Error(`Execution bundle verification failed: ${verification.errors.join("; ")}`);
-    return Response.json({ authorizedReceipt, executionBundle });
+    const execution = automaticExecutionEnabled() ? { queued: true, ...await enqueueExecutionBundle(executionBundle) } : { queued: false };
+    return Response.json({ authorizedReceipt, executionBundle, execution });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 400 });
   }

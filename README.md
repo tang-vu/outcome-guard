@@ -70,13 +70,13 @@ exposure + limits
 The indexer is used for discovery, venue metadata, and history. OutcomeGuard requires an explicit venue ID and records that indexer-derived provenance; the current SDK does not independently prove venue membership on chain. Chain ID, market generation/status, book parameters, balances, mined receipt, and position state are read on chain. Missing data is unknown, never silently zero.
 
 - [`apps/web`](apps/web): judge journey and injected-wallet authorization.
-- [`apps/agent`](apps/agent): fixture/live observation loop plus a local-file-only `execute-once` command that independently verifies, policy-checks, journals, executes and reconciles one signed mandate.
+- [`apps/agent`](apps/agent): fixture/live observation loop plus a guarded `execute-once` command that independently verifies, policy-checks, journals, executes and reconciles one signed mandate.
 - [`packages/dreamdex`](packages/dreamdex): Shannon-only market, exact-unit IOC, confirmation, position, finalized-market, and redemption adapter.
 - [`packages/hedge-engine`](packages/hedge-engine): deterministic sizing and scenario P&L.
 - [`packages/policy-engine`](packages/policy-engine): versioned preview/pre-sign evaluator.
 - [`packages/shared`](packages/shared): provider-neutral intent-parser contract, deterministic local parser/fallback, Shannon constants, and exact authorization message.
 - [`packages/receipt`](packages/receipt): RFC 8785 canonicalization, SHA-256 sealing, linked stages, verifier, and CLI.
-- [`packages/execution-coordinator`](packages/execution-coordinator): durable one-time authorization claims, exclusive signer lock, and tamper-evident execution journal, wired only to the explicit local-file `execute-once` path.
+- [`packages/execution-coordinator`](packages/execution-coordinator): durable one-time authorization claims keyed by mandate digest, exclusive signer lock, and tamper-evident execution journal.
 
 Detailed design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/architecture/trust-boundaries.md`](docs/architecture/trust-boundaries.md), and [`docs/architecture/execution-journal.md`](docs/architecture/execution-journal.md).
 
@@ -167,7 +167,7 @@ It composes lint, strict type checking, unit/property tests, production build, P
 - Writes are hard-blocked outside Shannon chain `50312`.
 - The browser uses an injected wallet; the worker accepts only a disposable testnet key.
 - AI can normalize or explain but cannot calculate, waive policy, construct a transaction, or sign.
-- Preview and pre-sign expose the same evaluator. A live plan can issue an exact raw-unit IOC mandate only when a dedicated worker address is configured; the server verifies the EIP-191 signature and seals a linked bundle. The local `execute-once` worker independently verifies it and reruns the same policy engine from fresh Shannon reads.
+- Preview and pre-sign expose the same evaluator. A live plan can issue an exact raw-unit IOC mandate only when a dedicated worker address is configured; the server verifies the EIP-191 signature and allowlisted human signer, seals a linked bundle, and atomically queues it. The PM2 worker independently verifies it and reruns the same policy engine from fresh Shannon reads. Downloading the bundle is optional evidence, not an execution step.
 - A tx hash alone is not confirmation; a successful mined receipt and position evidence are required.
 - Venue ambiguity, stale state, unknown balances, zero normalized size, changed book, or irreproducible receipt inputs block execution.
 - The local execution path durably claims one-time bundles, locks a signer, hash-chains execution states, journals the submission boundary, and refuses automatic retry after ambiguity. A real funded Shannon run, explicit nonce/raw-transaction recovery and crash-injection evidence remain release gates before claiming production readiness.

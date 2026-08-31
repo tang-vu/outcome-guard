@@ -1,6 +1,6 @@
 # Local release-gate report
 
-Date: 2026-08-29 17:54 UTC
+Date: 2026-08-31 04:32 UTC
 Environment: Windows, Node `v24.14.1`, npm `11.11.0`  
 Command: `npm run verify`
 
@@ -12,12 +12,12 @@ Command: `npm run verify`
 | --- | --- | --- |
 | ESLint | pass | `eslint .` exited 0 |
 | TypeScript strict workspaces | pass | agent, web, dreamdex, execution-coordinator, hedge-engine, policy-engine, receipt, schemas, shared |
-| Unit/property/security-boundary tests | pass | 6 files, 28 tests, including provider validation and prompt-injection-as-data behavior |
+| Unit/property/security-boundary tests | pass | 7 files, 36 tests, including provider validation, prompt-injection-as-data behavior, atomic execution queue, replay refusal, and mandate-stable job identity |
 | Production build | pass | Next.js 16.3.3 plus all buildable workspaces; metadata, manifest, robots, icon, and Open Graph routes generated |
-| Desktop judge flow | pass | 7 Playwright Chromium checks, 1440 px |
-| Mobile judge flow | pass | 7 Playwright Chromium checks, 390 px; hydration-safe parser binding, market-horizon binding, overflow and reduced-motion assertions included |
+| Desktop judge flow | pass | 8 Playwright Chromium checks, 1440 px |
+| Mobile judge flow | pass | 8 Playwright Chromium checks, 390 px; hydration-safe parser binding, market-horizon binding, overflow and reduced-motion assertions included |
 | Health endpoint checks | pass | both Playwright projects against the production server |
-| Portable tree/history secret scan | pass | 115 files plus 22 commits/refs at run time; provider, PEM, bearer, mnemonic and private-key patterns |
+| Portable tree/history secret scan | pass | 119 files plus 31 commits/refs at run time; provider, PEM, bearer, mnemonic and private-key patterns |
 | Independent secret scan | pass | Gitleaks 8.30.1 scanned the 115-file release-tree snapshot with no leaks and scanned 22 commits / ~897 KB with no leaks |
 | Dependency audit | pass | `found 0 vulnerabilities` |
 | Public deployment | pass | local and Cloudflare-routed health returned `outcome-guard-web` on Shannon `50312`; homepage returned HTTP 200 with CSP and HSTS |
@@ -29,7 +29,8 @@ Additional checks:
 - Live Shannon evidence capture succeeded from clean source commit `351b014bfb9fa7ea6082fbdd47d10765a159925b` for market `0x…c248` at block `473676996`; a second deterministic plan derivation matched its canonical input.
 - Receipt tamper, unsupported-claim, and linked-chain regression tests passed.
 - Preview and pre-sign policy entry points are the same function and have an equality test.
-- DreamDEX writes are blocked without a policy-and-signature execution guard. The explicit local-file-only `execute-once` path now adds a durable bundle claim, signer lock, fresh shared-policy pass and submission journal; it retains the lock after ambiguity instead of retrying.
+- The allowlisted authorization handoff atomically queues the signed bundle, exposes a sanitized status endpoint, keys claims by mandate digest, refuses replay, and marks ambiguous restarts `RECOVERY_REQUIRED`. A deployed smoke test fed an already-expired historical bundle through the private inbox and observed the expected public `FAILED` status without invoking the signer.
+- DreamDEX writes are blocked without a policy-and-signature execution guard. The guarded `execute-once` path adds a durable bundle claim, signer lock, fresh shared-policy pass and submission journal; it retains the lock after ambiguity instead of retrying.
 - The authorization API independently verifies canonical receipt integrity before producing a linked authorization receipt and execution bundle.
 - Receipt tampering and execution-bundle signer substitution are rejected by regression tests.
 - The packaged receipt explorer revalidates schema and canonical digest server-side, exposes an attachment endpoint, discloses incomplete lifecycle stages, and returns `404` for unknown digests. Desktop and 390 px E2E checks cover the valid and fail-closed paths.
