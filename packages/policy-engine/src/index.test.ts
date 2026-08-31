@@ -46,4 +46,18 @@ describe("policy gate", () => {
     const results = evaluatePolicies({ ...context, market: tiered, authorizationMarket: tiered });
     expect(results.find((policy) => policy.policyId === "book.visible-depth")?.status).toBe("FAIL");
   });
+  it("keeps depth valid when DOWN asks move inside the authorized slippage envelope", () => {
+    const moved = { ...context.market, book: { ...context.market.book, yesBids: [{ price: "0.577", size: "100" }] } };
+    const results = evaluatePolicies({ ...context, market: moved, authorizationMarket: context.market });
+    expect(results.find((policy) => policy.policyId === "book.visible-depth")?.status).toBe("PASS");
+    expect(results.find((policy) => policy.policyId === "authorization.snapshot-tolerance")?.status).toBe("PASS");
+  });
+  it("measures snapshot tolerance on the authorized DOWN side", () => {
+    const authorizationMarket = { ...context.market, book: { ...context.market.book, yesBids: [{ price: "0.10", size: "100" }] } };
+    const moved = { ...context.market, book: { ...context.market.book, yesBids: [{ price: "0.092", size: "100" }] } };
+    const results = evaluatePolicies({ ...context, market: moved, authorizationMarket });
+    const snapshot = results.find((policy) => policy.policyId === "authorization.snapshot-tolerance");
+    expect(snapshot?.status).toBe("PASS");
+    expect(snapshot?.observed).toBeCloseTo(0.888888, 5);
+  });
 });

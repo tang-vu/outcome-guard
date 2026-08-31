@@ -31,4 +31,12 @@ describe("hedge sizing", () => {
       expect(Math.abs(q * 1000 - Math.round(q * 1000))).toBeLessThan(1e-8);
     }));
   });
+
+  it("reserves premium budget at the full authorized slippage price", () => {
+    const intent = { ...baseIntent, adverseMovePct: 10, targetProtectionPct: 100, maxPremium: 15, maxSlippagePct: 2 };
+    const plan = buildHedgePlan({ intent, market, constraints: limits });
+    const maximumExecutionPrice = 0.42 * 1.02;
+    expect(plan.normalizedShares * maximumExecutionPrice).toBeLessThanOrEqual(intent.maxPremium + 1e-9);
+    expect(plan.normalizedShares).toBeLessThan(15 / 0.42);
+  });
 });

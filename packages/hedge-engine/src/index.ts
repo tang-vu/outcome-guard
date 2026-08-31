@@ -73,7 +73,9 @@ export function buildHedgePlan(args: {
   const requestedShares = targetProtectedLoss / (1 - best.price);
   const budget = Math.min(intent.maxPremium, constraints.maxTotalPremium);
   const depthShares = levels.filter((level) => level.price <= maxPrice).reduce((sum, level) => sum + level.size, 0);
-  const budgetShares = sharesForBudget(levels, budget, maxPrice);
+  // Reserve the full authorized slippage envelope. This keeps the raw IOC below budget
+  // even if the book moves from the preview ask to the user's maximum accepted price.
+  const budgetShares = Math.min(sharesForBudget(levels, budget, maxPrice), budget / maxPrice);
   const beforeQuantization = Math.min(requestedShares, budgetShares, depthShares, constraints.maxSharesPerMarket);
   const lotSize = Number(market.bookParams.lotSize);
   const minQuantity = Number(market.bookParams.minQuantity);

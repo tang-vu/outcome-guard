@@ -111,7 +111,7 @@ async function main(): Promise<void> {
     throw error;
   } finally {
     if (lockAcquired) await journal.releaseSignerLock().catch(() => undefined);
-    await adapter.close();
+    await Promise.race([adapter.close(), new Promise<void>((resolve) => setTimeout(resolve, 2_000))]);
   }
 }
 

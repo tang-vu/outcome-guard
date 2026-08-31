@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { buildPreparedIoc, createShannonAdapter, formatDecimal, parseDecimal, worstExecutablePriceRaw, type BookParameters, type EventMarketSnapshot as AdapterMarket, type EventOrderBook } from "@outcome-guard/dreamdex";
+import { buildPreparedIoc, createShannonAdapter, floorToStep, formatDecimal, parseDecimal, type BookParameters, type EventMarketSnapshot as AdapterMarket, type EventOrderBook } from "@outcome-guard/dreamdex";
 import { buildHedgePlan } from "@outcome-guard/hedge-engine";
 import { evaluatePreview, outcomeGuardPolicyLimits } from "@outcome-guard/policy-engine";
 import { computeMandateDigest, computeMarketSnapshotDigest, sealReceipt } from "@outcome-guard/receipt";
@@ -59,14 +59,17 @@ export async function POST(request: Request) {
     if (liveInputs && configuredSigner && /^0x[0-9a-fA-F]{40}$/.test(configuredSigner)) {
       const decimals = liveInputs.market.collateralDecimals;
       const quantityRaw = parseDecimal(plan.normalizedShares.toFixed(decimals), decimals);
-      const maximumOutcomePriceRaw = worstExecutablePriceRaw(liveInputs.book.noAsks, quantityRaw);
+      const bestOutcomeAskRaw = liveInputs.book.noAsks.reduce<bigint | undefined>((best, level) => best === undefined || level.priceRaw < best ? level.priceRaw : best, undefined);
+      if (bestOutcomeAskRaw === undefined) throw new Error("No executable DOWN ask is available for a bounded mandate");
+      const maximumBookMoveBps = BigInt(Math.floor(Math.min(intent.maxSlippagePct, 2) * 100));
+      const maximumOutcomePriceRaw = floorToStep(bestOutcomeAskRaw * (10_000n + maximumBookMoveBps) / 10_000n, liveInputs.parameters.tickSize);
       const prepared = buildPreparedIoc({
         market: liveInputs.market, book: liveInputs.book, params: liveInputs.parameters, outcome: "NO",
         quantityRaw,
         // The execution limit comes from integer venue units, never from HedgePlan's display-number projection.
         maximumOutcomePriceRaw,
         premiumBudgetRaw: parseDecimal(intent.maxPremium.toString(), decimals),
-        maximumBookMoveBps: BigInt(Math.floor(intent.maxSlippagePct * 100)),
+        maximumBookMoveBps,
         expirySeconds: Math.min(90, Math.max(15, Math.floor(liveInputs.market.intervalSec * 0.05))),
         nowMs: Date.now()
       });

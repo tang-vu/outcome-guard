@@ -58,12 +58,16 @@ function downSpreadPct(market: EventMarketSnapshot): number | null {
 
 export function evaluatePolicies(ctx: PolicyContext): PolicyResult[] {
   const { market, plan, intent, limits } = ctx;
-  const depth = market.book.yesBids.filter((level) => 1 - Number(level.price) <= plan.worstPrice + Number.EPSILON).reduce((sum, level) => sum + Number(level.size), 0);
+  const authorizedDownAsk = ctx.authorizationMarket?.book.yesBids[0] ? 1 - Number(ctx.authorizationMarket.book.yesBids[0].price) : null;
+  const executionTolerancePct = Math.min(intent.maxSlippagePct, limits.maxPriceImpactPct);
+  const authorizedMaximumDownPrice = authorizedDownAsk === null ? plan.worstPrice : authorizedDownAsk * (1 + executionTolerancePct / 100);
+  const depth = market.book.yesBids.filter((level) => 1 - Number(level.price) <= authorizedMaximumDownPrice + Number.EPSILON).reduce((sum, level) => sum + Number(level.size), 0);
   const spread = downSpreadPct(market);
   const expiryHeadroom = (Date.parse(market.expiry) - ctx.now.getTime()) / 1000;
   const priceImpact = market.book.yesBids[0] ? Math.max(0, ((plan.worstPrice - (1 - Number(market.book.yesBids[0].price))) / (1 - Number(market.book.yesBids[0].price))) * 100) : Number.POSITIVE_INFINITY;
-  const snapshotPriceChange = ctx.authorizationMarket
-    ? Math.abs(Number(market.book.yesBids[0]?.price ?? 0) - Number(ctx.authorizationMarket.book.yesBids[0]?.price ?? 0)) / Math.max(Number(ctx.authorizationMarket.book.yesBids[0]?.price ?? 0), Number.EPSILON) * 100
+  const freshDownAsk = market.book.yesBids[0] ? 1 - Number(market.book.yesBids[0].price) : null;
+  const snapshotPriceChange = authorizedDownAsk !== null && freshDownAsk !== null
+    ? Math.abs(freshDownAsk - authorizedDownAsk) / Math.max(authorizedDownAsk, Number.EPSILON) * 100
     : Number.POSITIVE_INFINITY;
 
   return [
