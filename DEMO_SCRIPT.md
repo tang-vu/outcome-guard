@@ -111,7 +111,8 @@ Do not represent the dedicated test agent as a human wallet.
 ## Final link card
 
 - Public app: **https://outcomeguard.tangvu.dev**
-- Demo video: **https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4**
+- Demo video (YouTube): **https://youtu.be/0Z_CaNJD1Uw**
+- Checksum-verifiable MP4 mirror: **https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4**
 - GitHub: **https://github.com/tang-vu/outcome-guard**
 - Explorer transaction: **`0xabc2f01852be3f1d75ec643524330d47dff2a50bb2ad890b85814e924e8abe99`**
 - Redemption transaction: **`0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc`**

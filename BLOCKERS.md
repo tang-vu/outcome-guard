@@ -58,7 +58,7 @@ The portable scanner passed the working tree and all 55 reachable release commit
 
 ## E. Demo video and publication
 
-Resolved on 2026-09-01. The owner reviewed and approved publication of the final 2:35 cut at `https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4`.
+Resolved on 2026-09-01. The owner reviewed and published the final 2:35 cut on YouTube at `https://youtu.be/0Z_CaNJD1Uw`. The checksum-verifiable MP4 remains available at `https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4` as an independent fallback.
 
 The compromised MiMo key was replaced; the new key is stored only as current-user-bound Windows DPAPI ciphertext outside the repository. MiMo V2.5 TTS generation, MiMo V2.5 ASR back-check, 1080p evidence capture, subtitles, loudness mastering, codec QA, final export and publication are complete. A new live wallet signature was not required: the recording uses the already-verified dedicated-test-agent execution and redemption lifecycle, with its evidence boundary shown on screen.
 

@@ -6,7 +6,7 @@ OutcomeGuard is a Shannon-testnet prototype that derives short-duration BTC or E
 
 > Testnet software only. Not financial advice. A binary Event Contract is nonlinear and may not track a wallet's spot loss because of strike, timing, oracle, liquidity, and settlement basis risk.
 
-**Judge links:** [Live app](https://outcomeguard.tangvu.dev) · [2:35 demo](https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4) · [Public source](https://github.com/tang-vu/outcome-guard) · [Verified redemption receipt](https://outcomeguard.tangvu.dev/receipts/0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205)
+**Judge links:** [Live app](https://outcomeguard.tangvu.dev) · [2:35 YouTube demo](https://youtu.be/0Z_CaNJD1Uw) · [Public source](https://github.com/tang-vu/outcome-guard) · [Verified redemption receipt](https://outcomeguard.tangvu.dev/receipts/0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205)
 
 ## 1. The problem
 
@@ -52,7 +52,7 @@ The web health route is `/api/health`; the worker exposes `/health`. See [`Docke
 
 ## 6. Demo video
 
-**[Watch the 2:35 OutcomeGuard demo](https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4).** The reproducible narrative and render workflow are in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md), [`VIDEO_SHOTLIST.md`](VIDEO_SHOTLIST.md), and [`docs/demo/video`](docs/demo/video). Codec, loudness, MiMo TTS/ASR, checksum and truth-boundary results are recorded in [`docs/evidence/demo-video.json`](docs/evidence/demo-video.json).
+**[Watch the 2:35 OutcomeGuard demo on YouTube](https://youtu.be/0Z_CaNJD1Uw).** A [checksum-verifiable MP4 mirror](https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4) is retained for judge reliability. The reproducible narrative and render workflow are in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md), [`VIDEO_SHOTLIST.md`](VIDEO_SHOTLIST.md), and [`docs/demo/video`](docs/demo/video). Codec, loudness, MiMo TTS/ASR, checksum and truth-boundary results are recorded in [`docs/evidence/demo-video.json`](docs/evidence/demo-video.json).
 
 ## 7. Architecture
 

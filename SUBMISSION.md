@@ -117,7 +117,8 @@ See [Threat Model](docs/THREAT_MODEL.md).
 
 - Source repository: <https://github.com/tang-vu/outcome-guard>
 - Live application: <https://outcomeguard.tangvu.dev>
-- Demo video: <https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4>
+- Demo video (YouTube): <https://youtu.be/0Z_CaNJD1Uw>
+- Checksum-verifiable MP4 mirror: <https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4>
 - Testnet transaction: <https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be>
 - Redemption transaction: <https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc>
 - DoraHacks page: **PENDING — insert after account authorization/submission**

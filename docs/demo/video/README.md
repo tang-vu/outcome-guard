@@ -40,4 +40,4 @@ The integration follows Xiaomi's current official [MiMo V2.5 TTS guide](https://
    npm run demo:inspect
    ```
 
-The final local export is `docs/demo/video/outcomeguard-demo.mp4`. Public upload remains an explicit owner decision.
+The final local export is `docs/demo/video/outcomeguard-demo.mp4`. The owner-approved public presentation is available on [YouTube](https://youtu.be/0Z_CaNJD1Uw), with a [checksum-verifiable MP4 mirror](https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4).

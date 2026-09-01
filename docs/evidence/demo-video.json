@@ -68,7 +68,9 @@
     "approvedAt": "2026-09-01T08:57:09.9516183Z",
     "verifiedAt": "2026-09-01T09:01:16.3724556Z",
     "assetCommit": "d7fda79f91ea93093d879ad64f43d81e52485032",
-    "publicUrl": "https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4",
+    "publicUrl": "https://youtu.be/0Z_CaNJD1Uw",
+    "verifiedAtYouTube": "2026-09-01",
+    "mirrorUrl": "https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4",
     "http": {
       "status": 200,
       "contentType": "video/mp4",
@@ -82,6 +84,6 @@
       "sha256": "be3786f281acaaff593c15a08b0fa38c3813a6ff00eb0174fc3d89da7f95779c",
       "bytes": 23474973
     },
-    "note": "Published after explicit owner approval and verified end-to-end through the public Cloudflare route."
+    "note": "Published to YouTube after explicit owner approval. The byte-identical MP4 mirror was verified end-to-end through the public Cloudflare route."
   }
 }
