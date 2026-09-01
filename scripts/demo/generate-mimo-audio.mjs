@@ -44,7 +44,29 @@ function transcriptText(response) {
 }
 
 function words(value) {
-  return value.toLowerCase().replace(/[^a-z0-9\s-]/g, " ").split(/\s+/).filter(Boolean);
+  const tokens = value
+    .toLowerCase()
+    .replace(/<[^>]*>/g, " ")
+    .replace(/^\s*[a-z]+>/, " ")
+    .replaceAll("outcome guard", "outcomeguard")
+    .replace(/[^a-z0-9\s.]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  const normalized = [];
+  for (let index = 0; index < tokens.length; index += 1) {
+    if (tokens[index].length === 1 && /^[a-z]$/.test(tokens[index])) {
+      let joined = "";
+      while (index < tokens.length && tokens[index].length === 1 && /^[a-z]$/.test(tokens[index])) {
+        joined += tokens[index];
+        index += 1;
+      }
+      normalized.push(joined);
+      index -= 1;
+    } else {
+      normalized.push(tokens[index]);
+    }
+  }
+  return normalized;
 }
 
 function wordErrorRate(expected, actual) {
@@ -114,6 +136,9 @@ for (const segment of config.segments) {
   const adjustedFile = path.join(outputDirectory, `${segment.id}-timed.wav`);
   run("ffmpeg", ["-y", "-hide_banner", "-loglevel", "error", "-i", rawFile, "-af", `atempo=${tempo.toFixed(6)},apad,atrim=0:${targetDuration}`, "-ar", "48000", "-ac", "1", adjustedFile]);
   adjustedFiles.push(adjustedFile);
+  const pronunciationPass = errorRate <= 0.18;
+  const tempoPass = tempo >= 0.85 && tempo <= 1.2;
+  const qa = pronunciationPass && tempoPass ? "PASS" : "REVIEW";
   report.segments.push({
     id: segment.id,
     expected: segment.text,
@@ -122,9 +147,11 @@ for (const segment of config.segments) {
     sourceDurationSeconds: Number(sourceDuration.toFixed(3)),
     targetDurationSeconds: targetDuration,
     tempo: Number(tempo.toFixed(4)),
-    qa: errorRate <= 0.18 ? "PASS" : "REVIEW"
+    pronunciationQa: pronunciationPass ? "PASS" : "REVIEW",
+    tempoQa: tempoPass ? "PASS" : "REVIEW",
+    qa
   });
-  process.stdout.write(`${errorRate <= 0.18 ? "PASS" : "REVIEW"} (WER ${(errorRate * 100).toFixed(1)}%)\n`);
+  process.stdout.write(`${qa} (WER ${(errorRate * 100).toFixed(1)}%, tempo ${tempo.toFixed(2)}x)\n`);
 }
 
 const concatPath = path.join(outputDirectory, "concat.txt");

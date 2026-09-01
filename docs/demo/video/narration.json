@@ -3,7 +3,7 @@
   "language": "en",
   "targetDurationSeconds": 155,
   "voice": "Milo",
-  "style": "A calm, assured principal product engineer presenting to hackathon judges. Crisp international English, warm but restrained, medium pace, short deliberate pauses around numbers and proof claims. Never sound like an advertisement.",
+  "style": "A calm, assured principal product engineer presenting to hackathon judges. Crisp international English, warm but restrained, consistently 130 to 140 words per minute, with only brief pauses around proof claims. Pronounce every letter separated by hyphens individually. Never sound theatrical or like an advertisement.",
   "segments": [
     {
       "id": "01-problem",
@@ -15,13 +15,13 @@
       "id": "02-intent",
       "start": 12,
       "end": 31,
-      "text": "Here, I define a one-thousand-dollar Ether exposure, a one-hour horizon, a two-percent downside scenario, a fifteen test-USDC premium cap, two-percent slippage, and seventy-five-percent target protection. Structured controls remain authoritative; AI never controls arithmetic or permissions."
+      "text": "Here, I define a $1,000 Ether exposure, a one-hour horizon, a 2-percent downside scenario, a 15 test U-S-D-C premium cap, 2-percent slippage, and 75-percent target protection. Structured controls remain authoritative; A-I never controls arithmetic or permissions."
     },
     {
       "id": "03-market",
       "start": 31,
       "end": 51,
-      "text": "OutcomeGuard scopes the DreamDEX venue on Shannon chain fifty-thousand three-hundred twelve, discovers an eligible Event Contract, and verifies Trading status on-chain. It reads the real book, spread, visible depth, expiry, settlement reference, tick, lot, minimum quantity, block, and freshness."
+      "text": "OutcomeGuard scopes the DreamDEX venue on Shannon chain 50,312, discovers an eligible Event Contract, and verifies Trading status on-chain. It reads the real book, spread, visible depth, expiry, settlement reference, tick, lot, minimum quantity, block, and freshness."
     },
     {
       "id": "04-hedge",
@@ -39,19 +39,19 @@
       "id": "06-execution",
       "start": 91,
       "end": 112,
-      "text": "This linked evidence is from OutcomeGuard's dedicated Shannon test agent. The bounded I-O-C bought four-point-one-seven-one NO shares and spent one-point-nine-one-four-four-eight-nine test-USDC. A hash alone is never confirmation: OutcomeGuard requires a successful mined receipt, decoded fill, and a reconciled on-chain position."
+      "text": "This linked evidence is from OutcomeGuard's dedicated Shannon test agent. The bounded I-O-C bought 4.171 NO-outcome shares and spent 1.914489 test U-S-D-C. A hash alone is never confirmation: OutcomeGuard requires a successful mined receipt, decoded fill, and a reconciled on-chain position."
     },
     {
       "id": "07-receipt",
       "start": 112,
       "end": 132,
-      "text": "Intent, market snapshot, hedge math, policy results, authorization, and chain evidence are canonicalized and sealed with SHA two-fifty-six. Change any sealed field and verification fails. Each later lifecycle record links the previous digest, so history cannot be silently rewritten."
+      "text": "Intent, market snapshot, hedge math, policy results, authorization, and chain evidence are canonicalized and sealed with S-H-A-256. Change any sealed field and verification fails. Each later lifecycle record links the previous digest, so history cannot be silently rewritten."
     },
     {
       "id": "08-redemption",
       "start": 132,
       "end": 148,
-      "text": "The market then resolved DOWN. Four-point-one-seven-one test-USDC became claimable, redemption succeeded on Shannon, and the winning-token balance reconciled to zero. The trade, settlement, and redemption are independently inspectable from this final receipt."
+      "text": "The market then resolved DOWN. 4.171 test U-S-D-C became claimable, redemption succeeded on Shannon, and the winning-token balance reconciled to zero. The trade, settlement, and redemption are independently inspectable from this final receipt."
     },
     {
       "id": "09-vision",
