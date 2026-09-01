@@ -21,7 +21,7 @@
       "id": "03-market",
       "start": 31,
       "end": 51,
-      "text": "Outcome Guard scopes the DreamDEX venue on Shannon chain number five, zero, three, one, two. It discovers an eligible Event Contract, verifies Trading on-chain, and reads the real book, spread, depth, expiry, settlement rule, and venue parameters."
+      "text": "Outcome Guard reads DreamDEX on Shannon testnet, chain five zero three one two. It verifies the market is Trading on-chain, then reads the live order book, spread, depth, expiry, settlement rule, and venue parameters."
     },
     {
       "id": "04-hedge",

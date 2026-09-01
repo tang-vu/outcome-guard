@@ -49,8 +49,11 @@ function words(value) {
     .toLowerCase()
     .replace(/<[^>]*>/g, " ")
     .replace(/^\s*[a-z]+>/, " ")
+    .replace(/^\s*\d+\s+/, " ")
     .replaceAll("outcome guard", "outcomeguard")
+    .replaceAll("hedgemath", "hedge math")
     .replace(/\bfive\s+zero\s+three\s+one\s+two\b/g, "50312")
+    .replace(/\btwo\s+fifty\s+six\b/g, "256")
     .replace(/[^a-z0-9\s.]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
@@ -117,9 +120,19 @@ for (const segment of config.segments) {
     const previous = previousReport?.segments?.find((item) => item.id === segment.id);
     if (!previous || previous.expected !== segment.text) throw new Error(`Cannot reuse ${segment.id}; its narration or prior QA record is missing.`);
     await readFile(adjustedFile);
-    report.segments.push(previous);
+    const reusedErrorRate = wordErrorRate(segment.text, previous.transcript);
+    const reusedPronunciationPass = reusedErrorRate <= 0.18;
+    const reusedTempoPass = previous.tempo >= 0.85 && previous.tempo <= 1.35;
+    const reused = {
+      ...previous,
+      wordErrorRate: Number(reusedErrorRate.toFixed(4)),
+      pronunciationQa: reusedPronunciationPass ? "PASS" : "REVIEW",
+      tempoQa: reusedTempoPass ? "PASS" : "REVIEW",
+      qa: reusedPronunciationPass && reusedTempoPass ? "PASS" : "REVIEW"
+    };
+    report.segments.push(reused);
     adjustedFiles.push(adjustedFile);
-    process.stdout.write(`Reusing ${segment.id} (${previous.qa})\n`);
+    process.stdout.write(`Reusing ${segment.id} (${reused.qa})\n`);
     continue;
   }
   process.stdout.write(`Generating ${segment.id}... `);
