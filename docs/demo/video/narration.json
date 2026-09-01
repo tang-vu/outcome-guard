@@ -21,43 +21,43 @@
       "id": "03-market",
       "start": 31,
       "end": 51,
-      "text": "OutcomeGuard scopes the DreamDEX venue on Shannon chain 50,312, discovers an eligible Event Contract, and verifies Trading status on-chain. It reads the real book, spread, visible depth, expiry, settlement reference, tick, lot, minimum quantity, block, and freshness."
+      "text": "OutcomeGuard scopes the DreamDEX venue on Shannon chain five zero three one two, discovers an eligible Event Contract, and verifies Trading on-chain. It reads the real book, spread, depth, expiry, settlement rule, and venue parameters."
     },
     {
       "id": "04-hedge",
       "start": 51,
       "end": 73,
-      "text": "The deterministic engine begins with portfolio loss, derives DOWN shares, then caps and quantizes them by premium, executable depth, price impact, spread, lot size, and portfolio limits. The same calculation object drives this chart and the receipt. This is conditional protection, not a price forecast or a perfect hedge."
+      "text": "The deterministic engine starts with portfolio loss, derives DOWN shares, then caps and quantizes by premium, executable depth, price impact, spread, lot size, and portfolio limits. The chart and receipt use this same calculation. Binary protection still carries basis risk."
     },
     {
       "id": "05-policy",
       "start": 73,
       "end": 91,
-      "text": "Every control is visible. Required unknowns fail closed, and the identical policy engine runs at preview and immediately before signing. If the book moves beyond tolerance, the market approaches expiry, or any mandate input changes, authorization is invalidated."
+      "text": "Every control is visible. Required unknowns fail closed, and one policy engine runs at preview and before signing. Book movement, approaching expiry, or changed mandate inputs invalidate authorization."
     },
     {
       "id": "06-execution",
       "start": 91,
       "end": 112,
-      "text": "This linked evidence is from OutcomeGuard's dedicated Shannon test agent. The bounded I-O-C bought 4.171 NO-outcome shares and spent 1.914489 test U-S-D-C. A hash alone is never confirmation: OutcomeGuard requires a successful mined receipt, decoded fill, and a reconciled on-chain position."
+      "text": "This linked evidence is from OutcomeGuard's Shannon test agent. A bounded I-O-C bought 4.171 NO-outcome shares for 1.914489 test U-S-D-C. Confirmation requires the mined receipt, decoded fill, and reconciled position."
     },
     {
       "id": "07-receipt",
       "start": 112,
       "end": 132,
-      "text": "Intent, market snapshot, hedge math, policy results, authorization, and chain evidence are canonicalized and sealed with S-H-A-256. Change any sealed field and verification fails. Each later lifecycle record links the previous digest, so history cannot be silently rewritten."
+      "text": "Intent, snapshot, hedge math, policy, authorization, and chain evidence are canonicalized with S-H-A-256. Any sealed change fails verification. Later lifecycle receipts link the previous digest rather than rewrite history."
     },
     {
       "id": "08-redemption",
       "start": 132,
       "end": 148,
-      "text": "The market then resolved DOWN. 4.171 test U-S-D-C became claimable, redemption succeeded on Shannon, and the winning-token balance reconciled to zero. The trade, settlement, and redemption are independently inspectable from this final receipt."
+      "text": "The market resolved DOWN. 4.171 test U-S-D-C became claimable, redemption succeeded, and the winning-token balance reached zero. Trade, settlement, and redemption remain independently inspectable."
     },
     {
       "id": "09-vision",
       "start": 148,
       "end": 155,
-      "text": "OutcomeGuard turns Event Contracts from a prediction interface into a policy-bound protection layer for wallets and treasuries."
+      "text": "OutcomeGuard makes Event Contracts a policy-bound protection layer for wallets and treasuries."
     }
   ]
 }
