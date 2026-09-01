@@ -87,4 +87,4 @@ Show the outage/fail-closed response briefly, then enter `DETERMINISTIC FIXTURE`
 - [x] Tampered copy fails independently.
 - [x] No secrets, personal data, fabricated metrics, or placeholder URLs appear.
 - [x] Captions match narration and mode changes.
-- [ ] The final public URL and GitHub commit are healthy after upload.
+- [x] The final public URL and GitHub commit are healthy after upload.

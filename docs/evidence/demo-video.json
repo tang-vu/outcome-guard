@@ -66,7 +66,22 @@
   "publication": {
     "status": "PUBLIC",
     "approvedAt": "2026-09-01T08:57:09.9516183Z",
+    "verifiedAt": "2026-09-01T09:01:16.3724556Z",
+    "assetCommit": "d7fda79f91ea93093d879ad64f43d81e52485032",
     "publicUrl": "https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4",
-    "note": "Published after explicit owner approval; HTTP and downloaded-artifact verification are recorded by the release check."
+    "http": {
+      "status": 200,
+      "contentType": "video/mp4",
+      "contentLength": 23474973,
+      "acceptRanges": "bytes",
+      "rangeStatus": 206,
+      "verifiedRange": "bytes 0-1023/23474973"
+    },
+    "downloadVerification": {
+      "status": "PASS",
+      "sha256": "be3786f281acaaff593c15a08b0fa38c3813a6ff00eb0174fc3d89da7f95779c",
+      "bytes": 23474973
+    },
+    "note": "Published after explicit owner approval and verified end-to-end through the public Cloudflare route."
   }
 }
