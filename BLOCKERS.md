@@ -1,8 +1,8 @@
 # External Action Blockers
 
-Status: `PARTIALLY RESOLVED`, last updated 2026-08-31. This file lists only actions that require a secret, wallet/faucet interaction, account authorization, waiting for external chain state, or an irreversible public-release decision.
+Status: `PARTIALLY RESOLVED`, last updated 2026-09-01. This file lists only actions that require a secret, wallet/faucet interaction, account authorization, waiting for external chain state, or an irreversible submission decision.
 
-The repository now has real mined, filled and position-reconciled Shannon IOCs plus both losing and winning settlement branches. The winning branch was redeemed and reconciled to zero. Human-wallet execution, video publication, repository visibility and DoraHacks submission remain incomplete.
+The repository now has real mined, filled and position-reconciled Shannon IOCs plus both losing and winning settlement branches. The winning branch was redeemed and reconciled to zero. Video publication and public repository release are complete. Optional human-wallet execution and the account-authorized DoraHacks submission remain incomplete.
 
 ## A. Real Shannon IOC and position reconciliation
 
@@ -50,14 +50,11 @@ Evidence status for Gate 5:
 
 No owner action remains for preview hosting. `https://outcomeguard.tangvu.dev` is routed through a named Cloudflare Tunnel to the loopback-only OutcomeGuard production process. Local and public health checks, security headers, tunnel connections, PM2 supervision, and post-reboot logon restore configuration are recorded in `docs/evidence/deployment.json`.
 
-## D. Public repository release
+## D. Public repository release — resolved
 
-Owner decision required:
+Resolved on 2026-09-01. GitHub reports `tang-vu/outcome-guard` as `PUBLIC` with `main` as the default branch, and the remote head matched the local release commit during verification.
 
-1. After the full working-tree and Git-history secret scan is reviewed, explicitly approve changing repository visibility from private to public.
-2. Approve pushing the final release commit/tag to the public remote.
-
-This is intentionally last. Do not make the repository public while execution evidence, private logs, `.env` files, wallet artifacts, or video drafts remain under review.
+The portable scanner passed the working tree and all 55 reachable release commits. Checksum-verified Gitleaks 8.30.1 also scanned all 55 commits with `--redact` and reported no leaks. Its one initial finding was the public ERC-20 contract address in the exact `token` field of allowance-cleanup evidence; the allowlist is constrained to that file, key and 20-byte EVM-address shape.
 
 ## E. Demo video and publication
 

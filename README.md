@@ -6,6 +6,8 @@ OutcomeGuard is a Shannon-testnet prototype that derives short-duration BTC or E
 
 > Testnet software only. Not financial advice. A binary Event Contract is nonlinear and may not track a wallet's spot loss because of strike, timing, oracle, liquidity, and settlement basis risk.
 
+**Judge links:** [Live app](https://outcomeguard.tangvu.dev) · [2:35 demo](https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4) · [Public source](https://github.com/tang-vu/outcome-guard) · [Verified redemption receipt](https://outcomeguard.tangvu.dev/receipts/0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205)
+
 ## 1. The problem
 
 Prediction interfaces ask whether BTC or ETH will go up or down. Treasury tools begin somewhere else: “I already own this exposure; how much can I afford to lose over the next hour?” Turning that concern into an Event Contract order requires market discovery, book interpretation, exact tick and lot arithmetic, liquidity-aware sizing, policy checks, wallet authorization, receipt confirmation, position reconciliation, settlement, and redemption.
@@ -209,6 +211,6 @@ OutcomeGuard is MIT licensed; see [`LICENSE`](LICENSE). The implementation uses 
 | Testnet execution | Dedicated-test-agent IOC mined, filled and position-reconciled; human wallet authorization remains a separate demo step |
 | Settlement/redemption | Complete owned lifecycle: resolved DOWN, `4.171` claimable, redemption mined, position reconciled to zero |
 | Product/deployment | Public preview healthy at `outcomeguard.tangvu.dev`; PM2 web/tunnel restore is configured after Windows logon |
-| Submission | Text package, deployment, explorer proofs and public demo video ready; repository release and DoraHacks submit pending |
+| Submission | Public source, deployment, explorer proofs, video and judge copy ready; DoraHacks submit pending |
 
 The internal judge-ready target is **7 September 2026**. **8 September 2026** is reserved for video, deployment verification, full-history secret scanning, public release, and DoraHacks submission.

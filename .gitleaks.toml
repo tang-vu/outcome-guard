@@ -12,3 +12,9 @@ description = "The same public ERC-6909 outcome-token address in captured settle
 regexTarget = "line"
 paths = ['''docs/evidence/verified-settled-replay\.json''']
 regexes = ['''"outcomeToken":\s*"0xB52c5934113Af5c0Bb20eb3C72290C8215f755b9"''']
+
+[[allowlists]]
+description = "Public ERC-20 collateral contract address in allowance-cleanup evidence; constrained to the token field and EVM-address shape."
+regexTarget = "line"
+paths = ['''docs/evidence/redemption-campaign-eec6/allowance-cleanup\.json''']
+regexes = ['''"token":\s*"0x[0-9a-fA-F]{40}"''']

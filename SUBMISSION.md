@@ -1,6 +1,6 @@
 # OutcomeGuard — DoraHacks submission draft
 
-Status: judge-facing copy prepared on 28 August 2026. Fields marked **PENDING** require an external deployment, wallet action, recording, or submission decision and must not be replaced with invented data.
+Status: judge-facing copy updated on 1 September 2026. Fields marked **PENDING** require an external account action or irreversible submission decision and must not be replaced with invented data.
 
 ## Project name
 
@@ -115,7 +115,7 @@ See [Threat Model](docs/THREAT_MODEL.md).
 
 ## Links
 
-- Source repository: **PENDING — insert public GitHub URL only after full-history secret scan and public-release decision**
+- Source repository: <https://github.com/tang-vu/outcome-guard>
 - Live application: <https://outcomeguard.tangvu.dev>
 - Demo video: <https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4>
 - Testnet transaction: <https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be>
@@ -132,8 +132,9 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - [x] Winning-position redemption, payout and post-burn position are proved.
 - [x] Desktop and 390 px mobile judge paths pass.
 - [x] Deployment health checks pass at `https://outcomeguard.tangvu.dev`; reproducible facts are recorded in `docs/evidence/deployment.json`.
-- [x] Working tree and full git history pass secret scanning while the repository remains private; rerun immediately before public release.
-- [ ] Public GitHub, video, explorer, and DoraHacks links are inserted; the deployment link is complete.
+- [x] Working tree and all 55 reachable release commits pass the portable scanner and checksum-verified Gitleaks 8.30.1 after public release.
+- [x] Public GitHub, deployment, video and explorer links are inserted and verified.
+- [ ] DoraHacks link is inserted after account-authorized submission.
 - [ ] Every numerical submission claim points to reproducible evidence.
 
 Internal target: judge-ready on **7 September 2026**; release verification and submission on **8 September 2026**.
