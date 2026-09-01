@@ -1,6 +1,6 @@
 # Known Limitations
 
-Snapshot date: 2026-08-29. These limitations describe the current repository, not planned capabilities.
+Snapshot date: 2026-09-01. These limitations describe the current repository, not planned capabilities.
 
 ## Product and integration
 
@@ -42,7 +42,7 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 ## Security and operations
 
 - The code has not received an independent third-party security audit.
-- The built-in scanner covers tracked and unignored working-tree files. Gitleaks 8.30.1 full-history scans pass with one narrowly documented public-contract false-positive allowlist; the most recent run covered all 14 commits through `b39eb3e`. It must be rerun after every new release commit.
+- The built-in scanner covers tracked and unignored working-tree files. Gitleaks 8.30.1 full-history scans pass with one narrowly documented public-contract false-positive allowlist. The scanner must be rerun after every new release commit.
 - The execution-coordinator is wired only to the explicit `execute-once` command for a single Linux-volume replica. It claims before submission and retains the signer lock after ambiguity, but the SDK path does not expose explicit nonce/raw-transaction persistence and automatic recovery. Multi-replica signing remains unsupported; this is testnet software, not production custody infrastructure.
 - The worker has a health endpoint and graceful shutdown, but no durable database, alerting integration, dead-letter queue, or operator dashboard.
 - The fixture agent image runs as non-root user `outcomeguard`, declares a persistent state volume, and reached Docker `healthy` locally with an isolated mount. It is not verified on a public host, and production volume durability/backup remain operator responsibilities.
@@ -50,6 +50,6 @@ Snapshot date: 2026-08-29. These limitations describe the current repository, no
 
 ## Submission status
 
-- Public deployment plus real Shannon execution and redemption links are claimed with evidence. Public repository visibility, demo video URL and DoraHacks submission remain pending owner decisions.
-- External actions still required are listed exactly in [BLOCKERS.md](BLOCKERS.md).
+- Public deployment, public repository visibility, real Shannon execution and redemption links, the demo video, and DoraHacks submission are complete. Evidence remains linked from the README and submission copy.
+- No external action is required for the submitted dedicated-test-agent lifecycle. Optional future human-wallet execution remains listed in [BLOCKERS.md](BLOCKERS.md) and requires a fresh explicit signature.
 - The hackathon page does not publish a prize split, team-size limit, winner announcement date, or explicit repository-publicity clause. Its embedded close timestamp is `2026-09-08T18:00:00.000Z`; the project uses an earlier internal release target.

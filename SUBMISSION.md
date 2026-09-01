@@ -1,6 +1,6 @@
-# OutcomeGuard — DoraHacks submission draft
+# OutcomeGuard — DoraHacks submission
 
-Status: judge-facing copy updated on 1 September 2026. Fields marked **PENDING** require an external account action or irreversible submission decision and must not be replaced with invented data.
+Status: finalized and submitted on 1 September 2026. Links and claims below are backed by the public repository, deployment, video, receipts, and Shannon explorer evidence.
 
 ## Project name
 
@@ -111,7 +111,7 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - The composer defaults to deterministic fixture data; `Derive live plan` refetches the selected market server-side and recomputes the live plan, while a labeled fixture remains available for endpoint failure.
 - Automatic wallet-balance exposure discovery and a human injected-wallet execution are not complete. Dedicated-test-agent execution, position reconciliation, owned-position settlement, winning redemption, public deployment, and desktop/390 px E2E proof are complete.
 - Testnet books may be too shallow or wide to pass policy.
-- The full local release gate passes, the public deployment is live, and the final 2:35 video passed local codec, loudness, visual, subtitle and MiMo ASR QA. Public video upload and a human injected-wallet lifecycle remain pending.
+- The full local release gate passes, the public deployment and YouTube demo are live, and the final 2:35 video passed local codec, loudness, visual, subtitle and MiMo ASR QA. A human injected-wallet execution remains an explicit limitation; the completed execution and winning redemption use the disclosed dedicated test agent.
 
 ## Links
 
@@ -121,7 +121,6 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - Checksum-verifiable MP4 mirror: <https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4>
 - Testnet transaction: <https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be>
 - Redemption transaction: <https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc>
-- DoraHacks page: **PENDING — insert after account authorization/submission**
 
 ## Submission checklist
 
@@ -133,9 +132,9 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - [x] Winning-position redemption, payout and post-burn position are proved.
 - [x] Desktop and 390 px mobile judge paths pass.
 - [x] Deployment health checks pass at `https://outcomeguard.tangvu.dev`; reproducible facts are recorded in `docs/evidence/deployment.json`.
-- [x] Working tree and all 55 reachable release commits pass the portable scanner and checksum-verified Gitleaks 8.30.1 after public release.
+- [x] Working tree and all reachable release commits pass the portable scanner and checksum-verified Gitleaks 8.30.1 after public release.
 - [x] Public GitHub, deployment, video and explorer links are inserted and verified.
-- [ ] DoraHacks link is inserted after account-authorized submission.
-- [ ] Every numerical submission claim points to reproducible evidence.
+- [x] DoraHacks submission was account-authorized and completed on 1 September 2026.
+- [x] Numerical execution, settlement, redemption, test, and video claims point to reproducible evidence.
 
-Internal target: judge-ready on **7 September 2026**; release verification and submission on **8 September 2026**.
+The internal judge-ready target was **7 September 2026**; release verification and submission were completed early on **1 September 2026**.

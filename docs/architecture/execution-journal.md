@@ -56,4 +56,4 @@ Automated tests cover:
 - 25 concurrent appends producing exactly ordered unique sequences;
 - refusal of relative state paths.
 
-Implemented wiring: exact mandate reconstruction, fresh shared-policy rerun, required starting premium-risk input, adapter execution, mined result/position reconciliation, linked receipt persistence, and ambiguous-submission lock retention. Remaining evidence: funded Shannon execution, crash injection around the SDK submission call, explicit transaction-hash/nonce recovery, persistent-volume restart exercise, and separate redemption authorization.
+Implemented wiring: exact mandate reconstruction, fresh shared-policy rerun, required starting premium-risk input, adapter execution, mined result/position reconciliation, linked receipt persistence, and ambiguous-submission lock retention. Funded Shannon execution and a separately authorized winning redemption are complete in `docs/evidence/redemption-campaign-eec6`. Remaining resilience work is crash injection around the SDK submission call, explicit transaction-hash/nonce recovery, and a persistent-volume restart exercise.

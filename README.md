@@ -211,6 +211,6 @@ OutcomeGuard is MIT licensed; see [`LICENSE`](LICENSE). The implementation uses 
 | Testnet execution | Dedicated-test-agent IOC mined, filled and position-reconciled; human wallet authorization remains a separate demo step |
 | Settlement/redemption | Complete owned lifecycle: resolved DOWN, `4.171` claimable, redemption mined, position reconciled to zero |
 | Product/deployment | Public preview healthy at `outcomeguard.tangvu.dev`; PM2 web/tunnel restore is configured after Windows logon |
-| Submission | Public source, deployment, explorer proofs, video and judge copy ready; DoraHacks submit pending |
+| Submission | Public source, deployment, explorer proofs and 2:35 video are live; DoraHacks submission completed on 1 September 2026 |
 
-The internal judge-ready target is **7 September 2026**. **8 September 2026** is reserved for video, deployment verification, full-history secret scanning, public release, and DoraHacks submission.
+The internal judge-ready target was **7 September 2026**; release verification and the DoraHacks submission were completed early on **1 September 2026**.
