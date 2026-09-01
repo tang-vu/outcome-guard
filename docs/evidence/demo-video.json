@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-01T06:04:15.5700878Z",
+  "renderCommit": "1f63606e568293ab8139d73267b73058117e2ea4",
+  "artifact": {
+    "path": "docs/demo/video/outcomeguard-demo.mp4",
+    "sha256": "be3786f281acaaff593c15a08b0fa38c3813a6ff00eb0174fc3d89da7f95779c",
+    "bytes": 23474973,
+    "durationSeconds": 155,
+    "video": {
+      "codec": "h264",
+      "width": 1920,
+      "height": 1080,
+      "framesPerSecond": 30,
+      "pixelFormat": "yuv420p"
+    },
+    "audio": {
+      "codec": "aac",
+      "sampleRateHz": 48000,
+      "channels": 1,
+      "integratedLoudnessLufs": -16.28,
+      "truePeakDbtp": -1.47,
+      "loudnessRangeLu": 3.5
+    }
+  },
+  "sources": {
+    "publicApplication": "https://outcomeguard.tangvu.dev",
+    "silentCapture": {
+      "sha256": "06d7bd63d8a0e3c4ea8e3712d114754056f1a8bcce770770b38079ef6e390322",
+      "bytes": 17245982,
+      "capturedAt": "2026-08-31T15:21:33.7942506Z"
+    },
+    "narration": {
+      "sha256": "53b7a78d5dcf4ea719f75b726a306a353c27393382748654ab1cb87f4eafcab9",
+      "ttsModel": "mimo-v2.5-tts",
+      "voice": "Milo"
+    },
+    "subtitles": {
+      "sha256": "69fc6e336d61b477c4130a6c453a5c04ef8f3a0d4084d52754bfa5e6b4089a60",
+      "cueCount": 9,
+      "language": "en"
+    }
+  },
+  "qa": {
+    "timelineValidation": "PASS",
+    "asrModel": "mimo-v2.5-asr",
+    "asrStatus": "PASS",
+    "maximumWordErrorRate": 0.0976,
+    "blackFramesAtLeastHalfSecond": 0,
+    "silenceRunsAtLeastOneSecond": 0,
+    "visualContactSheetReviewed": true,
+    "secretScan": "PASS"
+  },
+  "truthBoundary": {
+    "liveDiscovery": "The public app captured a real Shannon market and derived a live plan from that snapshot.",
+    "executionLifecycle": "The execution, settlement and redemption segment shows the separately timestamped owned dedicated-test-agent lifecycle packaged in redemption-campaign-eec6.",
+    "humanWalletClaimed": false,
+    "mainnetClaimed": false,
+    "financialAdviceClaimed": false
+  },
+  "linkedEvidence": {
+    "receiptDigest": "0xc272e960d137b04b34dd25be22d411e084e3904d0c7c43ec583902ae72ce8205",
+    "executionTransaction": "0xabc2f01852be3f1d75ec643524330d47dff2a50bb2ad890b85814e924e8abe99",
+    "redemptionTransaction": "0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc"
+  },
+  "publication": {
+    "status": "LOCAL_FINAL_READY",
+    "publicUrl": null,
+    "note": "Public upload requires explicit owner account authorization and review."
+  }
+}

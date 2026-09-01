@@ -111,13 +111,13 @@ See [Threat Model](docs/THREAT_MODEL.md).
 - The composer defaults to deterministic fixture data; `Derive live plan` refetches the selected market server-side and recomputes the live plan, while a labeled fixture remains available for endpoint failure.
 - Automatic wallet-balance exposure discovery and a human injected-wallet execution are not complete. Dedicated-test-agent execution, position reconciliation, owned-position settlement, winning redemption, public deployment, and desktop/390 px E2E proof are complete.
 - Testnet books may be too shallow or wide to pass policy.
-- The full local release gate passes and the public deployment is live; a human injected-wallet lifecycle and final video remain pending.
+- The full local release gate passes, the public deployment is live, and the final 2:35 video passed local codec, loudness, visual, subtitle and MiMo ASR QA. Public video upload and a human injected-wallet lifecycle remain pending.
 
 ## Links
 
 - Source repository: **PENDING — insert public GitHub URL only after full-history secret scan and public-release decision**
 - Live application: <https://outcomeguard.tangvu.dev>
-- Demo video: **PENDING — no video URL claimed**
+- Demo video: **LOCAL FINAL READY — public upload authorization pending; no URL claimed**
 - Testnet transaction: <https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be>
 - Redemption transaction: <https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc>
 - DoraHacks page: **PENDING — insert after account authorization/submission**

@@ -79,12 +79,12 @@ Show the outage/fail-closed response briefly, then enter `DETERMINISTIC FIXTURE`
 
 ## Post-export verification
 
-- [ ] Runtime is between 2:00 and 3:00.
-- [ ] Every `LIVE` label corresponds to real Shannon state.
-- [ ] Every fixture/replay label is persistent and legible.
+- [x] Runtime is between 2:00 and 3:00.
+- [x] Every `LIVE` label corresponds to real Shannon state.
+- [x] Every fixture/replay label is persistent and legible.
 - [x] Transaction and redemption links open to the exact shown hashes.
-- [ ] Receipt digest matches the committed JSON.
-- [ ] Tampered copy fails independently.
-- [ ] No secrets, personal data, fabricated metrics, or placeholder URLs appear.
-- [ ] Captions match narration and mode changes.
+- [x] Receipt digest matches the committed JSON.
+- [x] Tampered copy fails independently.
+- [x] No secrets, personal data, fabricated metrics, or placeholder URLs appear.
+- [x] Captions match narration and mode changes.
 - [ ] The final public URL and GitHub commit are healthy after upload.

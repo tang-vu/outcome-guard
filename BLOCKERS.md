@@ -63,17 +63,10 @@ This is intentionally last. Do not make the repository public while execution ev
 
 Owner action required:
 
-1. Revoke the MiMo key that was pasted into chat on 2026-08-31. Treat it as compromised even if it still works.
-2. Create a replacement Token Plan key, then enter it only through the hidden local prompt—never through chat, source code, `.env`, or a shell command argument:
+1. Review the final 2:35 cut at `docs/demo/video/outcomeguard-demo.mp4`.
+2. Choose/authorize the video-hosting account and explicitly approve public upload and URL publication.
 
-   ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo/setup-mimo-key.ps1
-   ```
-
-   This stores Windows DPAPI ciphertext outside the repository with a current-user-only ACL. After that, engineering can run `npm run demo:audio`, review the MiMo V2.5 ASR back-check, and render the final cut without seeing or logging plaintext.
-3. Review the final 2–3 minute cut and explicitly approve its public upload and URL.
-
-The 1080p evidence capture, 2:35 English narration timeline, subtitles, MiMo TTS/ASR integration, and reproducible FFmpeg render pipeline are complete. A new live wallet signature is not required: the recording uses the already-verified dedicated-test-agent execution and redemption lifecycle, with its evidence boundary shown on screen.
+The compromised MiMo key was replaced; the new key is stored only as current-user-bound Windows DPAPI ciphertext outside the repository. MiMo V2.5 TTS generation, MiMo V2.5 ASR back-check, 1080p evidence capture, subtitles, loudness mastering, codec QA, and the final export are complete. A new live wallet signature is not required: the recording uses the already-verified dedicated-test-agent execution and redemption lifecycle, with its evidence boundary shown on screen.
 
 ## F. DoraHacks submission
 
