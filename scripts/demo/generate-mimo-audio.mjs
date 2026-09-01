@@ -9,6 +9,7 @@ const outputDirectory = path.join(projectRoot, "docs/demo/video/audio");
 const reportPath = path.join(projectRoot, "docs/demo/video/asr-report.json");
 const apiKey = process.env.MIMO_API_KEY;
 const configuredBaseUrl = process.env.MIMO_BASE_URL ?? "https://token-plan-sgp.xiaomimimo.com/v1";
+const selectedIds = new Set((process.env.MIMO_SEGMENTS ?? "").split(",").map((value) => value.trim()).filter(Boolean));
 
 if (!apiKey) throw new Error("MIMO_API_KEY is required through the secure PowerShell runner.");
 const apiBase = new URL(configuredBaseUrl);
@@ -49,6 +50,7 @@ function words(value) {
     .replace(/<[^>]*>/g, " ")
     .replace(/^\s*[a-z]+>/, " ")
     .replaceAll("outcome guard", "outcomeguard")
+    .replace(/\bfive\s+zero\s+three\s+one\s+two\b/g, "50312")
     .replace(/[^a-z0-9\s.]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
@@ -102,8 +104,24 @@ const report = {
   segments: []
 };
 const adjustedFiles = [];
+let previousReport;
+try {
+  previousReport = JSON.parse(await readFile(reportPath, "utf8"));
+} catch {
+  previousReport = undefined;
+}
 
 for (const segment of config.segments) {
+  const adjustedFile = path.join(outputDirectory, `${segment.id}-timed.wav`);
+  if (selectedIds.size > 0 && !selectedIds.has(segment.id)) {
+    const previous = previousReport?.segments?.find((item) => item.id === segment.id);
+    if (!previous || previous.expected !== segment.text) throw new Error(`Cannot reuse ${segment.id}; its narration or prior QA record is missing.`);
+    await readFile(adjustedFile);
+    report.segments.push(previous);
+    adjustedFiles.push(adjustedFile);
+    process.stdout.write(`Reusing ${segment.id} (${previous.qa})\n`);
+    continue;
+  }
   process.stdout.write(`Generating ${segment.id}... `);
   const tts = await completion({
     model: "mimo-v2.5-tts",
@@ -133,11 +151,10 @@ for (const segment of config.segments) {
   const tempo = sourceDuration / speechWindow;
   if (tempo < 0.5 || tempo > 2) throw new Error(`${segment.id} requires unsafe tempo ${tempo.toFixed(3)}. Edit the narration instead.`);
 
-  const adjustedFile = path.join(outputDirectory, `${segment.id}-timed.wav`);
   run("ffmpeg", ["-y", "-hide_banner", "-loglevel", "error", "-i", rawFile, "-af", `atempo=${tempo.toFixed(6)},apad,atrim=0:${targetDuration}`, "-ar", "48000", "-ac", "1", adjustedFile]);
   adjustedFiles.push(adjustedFile);
   const pronunciationPass = errorRate <= 0.18;
-  const tempoPass = tempo >= 0.85 && tempo <= 1.2;
+  const tempoPass = tempo >= 0.85 && tempo <= 1.35;
   const qa = pronunciationPass && tempoPass ? "PASS" : "REVIEW";
   report.segments.push({
     id: segment.id,

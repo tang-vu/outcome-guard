@@ -21,7 +21,7 @@
       "id": "03-market",
       "start": 31,
       "end": 51,
-      "text": "OutcomeGuard scopes the DreamDEX venue on Shannon chain five zero three one two, discovers an eligible Event Contract, and verifies Trading on-chain. It reads the real book, spread, depth, expiry, settlement rule, and venue parameters."
+      "text": "Outcome Guard scopes the DreamDEX venue on Shannon chain number five, zero, three, one, two. It discovers an eligible Event Contract, verifies Trading on-chain, and reads the real book, spread, depth, expiry, settlement rule, and venue parameters."
     },
     {
       "id": "04-hedge",
@@ -39,19 +39,19 @@
       "id": "06-execution",
       "start": 91,
       "end": 112,
-      "text": "This linked evidence is from OutcomeGuard's Shannon test agent. A bounded I-O-C bought 4.171 NO-outcome shares for 1.914489 test U-S-D-C. Confirmation requires the mined receipt, decoded fill, and reconciled position."
+      "text": "This linked evidence is from Outcome Guard's Shannon test agent. A bounded I-O-C bought 4.171 shares of the NO outcome for 1.914489 test U-S-D-C. Confirmation requires the mined receipt, decoded fill, and reconciled position."
     },
     {
       "id": "07-receipt",
       "start": 112,
       "end": 132,
-      "text": "Intent, snapshot, hedge math, policy, authorization, and chain evidence are canonicalized with S-H-A-256. Any sealed change fails verification. Later lifecycle receipts link the previous digest rather than rewrite history."
+      "text": "Intent, snapshot, hedge math, policy, authorization, and chain evidence use the S-H-A, two fifty six, digest algorithm. Any sealed change fails verification. Later lifecycle receipts link the previous digest rather than rewrite history."
     },
     {
       "id": "08-redemption",
       "start": 132,
       "end": 148,
-      "text": "The market resolved DOWN. 4.171 test U-S-D-C became claimable, redemption succeeded, and the winning-token balance reached zero. Trade, settlement, and redemption remain independently inspectable."
+      "text": "The market resolved to the DOWN outcome. 4.171 test U-S-D-C became claimable, redemption succeeded, and the winning-token balance reached zero. Every stage remains independently inspectable."
     },
     {
       "id": "09-vision",
