@@ -6,7 +6,10 @@ New-Item -ItemType Directory -Force -Path $secretDirectory | Out-Null
 
 $secureKey = Read-Host "Paste the NEW rotated MiMo Token Plan API key (input is hidden)" -AsSecureString
 if ($secureKey.Length -lt 20) { throw "The key is unexpectedly short." }
-$secureKey | ConvertFrom-SecureString | Set-Content -LiteralPath $secretPath -Encoding utf8NoBOM
+$encryptedKey = $secureKey | ConvertFrom-SecureString
+# Windows PowerShell 5.1 does not expose the `utf8NoBOM` encoding name.
+# A BOM is harmless here because Get-Content decodes it before ConvertTo-SecureString.
+$encryptedKey | Set-Content -LiteralPath $secretPath -Encoding UTF8
 
 $currentIdentity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 $acl = New-Object System.Security.AccessControl.DirectorySecurity
