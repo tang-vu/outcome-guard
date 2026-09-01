@@ -50,7 +50,7 @@ The web health route is `/api/health`; the worker exposes `/health`. See [`Docke
 
 ## 6. Demo video
 
-**The final 2:35 cut is complete locally; only public upload authorization remains.** The reproducible narrative and render workflow are in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md), [`VIDEO_SHOTLIST.md`](VIDEO_SHOTLIST.md), and [`docs/demo/video`](docs/demo/video). Codec, loudness, MiMo TTS/ASR and truth-boundary results are recorded in [`docs/evidence/demo-video.json`](docs/evidence/demo-video.json). No public video URL is claimed before upload.
+**[Watch the 2:35 OutcomeGuard demo](https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4).** The reproducible narrative and render workflow are in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md), [`VIDEO_SHOTLIST.md`](VIDEO_SHOTLIST.md), and [`docs/demo/video`](docs/demo/video). Codec, loudness, MiMo TTS/ASR, checksum and truth-boundary results are recorded in [`docs/evidence/demo-video.json`](docs/evidence/demo-video.json).
 
 ## 7. Architecture
 
@@ -131,7 +131,7 @@ The full evidence-based audit, including weaknesses, is in [`docs/COMPETITIVE_PO
 | Innovation — 20% | Exposure-derived Event Contract protection plus linked intent-to-settlement receipts | Implemented through terminal settlement |
 | UX and design — 20% | One exposure-to-authorization journey, visible failure reasons, scenario chart, deterministic fallback | Desktop and 390 px Playwright flows pass; release screenshots included |
 | Business and ecosystem impact — 20% | Wallet and treasury protection rather than speculative signals; sponsor SDK feedback | Thesis and SDK report complete; no user/traction claims |
-| Presentation — 15% | Under-90-second pre-settlement flow, real explorer proof, tamper check, labeled owned lifecycle | Final 2:35 local cut and QA evidence ready; public upload pending |
+| Presentation — 15% | Under-90-second pre-settlement flow, real explorer proof, tamper check, labeled owned lifecycle | Public 2:35 cut and QA evidence complete |
 
 ## 12. Quick start
 
@@ -209,6 +209,6 @@ OutcomeGuard is MIT licensed; see [`LICENSE`](LICENSE). The implementation uses 
 | Testnet execution | Dedicated-test-agent IOC mined, filled and position-reconciled; human wallet authorization remains a separate demo step |
 | Settlement/redemption | Complete owned lifecycle: resolved DOWN, `4.171` claimable, redemption mined, position reconciled to zero |
 | Product/deployment | Public preview healthy at `outcomeguard.tangvu.dev`; PM2 web/tunnel restore is configured after Windows logon |
-| Submission | Text package, deployment, explorer proofs and final local video ready; public release/upload pending |
+| Submission | Text package, deployment, explorer proofs and public demo video ready; repository release and DoraHacks submit pending |
 
 The internal judge-ready target is **7 September 2026**. **8 September 2026** is reserved for video, deployment verification, full-history secret scanning, public release, and DoraHacks submission.

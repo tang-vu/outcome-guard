@@ -64,8 +64,9 @@
     "redemptionTransaction": "0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc"
   },
   "publication": {
-    "status": "LOCAL_FINAL_READY",
-    "publicUrl": null,
-    "note": "Public upload requires explicit owner account authorization and review."
+    "status": "PUBLIC",
+    "approvedAt": "2026-09-01T08:57:09.9516183Z",
+    "publicUrl": "https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4",
+    "note": "Published after explicit owner approval; HTTP and downloaded-artifact verification are recorded by the release check."
   }
 }

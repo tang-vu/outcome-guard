@@ -117,7 +117,7 @@ See [Threat Model](docs/THREAT_MODEL.md).
 
 - Source repository: **PENDING — insert public GitHub URL only after full-history secret scan and public-release decision**
 - Live application: <https://outcomeguard.tangvu.dev>
-- Demo video: **LOCAL FINAL READY — public upload authorization pending; no URL claimed**
+- Demo video: <https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4>
 - Testnet transaction: <https://shannon-explorer.somnia.network/tx/0xbe1b148423553b21f7c4177248dc6be19406e1416b1f065cc556279de4da03be>
 - Redemption transaction: <https://shannon-explorer.somnia.network/tx/0x7021c55eb19271a22404f94c1ea5c639331a147ec2161ee3fbb07d7e4f81effc>
 - DoraHacks page: **PENDING — insert after account authorization/submission**

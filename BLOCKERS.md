@@ -61,12 +61,9 @@ This is intentionally last. Do not make the repository public while execution ev
 
 ## E. Demo video and publication
 
-Owner action required:
+Resolved on 2026-09-01. The owner reviewed and approved publication of the final 2:35 cut at `https://outcomeguard.tangvu.dev/demo/outcomeguard-demo.mp4`.
 
-1. Review the final 2:35 cut at `docs/demo/video/outcomeguard-demo.mp4`.
-2. Choose/authorize the video-hosting account and explicitly approve public upload and URL publication.
-
-The compromised MiMo key was replaced; the new key is stored only as current-user-bound Windows DPAPI ciphertext outside the repository. MiMo V2.5 TTS generation, MiMo V2.5 ASR back-check, 1080p evidence capture, subtitles, loudness mastering, codec QA, and the final export are complete. A new live wallet signature is not required: the recording uses the already-verified dedicated-test-agent execution and redemption lifecycle, with its evidence boundary shown on screen.
+The compromised MiMo key was replaced; the new key is stored only as current-user-bound Windows DPAPI ciphertext outside the repository. MiMo V2.5 TTS generation, MiMo V2.5 ASR back-check, 1080p evidence capture, subtitles, loudness mastering, codec QA, final export and publication are complete. A new live wallet signature was not required: the recording uses the already-verified dedicated-test-agent execution and redemption lifecycle, with its evidence boundary shown on screen.
 
 ## F. DoraHacks submission
 
